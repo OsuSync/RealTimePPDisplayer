@@ -35,16 +35,16 @@ namespace RealTimePPDisplayer
 
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
-            base.onInitPlugin += ()=> Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
-            base.onLoadComplete += InitPlugin;
-            base.onStopSync += StopPlugin;
+            base.EventBus.BindEvent<PluginEvents.InitPluginEvent>((e)=> Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan));
+            base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(InitPlugin);
+           // base.EventBus.BindEvent<PluginEvents. += StopPlugin;
         }
 
-        private void InitPlugin(Sync.SyncHost host)
+        private void InitPlugin(PluginEvents.LoadCompleteEvent e)
         {
             Setting.PluginInstance = this;
             Setting.LoadSetting();
-            foreach (var p in host.EnumPluings())
+            foreach (var p in e.Host.EnumPluings())
             {
                 if (p.Name == "MemoryReader")
                 {
