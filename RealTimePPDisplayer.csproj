@@ -17,7 +17,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\Sync\bin\Debug\Plugins\</OutputPath>
+    <OutputPath>bin\Debug\Plugins\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -74,6 +74,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /y $(ProjectDir)oppai.dll $(TargetDir)..\</PostBuildEvent>
+    <PostBuildEvent>copy /y $(TargetPath) $(SolutionDir)\Sync\bin\$(ConfigurationName)\Plugins
+copy /y $(ProjectDir)oppai.dll $(SolutionDir)\Sync\bin\$(ConfigurationName)</PostBuildEvent>
   </PropertyGroup>
 </Project>

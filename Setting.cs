@@ -84,7 +84,7 @@ namespace RealTimePPDisplayer
         public static void LoadSetting()
         {
             plugin_config.ForceLoad();
-            if (setting_output.DisplayHitObject == null)
+            if (setting_output.UseText == "")
             {
                 SaveSetting();
             }
