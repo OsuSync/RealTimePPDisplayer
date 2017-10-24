@@ -23,7 +23,7 @@ namespace RealTimePPDisplayer
         Thread m_pp_window_thread;
 
         BeatmapReader m_beatmap_reader;
-        MemoryReader.Mods.ModsInfo m_cur_mods=new MemoryReader.Mods.ModsInfo();
+        ModsInfo m_cur_mods=new ModsInfo();
         double m_acc = 0.0;
         int m_combo = 0;
         int m_max_combo = 0;
@@ -31,6 +31,8 @@ namespace RealTimePPDisplayer
         int m_n100=0;
         int m_n50=0;
         int m_nmiss=0;
+        int m_time = 0;
+
         OsuStatus m_status;
 
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
@@ -50,16 +52,16 @@ namespace RealTimePPDisplayer
                 {
                     MemoryReader.MemoryReader reader = p as MemoryReader.MemoryReader;
 
-                    reader.ListenerManager.OnCurrentMods += (mods) => m_cur_mods = m_status != OsuStatus.Playing ? new ModsInfo() : mods;
-                    reader.ListenerManager.OnAccuracyChanged += (acc) => m_acc = m_status != OsuStatus.Playing ? 0 : acc;
-                    reader.ListenerManager.On300HitChanged += c => m_n300 = m_status != OsuStatus.Playing ? 0 : c;
-                    reader.ListenerManager.On100HitChanged += c => m_n100 = m_status != OsuStatus.Playing ? 0 : c;
-                    reader.ListenerManager.On50HitChanged += c => m_n50 = m_status != OsuStatus.Playing ? 0 : c;
-                    reader.ListenerManager.OnMissHitChanged += c => m_nmiss = m_status != OsuStatus.Playing ? 0 : c;
+                    reader.ListenerManager.OnCurrentMods += (mods) => m_cur_mods = mods;
+                    reader.ListenerManager.OnAccuracyChanged += (acc) => m_acc = acc;
+                    reader.ListenerManager.On300HitChanged += c => m_n300 = c;
+                    reader.ListenerManager.On100HitChanged += c => m_n100 = c;
+                    reader.ListenerManager.On50HitChanged += c => m_n50 = c;
+                    reader.ListenerManager.OnMissHitChanged += c => m_nmiss = c;
                     reader.ListenerManager.OnStatusChanged += (last, cur) =>
                     {
                         m_status = cur;
-                        if (last == OsuStatus.Playing && cur == OsuStatus.Listening)
+                        if (last == OsuStatus.Playing && cur == OsuStatus.Listening)//换歌 重置变量
                         {
                             m_max_combo = 0;
                             m_n100 = 0;
@@ -86,27 +88,26 @@ namespace RealTimePPDisplayer
                     reader.ListenerManager.OnComboChanged += (combo) =>
                     {
                         if (m_status != OsuStatus.Playing) return;
-                        if (m_n300 == 0 && m_n100 == 0 && m_n50 == 0 && m_nmiss == 0) m_max_combo = 0;
-                        else m_combo = combo;
+                        m_combo = combo;
                         m_max_combo = Math.Max(m_max_combo, m_combo);
                     };
 
                     reader.ListenerManager.OnBeatmapChanged += (beatmap) =>
                     {
-                        if (beatmap.Diff == null || beatmap.Diff == "")
+                        if (string.IsNullOrWhiteSpace(beatmap.Diff))
                         {
                             m_beatmap_reader = null;
-                            m_max_combo = 0;
                             return;
                         }
 
                         string file = beatmap.LocationFile;
-                        if (file == "")
+                        if (string.IsNullOrWhiteSpace(file))
                         {
                             Sync.Tools.IO.CurrentIO.Write("[RealTimePPDisplayer]No found .osu file");
+                            m_beatmap_reader = null;
                             return;
                         }
-
+                        Sync.Tools.IO.CurrentIO.Write($"map file:{file}");
                         m_beatmap_reader = new BeatmapReader(file);
                     };
 
@@ -116,9 +117,19 @@ namespace RealTimePPDisplayer
                         if (m_beatmap_reader == null) return;
                         if (m_status != OsuStatus.Playing) return;
 
+                        if(m_time>time)//Retry 重置变量
+                        {
+                            m_max_combo = 0;
+                            m_n100 = 0;
+                            m_n50 = 0;
+                            m_nmiss = 0;
+                        }
+
                         var subb = m_beatmap_reader.SubBeatmap(time);
                         byte[] bytes = Encoding.ASCII.GetBytes(subb);
+
                         double pp = PP.Oppai.get_ppv2(bytes, (uint)bytes.Length, (uint)m_cur_mods.Mod, m_n50, m_n100, m_nmiss, m_max_combo);
+
                         if (pp > 5000.0) pp = double.NaN;
                         if (Setting.UseText)
                         {
@@ -135,6 +146,7 @@ namespace RealTimePPDisplayer
                                 m_win.hit_label.Content = $"{m_n100}x100 {m_n50}x50 {m_nmiss}xMiss";
                             });
                         }
+                        m_time = time;
                     };
                 }
             }
