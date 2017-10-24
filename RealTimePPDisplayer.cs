@@ -24,7 +24,6 @@ namespace RealTimePPDisplayer
 
         BeatmapReader m_beatmap_reader;
         ModsInfo m_cur_mods=new ModsInfo();
-        double m_acc = 0.0;
         int m_combo = 0;
         int m_max_combo = 0;
         int m_n300 = 0;
@@ -53,7 +52,6 @@ namespace RealTimePPDisplayer
                     MemoryReader.MemoryReader reader = p as MemoryReader.MemoryReader;
 
                     reader.ListenerManager.OnCurrentMods += (mods) => m_cur_mods = mods;
-                    reader.ListenerManager.OnAccuracyChanged += (acc) => m_acc = acc;
                     reader.ListenerManager.On300HitChanged += c => m_n300 = c;
                     reader.ListenerManager.On100HitChanged += c => m_n100 = c;
                     reader.ListenerManager.On50HitChanged += c => m_n50 = c;
@@ -130,7 +128,7 @@ namespace RealTimePPDisplayer
 
                         double pp = PP.Oppai.get_ppv2(bytes, (uint)bytes.Length, (uint)m_cur_mods.Mod, m_n50, m_n100, m_nmiss, m_max_combo);
 
-                        if (pp > 5000.0) pp = double.NaN;
+                        //if (pp > 5000.0) pp = double.NaN;
                         if (Setting.UseText)
                         {
                             string str = $"{pp:F2}pp";
