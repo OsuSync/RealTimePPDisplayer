@@ -45,7 +45,7 @@ namespace RealTimePPDisplayer
         private void InitPlugin(PluginEvents.LoadCompleteEvent e)
         {
             Setting.PluginInstance = this;
-            Setting.LoadSetting();
+
             foreach (var p in e.Host.EnumPluings())
             {
                 if (p.Name == "MemoryReader")
@@ -164,7 +164,6 @@ namespace RealTimePPDisplayer
             Setting.WindowHeight = (int)m_win.Height;
             Setting.WindowWidth = (int)m_win.Width;
 
-            Setting.SaveSetting();
             m_win?.Dispatcher.Invoke(() => m_win?.Close());
         }
 
