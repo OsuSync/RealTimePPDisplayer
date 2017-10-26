@@ -34,9 +34,14 @@ namespace RealTimePPDisplayer
 
         OsuStatus m_status;
 
+        public override void OnEnable()
+        {
+            base.OnEnable();
+            Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
+        }
+
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
-            base.EventBus.BindEvent<PluginEvents.InitPluginEvent>((e)=> Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan));
             base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(InitPlugin);
            // base.EventBus.BindEvent<PluginEvents. += StopPlugin;
         }
@@ -105,7 +110,9 @@ namespace RealTimePPDisplayer
                             m_beatmap_reader = null;
                             return;
                         }
-                        Sync.Tools.IO.CurrentIO.Write($"map file:{file}");
+#if DEBUG
+                        Sync.Tools.IO.CurrentIO.Write($"[RealTimePPDisplayer]File:{file}");
+#endif
                         m_beatmap_reader = new BeatmapReader(file);
                     };
 
@@ -157,17 +164,18 @@ namespace RealTimePPDisplayer
             }
         }
 
-        private void StopPlugin()
-        {
-            Setting.WindowHeight = (int)m_win.Height;
-            Setting.WindowWidth = (int)m_win.Width;
-
-            m_win?.Dispatcher.Invoke(() => m_win?.Close());
-        }
-
         private void ShowPPWindow()
         {
             m_win = new PPWindow();
+            m_win.Width = Setting.WindowWidth;
+            m_win.Height = Setting.WindowHeight;
+
+            m_win.SizeChanged += (o, e) =>
+            {
+                Setting.WindowHeight = (int)e.NewSize.Height;
+                Setting.WindowWidth = (int)e.NewSize.Width;
+            };
+
             if (!Setting.DisplayHitObject)
                 m_win.hit_label.Visibility = System.Windows.Visibility.Hidden;
 
@@ -187,10 +195,6 @@ namespace RealTimePPDisplayer
             {
                 Color = Setting.BackgroundColor
             };
-
-            m_win.Width = Setting.WindowWidth;
-            m_win.Height = Setting.WindowHeight;
-
 
             m_win.ShowDialog();
         }
