@@ -64,7 +64,7 @@ namespace RealTimePPDisplayer
                     reader.ListenerManager.OnStatusChanged += (last, cur) =>
                     {
                         m_status = cur;
-                        if (last == OsuStatus.Playing && cur == OsuStatus.Listening)//换歌 重置变量
+                        if (cur == OsuStatus.Listening)//换歌 重置变量
                         {
                             m_max_combo = 0;
                             m_n100 = 0;
