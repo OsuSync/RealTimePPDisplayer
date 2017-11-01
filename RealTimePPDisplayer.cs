@@ -44,7 +44,7 @@ namespace RealTimePPDisplayer
             {
                 for (int i=0; i < m_memory_reader.TourneyListenerManagersCount;i++)
                 {
-                    m_osu_pp_displayers[i] = new PPDisplayer(m_memory_reader.ListenerManager);
+                    m_osu_pp_displayers[i] = new PPDisplayer(m_memory_reader.TourneyListenerManagers[i]);
                 }
             }
         }
