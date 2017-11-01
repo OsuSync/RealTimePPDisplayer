@@ -18,6 +18,8 @@ namespace RealTimePPDisplayer
     {
         private static int s_counter = 0;
 
+        private int _id = 0;
+
         private OSUListenerManager m_listener_manager;
 
         private PPWindow m_win;
@@ -149,7 +151,7 @@ namespace RealTimePPDisplayer
                 m_pp_window_thread.Start();
             }
 
-            s_counter++;
+            _id=s_counter++;
         }
 
         private void ShowPPWindow()
@@ -158,7 +160,7 @@ namespace RealTimePPDisplayer
             m_win.Width = Setting.WindowWidth;
             m_win.Height = Setting.WindowHeight;
 
-            m_win.Title += $"-{s_counter}";
+            m_win.Title += $"-{_id}";
 
             m_win.SizeChanged += (o, e) =>
             {
