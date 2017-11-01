@@ -124,7 +124,7 @@ namespace RealTimePPDisplayer
 
                 double pp = PP.Oppai.get_ppv2(bytes, (uint)bytes.Length, (uint)m_cur_mods.Mod, m_n50, m_n100, m_nmiss, m_max_combo);
 
-                if (pp > 10000000.0) pp = double.NaN;
+                if (pp > 10000000.0) pp = 0.0;
 
                 if (Setting.UseText)
                 {
