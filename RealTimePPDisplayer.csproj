@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Beatmap\BeatmapObject.cs" />
     <Compile Include="Beatmap\BeatmapReader.cs" />
+    <Compile Include="PPDisplayer.cs" />
     <Compile Include="PP\Oppai.cs" />
     <Compile Include="RealTimePPDisplayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
