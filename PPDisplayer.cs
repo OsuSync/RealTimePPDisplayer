@@ -11,15 +11,12 @@ using System.Threading;
 using static MemoryReader.Listen.OSUListenerManager;
 using System.IO;
 using System.Windows.Media;
+using System.Windows;
 
 namespace RealTimePPDisplayer
 {
     class PPDisplayer
     {
-        private static int s_counter = 0;
-
-        private int _id = 0;
-
         private OSUListenerManager m_listener_manager;
 
         private PPWindow m_win;
@@ -41,7 +38,7 @@ namespace RealTimePPDisplayer
         string _filename = Path.GetFileNameWithoutExtension(Setting.TextOutputPath);
         string _ext = Path.GetExtension(Setting.TextOutputPath);
 
-        public PPDisplayer(OSUListenerManager mamger)
+        public PPDisplayer(OSUListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
 
@@ -147,21 +144,24 @@ namespace RealTimePPDisplayer
 
             if (!Setting.UseText)
             {
-                m_pp_window_thread = new Thread(ShowPPWindow);
+                m_pp_window_thread = new Thread(()=>ShowPPWindow(id));
                 m_pp_window_thread.SetApartmentState(ApartmentState.STA);
                 m_pp_window_thread.Start();
             }
-
-            _id=s_counter++;
         }
 
-        private void ShowPPWindow()
+        private void ShowPPWindow(int? id)
         {
             m_win = new PPWindow();
             m_win.Width = Setting.WindowWidth;
             m_win.Height = Setting.WindowHeight;
 
-            m_win.Title += $"-{_id}";
+            m_win.Title += $"-{id}";
+
+            m_win.client_id.Content = id?.ToString() ?? "";
+            m_win.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
+            m_win.Left = SystemParameters.PrimaryScreenWidth - m_win.Width - 50;
+            m_win.Top = 0; 
 
             m_win.SizeChanged += (o, e) =>
             {

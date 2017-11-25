@@ -4,12 +4,17 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RealTimePPDisplayer.View"
-             mc:Ignorable="d" Width="280" Height="150" WindowStyle="None" 
+             mc:Ignorable="d" Width="280" Height="172" WindowStyle="None" 
              Background="#ff00ff00" 
              MouseLeftButtonDown="Window_MouseLeftButtonDown_1"
              Title="PPShow">
     <Grid>
         <StackPanel>
+            <Label Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White" >
+                <Label.Effect>
+                    <DropShadowEffect BlurRadius="3"/>
+                </Label.Effect>
+            </Label>
             <Label Name="pp_label" Content="0.00pp" HorizontalContentAlignment="Center" 
                    VerticalContentAlignment="Center"  FontSize="48" Foreground="White" 
                    Margin="0,0,0,10" Height="93">
