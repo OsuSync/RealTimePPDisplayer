@@ -1,5 +1,6 @@
 ﻿using Sync.Plugins;
 using System;
+using System.Linq;
 
 namespace RealTimePPDisplayer
 {
@@ -27,14 +28,7 @@ namespace RealTimePPDisplayer
         {
             Setting.PluginInstance = this;
 
-            foreach (var p in e.Host.EnumPluings())
-            {
-                if (p.Name == "MemoryReader")
-                {
-                    m_memory_reader = p as MemoryReader.MemoryReader;
-                    break;
-                }
-            }
+            m_memory_reader=e.Host.EnumPluings().Where(p=>p.Name=="MemoryReader").FirstOrDefault() as MemoryReader.MemoryReader;
 
             if (m_memory_reader.TourneyListenerManagers == null)
             {

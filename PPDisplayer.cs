@@ -50,7 +50,7 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnStatusChanged += (last, cur) =>
             {
                 m_status = cur;
-                if (cur == OsuStatus.Listening)//换歌 重置变量
+                if (cur == OsuStatus.Listening)//Reset(Change Song)
                 {
                     m_max_combo = 0;
                     m_n100 = 0;
@@ -106,9 +106,10 @@ namespace RealTimePPDisplayer
             {
                 if (time < 0) return;
                 if (m_beatmap_reader == null) return;
+                if (m_cur_mods == null) return;
                 if (m_status != OsuStatus.Playing) return;
 
-                if (m_time > time)//Retry 重置变量
+                if (m_time > time)//Reset
                 {
                     m_max_combo = 0;
                     m_n100 = 0;
