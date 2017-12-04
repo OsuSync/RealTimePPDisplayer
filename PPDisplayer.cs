@@ -67,7 +67,7 @@ namespace RealTimePPDisplayer
                     {
                         m_win.Dispatcher.Invoke(() =>
                         {
-                            m_win.pp_label.Content = "";
+                            m_win.ClearPP();
                             m_win.hit_label.Content = "";
                         });
                     }
@@ -136,7 +136,7 @@ namespace RealTimePPDisplayer
                 {
                     m_win?.Dispatcher.Invoke(() =>
                     {
-                        m_win.pp_label.Content = $"{pp:F2}pp";
+                        m_win.PP = (float)pp;
                         m_win.hit_label.Content = $"{m_n100}x100 {m_n50}x50 {m_nmiss}xMiss";
                     });
                 }
