@@ -39,6 +39,7 @@ namespace RealTimePPDisplayer
         public ConfigurationElement BackgroundColor { set; get; }
         public ConfigurationElement WindowHeight { set; get; }
         public ConfigurationElement WindoWidth { set; get; }
+        public ConfigurationElement SmoothTime { get; set; }
 
         public void onConfigurationLoad()
         {
@@ -54,6 +55,7 @@ namespace RealTimePPDisplayer
                 Setting.BackgroundColor = ColorConverter.StringToColor(BackgroundColor);
                 Setting.WindowHeight = int.Parse(WindowHeight);
                 Setting.WindowWidth = int.Parse(WindoWidth);
+                Setting.SmoothTime = int.Parse(SmoothTime);
             }
             catch (Exception e)
             {
@@ -73,6 +75,7 @@ namespace RealTimePPDisplayer
             BackgroundColor = ColorConverter.ColorToString(Setting.BackgroundColor);
             WindowHeight = Setting.WindowHeight.ToString();
             WindoWidth = Setting.WindowWidth.ToString();
+            SmoothTime = Setting.SmoothTime.ToString();
         }
     }
 
@@ -88,6 +91,7 @@ namespace RealTimePPDisplayer
         public static Color BackgroundColor = ColorConverter.StringToColor("FF00FF00");
         public static int WindowWidth = 280;
         public static int WindowHeight = 150;
+        public static int SmoothTime = 200;
 
         private static SettingIni setting_output = new SettingIni();
         private static PluginConfiuration plugin_config = null;

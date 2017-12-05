@@ -1,18 +1,6 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace RealTimePPDisplayer.View
@@ -20,14 +8,16 @@ namespace RealTimePPDisplayer.View
     /// <summary>
     /// UserControl1.xaml 的交互逻辑
     /// </summary>
-    public partial class PPWindow :Window
+    public partial class PPWindow : Window
     {
-        DispatcherTimer m_timer=new DispatcherTimer();
+        private DispatcherTimer m_timer = new DispatcherTimer();
 
-        bool display_pp=false;
+        private bool display_pp = false;
 
-        public double PP {
-            set{
+        public double PP
+        {
+            set
+            {
                 if (double.IsNaN(value)) value = 0.0;
                 if (!display_pp)
                     current_pp = value;
@@ -36,20 +26,23 @@ namespace RealTimePPDisplayer.View
             }
         }
 
-        double current_pp = 0.0f;
-        double target_pp = 0.0f;
+        private double current_pp = 0.0;
+        private double target_pp = 0.0;
+        private double speed = 0.0;
+        private double smooth_time;
 
-
-        public PPWindow()
+        public PPWindow(int st)
         {
             InitializeComponent();
-            m_timer.Tick += (s, e) => 
+            this.smooth_time = st/1000.0f;
+
+            m_timer.Tick += (s, e) =>
             {
                 if (!display_pp) return;
-                current_pp = Lerp(current_pp, target_pp, 0.1f);
+                current_pp=SmoothDamp(current_pp, target_pp, ref speed, smooth_time, 0.033);
                 pp_label.Content = $"{current_pp:F}pp";
             };
-            m_timer.Interval = TimeSpan.FromMilliseconds(16);
+            m_timer.Interval = TimeSpan.FromMilliseconds(33);
             m_timer.Start();
         }
 
@@ -66,10 +59,23 @@ namespace RealTimePPDisplayer.View
             this.DragMove();
         }
 
-        private double Lerp(double a, double b, double t)
+        //From: http://devblog.aliasinggames.com/inertialdamp-unity-smoothdamp-alternative/
+        public double InertialDamp(double previousValue, Double targetValue, double smoothTime, float h)
         {
-            return a * (1-t) + t * b;
+            double x = previousValue - targetValue;
+            double newValue = x + h * (-1f / smoothTime * x);
+            return targetValue + newValue;
         }
-        
+
+        public double SmoothDamp(double previousValue, double targetValue, ref double speed, double smoothTime, double h)
+        {
+            double T1 = 0.36f * smoothTime;
+            double T2 = 0.64f * smoothTime;
+            double x = previousValue - targetValue;
+            double newSpeed = speed + h * (-1f / (T1 * T2) * x - (T1 + T2) / (T1 * T2) * speed);
+            double newValue = x + h * speed;
+            speed = newSpeed;
+            return targetValue + newValue;
+        }
     }
 }
