@@ -40,6 +40,7 @@ namespace RealTimePPDisplayer
         public ConfigurationElement WindowHeight { set; get; }
         public ConfigurationElement WindoWidth { set; get; }
         public ConfigurationElement SmoothTime { get; set; }
+        public ConfigurationElement FPS { get; set; }
 
         public void onConfigurationLoad()
         {
@@ -56,6 +57,7 @@ namespace RealTimePPDisplayer
                 Setting.WindowHeight = int.Parse(WindowHeight);
                 Setting.WindowWidth = int.Parse(WindoWidth);
                 Setting.SmoothTime = int.Parse(SmoothTime);
+                Setting.FPS = int.Parse(FPS);
             }
             catch (Exception e)
             {
@@ -76,6 +78,7 @@ namespace RealTimePPDisplayer
             WindowHeight = Setting.WindowHeight.ToString();
             WindoWidth = Setting.WindowWidth.ToString();
             SmoothTime = Setting.SmoothTime.ToString();
+            FPS = Setting.SmoothTime.ToString();
         }
     }
 
@@ -92,6 +95,7 @@ namespace RealTimePPDisplayer
         public static int WindowWidth = 280;
         public static int WindowHeight = 150;
         public static int SmoothTime = 200;
+        public static int FPS = 60;
 
         private static SettingIni setting_output = new SettingIni();
         private static PluginConfiuration plugin_config = null;

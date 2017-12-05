@@ -153,7 +153,7 @@ namespace RealTimePPDisplayer
 
         private void ShowPPWindow(int? id)
         {
-            m_win = new PPWindow(Setting.SmoothTime);
+            m_win = new PPWindow(Setting.SmoothTime,Setting.FPS);
             m_win.Width = Setting.WindowWidth;
             m_win.Height = Setting.WindowHeight;
 

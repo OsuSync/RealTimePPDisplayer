@@ -20,37 +20,39 @@ namespace RealTimePPDisplayer.View
             {
                 if (double.IsNaN(value)) value = 0.0;
                 if (!display_pp)
-                    current_pp = value;
-                target_pp = value;
+                    m_current_pp = value;
+                m_target_pp = value;
                 display_pp = true;
             }
         }
 
-        private double current_pp = 0.0;
-        private double target_pp = 0.0;
-        private double speed = 0.0;
-        private double smooth_time;
+        private double m_current_pp = 0.0;
+        private double m_target_pp = 0.0;
+        private double m_speed = 0.0;
+        private double m_smooth_time;
+        private double m_intertime = 0.033;
 
-        public PPWindow(int st)
+        public PPWindow(int st,int fps)
         {
             InitializeComponent();
-            this.smooth_time = st/1000.0f;
+            m_smooth_time = st/1000.0f;
+            m_intertime = 1.0/fps;
 
             m_timer.Tick += (s, e) =>
             {
                 if (!display_pp) return;
-                current_pp=SmoothDamp(current_pp, target_pp, ref speed, smooth_time, 0.033);
-                pp_label.Content = $"{current_pp:F}pp";
+                m_current_pp=SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, m_intertime);
+                pp_label.Content = $"{m_current_pp:F}pp";
             };
-            m_timer.Interval = TimeSpan.FromMilliseconds(33);
+            m_timer.Interval = TimeSpan.FromSeconds(m_intertime);
             m_timer.Start();
         }
 
         public void ClearPP()
         {
             display_pp = false;
-            current_pp = 0.0f;
-            target_pp = 0.0f;
+            m_current_pp = 0.0f;
+            m_target_pp = 0.0f;
             pp_label.Content = "";
         }
 
