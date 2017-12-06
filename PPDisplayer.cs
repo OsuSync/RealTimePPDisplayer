@@ -107,6 +107,7 @@ namespace RealTimePPDisplayer
                 if (time < 0) return;
                 if (m_beatmap_reader == null) return;
                 if (m_status != OsuStatus.Playing) return;
+                if (m_cur_mods == ModsInfo.Mods.Unknown) return;
 
                 if (m_time > time)//Reset
                 {
