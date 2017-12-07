@@ -117,10 +117,9 @@ namespace RealTimePPDisplayer
                     m_nmiss = 0;
                 }
 
-                var subb = m_beatmap_reader.SubBeatmap(time);
-                byte[] bytes = Encoding.ASCII.GetBytes(subb);
-
-                double pp = PP.Oppai.get_ppv2(bytes, (uint)bytes.Length, (uint)m_cur_mods.Mod, m_n50, m_n100, m_nmiss, m_max_combo);
+                int pos = m_beatmap_reader.GetPosition(time);
+                
+                double pp = PP.Oppai.get_ppv2(m_beatmap_reader.BeatmapRaw, (uint)pos, (uint)m_cur_mods.Mod, m_n50, m_n100, m_nmiss, m_max_combo);
 
                 if (pp > 10000000.0) pp = 0.0;
 

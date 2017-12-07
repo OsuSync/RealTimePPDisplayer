@@ -10,7 +10,11 @@ namespace RealTimePPDisplayer.Beatmap
     class BeatmapReader
     {
         private string m_beatmap_header;
+        private byte[] m_beatmap_raw;
         private List<BeatmapObject> m_object_list = new List<BeatmapObject>();
+
+        public byte[] BeatmapRaw => m_beatmap_raw;
+        
 
         public BeatmapReader(string file)
         {
@@ -18,6 +22,9 @@ namespace RealTimePPDisplayer.Beatmap
             {
                 using (var reader = new StreamReader(fs))
                 {
+                    m_beatmap_raw=Encoding.ASCII.GetBytes(reader.ReadToEnd());
+                    fs.Position = 0;
+
                     Parser(reader);
                 }
             }
@@ -71,7 +78,6 @@ namespace RealTimePPDisplayer.Beatmap
                 builder.AppendLine(tmp);
                 if(tmp=="")
                 {
-                    builder.AppendLine(tmp);
                     continue;
                 }
 
@@ -97,17 +103,16 @@ namespace RealTimePPDisplayer.Beatmap
             m_beatmap_header = builder.ToString();
         }
 
-        public string SubBeatmap(int end_time)
+        public int GetPosition(int end_time)
         {
-            StringBuilder builder = new StringBuilder();
-            builder.Append(m_beatmap_header);
+            int pos = m_beatmap_header.Length;
             foreach(var obj in m_object_list)
             {
                 if (obj.Time > end_time) break;
-                builder.AppendLine(obj.ObjectStr);
+                pos+=(obj.ObjectStr.Length+2);
             }
 
-            return builder.ToString();
+            return pos;
         }
     }
 }
