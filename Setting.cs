@@ -94,7 +94,7 @@ namespace RealTimePPDisplayer
         public static Color HitObjectFontColor = Colors.White;
         public static Color BackgroundColor = ColorConverter.StringToColor("FF00FF00");
         public static int WindowWidth = 280;
-        public static int WindowHeight = 150;
+        public static int WindowHeight = 172;
         public static int SmoothTime = 200;
         public static int FPS = 60;
 
