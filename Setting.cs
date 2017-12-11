@@ -1,4 +1,5 @@
-﻿using Sync.Tools;
+﻿using MemoryReader.Handler;
+using Sync.Tools;
 using System;
 using System.Windows.Media;
 
@@ -106,6 +107,11 @@ namespace RealTimePPDisplayer
             {
                 plugin_config = new PluginConfiuration(value, setting_output);
             }
+        }
+
+        static Setting()
+        {
+            ExitHandler.OnConsloeExit += () => plugin_config?.ForceSave();
         }
     }
 }
