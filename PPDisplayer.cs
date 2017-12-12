@@ -121,7 +121,7 @@ namespace RealTimePPDisplayer
                 
                 double pp = PP.Oppai.get_ppv2(m_beatmap_reader.BeatmapRaw, (uint)pos, (uint)m_cur_mods.Mod, m_n50, m_n100, m_nmiss, m_max_combo);
 
-                if (pp > 10000000.0) pp = 0.0;
+                if (pp > 100000.0) pp = 0.0;
 
                 if (Setting.UseText)
                 {
@@ -135,7 +135,7 @@ namespace RealTimePPDisplayer
                 {
                     m_win?.Dispatcher.Invoke(() =>
                     {
-                        m_win.PP = (float)pp;
+                        m_win.PP = pp;
                         m_win.hit_label.Content = $"{m_n100}x100 {m_n50}x50 {m_nmiss}xMiss";
                     });
                 }
