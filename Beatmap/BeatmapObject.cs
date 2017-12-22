@@ -8,14 +8,17 @@ namespace RealTimePPDisplayer.Beatmap
 {
     public class BeatmapObject
     {
+        public int Offset { get; set; }
+        public int Length { get; set; }
         public int Time { get; set; }
-        public string ObjectStr { get; set; }
 
-        public BeatmapObject(string line)
+        public BeatmapObject(string line,int offset,int len)
         {
+            Offset = offset;
+            Length = len;
+
             string[] t = line.Split(',');
             Time = int.Parse(t[2]);
-            ObjectStr = line;
         }
     }
 }

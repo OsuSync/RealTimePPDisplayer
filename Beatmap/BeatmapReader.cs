@@ -9,7 +9,15 @@ namespace RealTimePPDisplayer.Beatmap
 {
     class BeatmapReader
     {
-        private string m_beatmap_header;
+        struct BeatmapHeader
+        {
+            public int Offset;
+            public int Length;
+        }
+
+        private BeatmapHeader m_beatmap_header;
+        private int _position = 0;
+
         private byte[] m_beatmap_raw;
         private List<BeatmapObject> m_object_list = new List<BeatmapObject>();
 
@@ -18,89 +26,49 @@ namespace RealTimePPDisplayer.Beatmap
 
         public BeatmapReader(string file)
         {
+            m_beatmap_header.Offset = 0;
+            m_beatmap_header.Length = 0;
+
             using (var fs = File.OpenRead(file))
             {
                 using (var reader = new StreamReader(fs))
                 {
-                    m_beatmap_raw=Encoding.ASCII.GetBytes(reader.ReadToEnd());
-                    fs.Position = 0;
-
-                    Parser(reader);
+                    m_beatmap_raw=Encoding.UTF8.GetBytes(reader.ReadToEnd());
                 }
             }
-
+            Parser();
         }
 
-        private string ReadToken(string t)
+        void ReadLine(out int offset,out int length)
         {
-            return t.Replace("[", "").Replace("]", "");
-        }
-
-        private string ReadBlock(StreamReader reader)
-        {
-            StringBuilder builder = new StringBuilder();
-            string tmp = "";
-            do
+            int count = 0;
+            while((_position+count)<m_beatmap_raw.Length)
             {
-                tmp = reader.ReadLine();
-                builder.AppendLine(tmp);
-            } while (tmp != "");
-            return builder.ToString();
+                if (m_beatmap_raw[_position + count] == '\n')
+                {
+                    count++;
+                    break;
+                };
+                count++;
+            }
+            length = count;
+            offset = _position;
+            _position = offset + count;
         }
 
-        private void ReaderObject(StreamReader reader)
+        public void Parser()
         {
-            string tmp = "";
-            do
+            int len=Array.LastIndexOf<byte>(m_beatmap_raw,(byte)']');
+            m_beatmap_header.Length = len+3;
+            _position = m_beatmap_header.Length;
+
+            while(_position<m_beatmap_raw.Length)
             {
-                tmp = reader.ReadLine();
-                if (tmp != "")
-                {
-                    var bobj = new BeatmapObject(tmp);
-                    m_object_list.Add(bobj);
-                }
-            } while (tmp != ""&&!reader.EndOfStream);
-        }
-
-        public void Parser(StreamReader reader)
-        {
-            StringBuilder builder = new StringBuilder();
-            string tmp = "";
-            //Load Version
-            builder.AppendLine(reader.ReadLine());
-            builder.AppendLine(reader.ReadLine());
-
-            //Load General
-            do
-            {
-                string token = "";
-                tmp = reader.ReadLine();
-                builder.AppendLine(tmp);
-                if(tmp=="")
-                {
-                    continue;
-                }
-
-                if (tmp[0] == '[')
-                    token = ReadToken(tmp);
-
-                switch (token)
-                {
-                    case "General":
-                    case "Editor":
-                    case "Metadata":
-                    case "Difficulty":
-                    case "Events":
-                    case "Colours":
-                        builder.Append(ReadBlock(reader));
-                        break;
-                    case "HitObjects":
-                        ReaderObject(reader);
-                        break;
-                }
-
-            } while (!reader.EndOfStream);
-            m_beatmap_header = builder.ToString();
+                ReadLine(out int offset, out int length);
+                string line = Encoding.UTF8.GetString(m_beatmap_raw, offset, length);
+                var obj = new BeatmapObject(line, offset, length);
+                m_object_list.Add(obj);
+            }
         }
 
         public int GetPosition(int end_time)
@@ -109,7 +77,7 @@ namespace RealTimePPDisplayer.Beatmap
             foreach(var obj in m_object_list)
             {
                 if (obj.Time > end_time) break;
-                pos+=(obj.ObjectStr.Length+2);
+                pos+=(obj.Length);
             }
 
             return pos;
