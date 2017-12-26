@@ -1,4 +1,5 @@
-﻿using Sync.Plugins;
+﻿using OsuRTDataProvider;
+using Sync.Plugins;
 using System;
 using System.Linq;
 
@@ -9,7 +10,7 @@ namespace RealTimePPDisplayer
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
 
-        private MemoryReader.MemoryReader m_memory_reader;
+        private OsuRTDataProvider.OsuRTDataProviderPlugin m_memory_reader;
 
         private PPDisplayer[] m_osu_pp_displayers = new PPDisplayer[16];
 
@@ -24,11 +25,15 @@ namespace RealTimePPDisplayer
             base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(InitPlugin);
         }
 
+        private bool _is_inited = false;
+
         private void InitPlugin(PluginEvents.LoadCompleteEvent e)
         {
+            if (_is_inited) return;
+
             Setting.PluginInstance = this;
 
-            m_memory_reader=e.Host.EnumPluings().Where(p=>p.Name=="MemoryReader").FirstOrDefault() as MemoryReader.MemoryReader;
+            m_memory_reader=e.Host.EnumPluings().Where(p=>p.Name== "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
 
             if (m_memory_reader.TourneyListenerManagers == null)
             {
@@ -41,6 +46,7 @@ namespace RealTimePPDisplayer
                     m_osu_pp_displayers[i] = new PPDisplayer(m_memory_reader.TourneyListenerManagers[i],i);
                 }
             }
+            _is_inited = true;
         }
     }
 }

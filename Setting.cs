@@ -1,4 +1,4 @@
-﻿using MemoryReader.Handler;
+﻿using OsuRTDataProvider.Handler;
 using Sync.Tools;
 using System;
 using System.Windows.Media;
@@ -79,7 +79,7 @@ namespace RealTimePPDisplayer
             WindowHeight = Setting.WindowHeight.ToString();
             WindoWidth = Setting.WindowWidth.ToString();
             SmoothTime = Setting.SmoothTime.ToString();
-            FPS = Setting.SmoothTime.ToString();
+            FPS = Setting.FPS.ToString();
         }
     }
 

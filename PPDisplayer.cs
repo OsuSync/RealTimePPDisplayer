@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MemoryReader.Listen;
+using OsuRTDataProvider.Listen;
 using RealTimePPDisplayer.View;
-using MemoryReader.Mods;
+using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using System.Threading;
-using static MemoryReader.Listen.OSUListenerManager;
+using static OsuRTDataProvider.Listen.OsuListenerManager;
 using System.IO;
 using System.Windows.Media;
 using System.Windows;
@@ -17,7 +17,7 @@ namespace RealTimePPDisplayer
 {
     class PPDisplayer
     {
-        private OSUListenerManager m_listener_manager;
+        private OsuListenerManager m_listener_manager;
 
         private PPWindow m_win;
         private Thread m_pp_window_thread;
@@ -38,7 +38,7 @@ namespace RealTimePPDisplayer
         string _filename = Path.GetFileNameWithoutExtension(Setting.TextOutputPath);
         string _ext = Path.GetExtension(Setting.TextOutputPath);
 
-        public PPDisplayer(OSUListenerManager mamger,int? id)
+        public PPDisplayer(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
 

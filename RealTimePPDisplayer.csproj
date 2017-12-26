@@ -62,9 +62,9 @@
       <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
       <Name>Sync</Name>
     </ProjectReference>
-    <ProjectReference Include="..\MemoryReader\MemoryReader.csproj">
+    <ProjectReference Include="..\MemoryReader\OsuRTDataProvider.csproj">
       <Project>{d518dc59-cc9a-4886-839f-7691d5efae56}</Project>
-      <Name>MemoryReader</Name>
+      <Name>OsuRTDataProvider</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
