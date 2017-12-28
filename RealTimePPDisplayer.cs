@@ -26,27 +26,31 @@ namespace RealTimePPDisplayer
         }
 
         private bool _is_inited = false;
+        private object _mtx = new object();
 
         private void InitPlugin(PluginEvents.LoadCompleteEvent e)
         {
-            if (_is_inited) return;
-
-            Setting.PluginInstance = this;
-
-            m_memory_reader=e.Host.EnumPluings().Where(p=>p.Name== "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
-
-            if (m_memory_reader.TourneyListenerManagers == null)
+            lock (_mtx)
             {
-                m_osu_pp_displayers[0] = new PPDisplayer(m_memory_reader.ListenerManager,null);
-            }
-            else
-            {
-                for (int i=0; i < m_memory_reader.TourneyListenerManagersCount;i++)
+                if (_is_inited) return;
+
+                Setting.PluginInstance = this;
+
+                m_memory_reader = e.Host.EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
+
+                if (m_memory_reader.TourneyListenerManagers == null)
                 {
-                    m_osu_pp_displayers[i] = new PPDisplayer(m_memory_reader.TourneyListenerManagers[i],i);
+                    m_osu_pp_displayers[0] = new PPDisplayer(m_memory_reader.ListenerManager, null);
                 }
+                else
+                {
+                    for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
+                    {
+                        m_osu_pp_displayers[i] = new PPDisplayer(m_memory_reader.TourneyListenerManagers[i], i);
+                    }
+                }
+                _is_inited = true;
             }
-            _is_inited = true;
         }
     }
 }
