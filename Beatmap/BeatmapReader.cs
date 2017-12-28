@@ -59,7 +59,10 @@ namespace RealTimePPDisplayer.Beatmap
         public void Parser()
         {
             int len=Array.LastIndexOf<byte>(m_beatmap_raw,(byte)']');
-            m_beatmap_header.Length = len+3;
+            if(m_beatmap_raw[len+1]=='\n')
+                m_beatmap_header.Length = len + 2;
+            else
+                m_beatmap_header.Length = len+3;
             _position = m_beatmap_header.Length;
 
             while(_position<m_beatmap_raw.Length)
