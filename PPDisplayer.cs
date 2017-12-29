@@ -156,7 +156,8 @@ namespace RealTimePPDisplayer
             m_win.Width = Setting.WindowWidth;
             m_win.Height = Setting.WindowHeight;
 
-            m_win.Title += $"-{id}";
+            if(id!=null)
+                m_win.Title += $"{id}";
 
             m_win.client_id.Content = id?.ToString() ?? "";
             m_win.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
