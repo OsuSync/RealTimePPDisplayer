@@ -43,6 +43,7 @@ namespace RealTimePPDisplayer
         public ConfigurationElement SmoothTime { get; set; }
         public ConfigurationElement FPS { get; set; }
         public ConfigurationElement Topmost { get; set; }
+        public ConfigurationElement WindowTextShadow { get; set; }
 
         public void onConfigurationLoad()
         {
@@ -61,6 +62,7 @@ namespace RealTimePPDisplayer
                 Setting.SmoothTime = int.Parse(SmoothTime);
                 Setting.FPS = int.Parse(FPS);
                 Setting.Topmost = bool.Parse(Topmost);
+                Setting.WindowTextShadow = bool.Parse(WindowTextShadow);
             }
             catch (Exception e)
             {
@@ -83,6 +85,7 @@ namespace RealTimePPDisplayer
             SmoothTime = Setting.SmoothTime.ToString();
             FPS = Setting.FPS.ToString();
             Topmost = Setting.Topmost.ToString();
+            WindowTextShadow = Setting.WindowTextShadow.ToString();
         }
     }
 
@@ -101,6 +104,7 @@ namespace RealTimePPDisplayer
         public static int SmoothTime = 200;
         public static int FPS = 60;
         public static bool Topmost = true;
+        public static bool WindowTextShadow = true;
 
         private static SettingIni setting_output = new SettingIni();
         private static PluginConfiuration plugin_config = null;

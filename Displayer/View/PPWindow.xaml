@@ -15,25 +15,14 @@
                     <MenuItem Name="topmost_item" Header="Topmost" IsCheckable="True" Click="TopmostItem_Click"/>
                 </ContextMenu>
             </StackPanel.ContextMenu>
-            <Label Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White">
-                <Label.Effect>
-                    <DropShadowEffect BlurRadius="3" />
-                </Label.Effect>
-            </Label>
+            <Label Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White"/>
             <Label Name="pp_label" Content="0.00pp" HorizontalContentAlignment="Center"
                    VerticalContentAlignment="Center"  FontSize="48" Foreground="White"
-                   Margin="0,0,0,10" Height="93">
-                <Label.Effect>
-                    <DropShadowEffect BlurRadius="4" />
-                </Label.Effect>
-            </Label>
+                   Margin="0,0,0,10" Height="93"/>
             <Label Name="hit_label" Content="0x100 0x50 0xMiss"
                    VerticalAlignment="Bottom" FontSize="24" Foreground="White"
-                   VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-                <Label.Effect>
-                    <DropShadowEffect BlurRadius="3" />
-                </Label.Effect>
-            </Label>
+                   VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+
         </StackPanel>
     </Grid>
 </Window>

@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Threading;
 
 namespace RealTimePPDisplayer.Displayer.View
@@ -73,6 +74,18 @@ namespace RealTimePPDisplayer.Displayer.View
             {
                 Color = Setting.BackgroundColor
             };
+
+            //Text Shadow
+            if (Setting.WindowTextShadow)
+            {
+                pp_label.Effect = new DropShadowEffect() { BlurRadius = 5 };
+                hit_label.Effect = new DropShadowEffect() { BlurRadius = 4 };
+                client_id.Effect = new DropShadowEffect() { BlurRadius = 3 };
+            }
+
+            //Transparency
+            if (Setting.BackgroundColor.A != 255)
+                AllowsTransparency = true;
 
             topmost_item.IsChecked = Setting.Topmost;
             topmost_item.Header = (string)DefaultLanguage.UI_MENU_TOPMOST;
