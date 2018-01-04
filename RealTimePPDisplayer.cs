@@ -12,7 +12,7 @@ namespace RealTimePPDisplayer
 
         private OsuRTDataProvider.OsuRTDataProviderPlugin m_memory_reader;
 
-        private PPDisplayer[] m_osu_pp_displayers = new PPDisplayer[16];
+        private PPControl[] m_osu_pp_displayers = new PPControl[16];
 
         public override void OnEnable()
         {
@@ -40,13 +40,13 @@ namespace RealTimePPDisplayer
 
                 if (m_memory_reader.TourneyListenerManagers == null)
                 {
-                    m_osu_pp_displayers[0] = new PPDisplayer(m_memory_reader.ListenerManager, null);
+                    m_osu_pp_displayers[0] = new PPControl(m_memory_reader.ListenerManager, null);
                 }
                 else
                 {
                     for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
                     {
-                        m_osu_pp_displayers[i] = new PPDisplayer(m_memory_reader.TourneyListenerManagers[i], i);
+                        m_osu_pp_displayers[i] = new PPControl(m_memory_reader.TourneyListenerManagers[i], i);
                     }
                 }
                 _is_inited = true;

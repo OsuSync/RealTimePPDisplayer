@@ -12,15 +12,14 @@ using static OsuRTDataProvider.Listen.OsuListenerManager;
 using System.IO;
 using System.Windows.Media;
 using System.Windows;
+using RealTimePPDisplayer.Displayer;
 
 namespace RealTimePPDisplayer
 {
-    class PPDisplayer
+    class PPControl
     {
         private OsuListenerManager m_listener_manager;
-
-        private PPWindow m_win;
-        private Thread m_pp_window_thread;
+        private IDisplayer m_displayer;
 
         private BeatmapReader m_beatmap_reader;
         private ModsInfo m_cur_mods = new ModsInfo();
@@ -35,12 +34,17 @@ namespace RealTimePPDisplayer
         private int m_nmiss = 0;
         private int m_time = 0;
 
+        string _path = Path.GetDirectoryName(Setting.TextOutputPath);
         string _filename = Path.GetFileNameWithoutExtension(Setting.TextOutputPath);
         string _ext = Path.GetExtension(Setting.TextOutputPath);
 
-        public PPDisplayer(OsuListenerManager mamger,int? id)
+        public PPControl(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
+            if (Setting.UseText)
+                m_displayer = new TextDisplayer(id!=null?$"{_path}\\{_filename}-{id}{_ext}": $"{_path}\\{_filename}{_ext}");
+            else
+                m_displayer = new WpfDisplayer(id);
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
             m_listener_manager.On300HitChanged += c => m_n300 = c;
@@ -56,21 +60,7 @@ namespace RealTimePPDisplayer
                     m_n100 = 0;
                     m_n50 = 0;
                     m_nmiss = 0;
-                    if (Setting.UseText)
-                    {
-                        string str = "";
-                        if (Setting.DisplayHitObject)
-                            str += "";
-                        File.WriteAllText(Setting.TextOutputPath, str);
-                    }
-                    else
-                    {
-                        m_win.Dispatcher.Invoke(() =>
-                        {
-                            m_win.ClearPP();
-                            m_win.hit_label.Content = "";
-                        });
-                    }
+                    m_displayer.Clear();
                 }
             };
 
@@ -123,74 +113,10 @@ namespace RealTimePPDisplayer
 
                 if (pp > 100000.0) pp = 0.0;
 
-                if (Setting.UseText)
-                {
-                    string str = $"{pp:F2}pp";
-                    if (Setting.DisplayHitObject)
-                        str += $"\n{m_n100}x100 {m_n50}x50 {m_nmiss}xMiss";
+                m_displayer.Display(pp,m_n300,m_n100,m_n50,m_nmiss);
 
-                    File.WriteAllText($"{_filename}-0{_ext}", str);
-                }
-                else
-                {
-                    m_win?.Dispatcher.Invoke(() =>
-                    {
-                        m_win.PP = pp;
-                        m_win.hit_label.Content = $"{m_n100}x100 {m_n50}x50 {m_nmiss}xMiss";
-                    });
-                }
                 m_time = time;
             };
-
-            if (!Setting.UseText)
-            {
-                m_pp_window_thread = new Thread(()=>ShowPPWindow(id));
-                m_pp_window_thread.SetApartmentState(ApartmentState.STA);
-                m_pp_window_thread.Start();
-            }
-        }
-
-        private void ShowPPWindow(int? id)
-        {
-            m_win = new PPWindow(Setting.SmoothTime,Setting.FPS);
-            m_win.Width = Setting.WindowWidth;
-            m_win.Height = Setting.WindowHeight;
-
-            if(id!=null)
-                m_win.Title += $"{id}";
-
-            m_win.client_id.Content = id?.ToString() ?? "";
-            m_win.WindowStartupLocation = System.Windows.WindowStartupLocation.Manual;
-            m_win.Left = SystemParameters.PrimaryScreenWidth - m_win.Width - 50;
-            m_win.Top = 0; 
-
-            m_win.SizeChanged += (o, e) =>
-            {
-                Setting.WindowHeight = (int)e.NewSize.Height;
-                Setting.WindowWidth = (int)e.NewSize.Width;
-            };
-
-            if (!Setting.DisplayHitObject)
-                m_win.hit_label.Visibility = System.Windows.Visibility.Hidden;
-
-            m_win.pp_label.Foreground = new SolidColorBrush()
-            {
-                Color = Setting.PPFontColor
-            };
-            m_win.pp_label.FontSize = Setting.PPFontSize;
-
-            m_win.hit_label.Foreground = new SolidColorBrush()
-            {
-                Color = Setting.HitObjectFontColor
-            };
-            m_win.hit_label.FontSize = Setting.HitObjectFontSize;
-
-            m_win.Background = new SolidColorBrush()
-            {
-                Color = Setting.BackgroundColor
-            };
-
-            m_win.ShowDialog();
         }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace RealTimePPDisplayer.View
@@ -38,14 +41,49 @@ namespace RealTimePPDisplayer.View
             m_smooth_time = st/1000.0f;
             m_intertime = 1.0/fps;
 
-            m_timer.Tick += (s, e) =>
-            {
-                if (!display_pp) return;
-                m_current_pp=SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, m_intertime);
-                pp_label.Content = $"{m_current_pp:F}pp";
-            };
+            MouseLeftButtonDown += (s,e) => DragMove();
+ 
+            m_timer.Tick += UpdatePP;
             m_timer.Interval = TimeSpan.FromSeconds(m_intertime);
             m_timer.Start();
+
+            Width = Setting.WindowWidth;
+            Height = Setting.WindowHeight;
+
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            Left = SystemParameters.PrimaryScreenWidth - Width - 50;
+            Top = 0;
+
+            //Hit Label
+            hit_label.FontSize = Setting.HitObjectFontSize;
+            hit_label.Visibility = Setting.DisplayHitObject?Visibility.Visible:Visibility.Hidden;
+            hit_label.Foreground = new SolidColorBrush()
+            {
+                Color = Setting.HitObjectFontColor
+            };
+
+            //PP Label
+            pp_label.FontSize = Setting.PPFontSize;
+            pp_label.Foreground = new SolidColorBrush()
+            {
+                Color = Setting.PPFontColor
+            };
+
+            Background = new SolidColorBrush()
+            {
+                Color = Setting.BackgroundColor
+            };
+
+            topmost_item.IsChecked = Setting.Topmost;
+            Topmost = Setting.Topmost;
+        }
+
+        #region Show PP
+        private void UpdatePP(object sender,EventArgs e)
+        {
+            if (!display_pp) return;
+            m_current_pp = SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, m_intertime);
+            pp_label.Content = $"{m_current_pp:F}pp";
         }
 
         public void ClearPP()
@@ -55,21 +93,10 @@ namespace RealTimePPDisplayer.View
             m_target_pp = 0.0f;
             pp_label.Content = "";
         }
-
-        private void Window_MouseLeftButtonDown_1(object sender, MouseButtonEventArgs e)
-        {
-            this.DragMove();
-        }
+        #endregion
 
         //From: http://devblog.aliasinggames.com/inertialdamp-unity-smoothdamp-alternative/
-        public double InertialDamp(double previousValue, Double targetValue, double smoothTime, float h)
-        {
-            double x = previousValue - targetValue;
-            double newValue = x + h * (-1f / smoothTime * x);
-            return targetValue + newValue;
-        }
-
-        public double SmoothDamp(double previousValue, double targetValue, ref double speed, double smoothTime, double h)
+        private double SmoothDamp(double previousValue, double targetValue, ref double speed, double smoothTime, double h)
         {
             double T1 = 0.36f * smoothTime;
             double T2 = 0.64f * smoothTime;
@@ -78,6 +105,19 @@ namespace RealTimePPDisplayer.View
             double newValue = x + h * speed;
             speed = newSpeed;
             return targetValue + newValue;
+        }
+
+
+        private void WindowSizeChanged(object sender,SizeChangedEventArgs e)
+        {
+            Setting.WindowHeight = (int)e.NewSize.Height;
+            Setting.WindowWidth = (int)e.NewSize.Width;
+        }
+
+        private void TopmostItem_Click(object sender, RoutedEventArgs e)
+        {
+            Topmost = topmost_item.IsChecked;
+            Setting.Topmost = Topmost;
         }
     }
 }
