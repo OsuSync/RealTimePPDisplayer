@@ -39,7 +39,7 @@ namespace RealTimePPDisplayer
         public ConfigurationElement HitObjectFontColor { set; get; }
         public ConfigurationElement BackgroundColor { set; get; }
         public ConfigurationElement WindowHeight { set; get; }
-        public ConfigurationElement WindoWidth { set; get; }
+        public ConfigurationElement WindowWidth { set; get; }
         public ConfigurationElement SmoothTime { get; set; }
         public ConfigurationElement FPS { get; set; }
         public ConfigurationElement Topmost { get; set; }
@@ -57,7 +57,7 @@ namespace RealTimePPDisplayer
                 Setting.HitObjectFontColor = ColorConverter.StringToColor(HitObjectFontColor);
                 Setting.BackgroundColor = ColorConverter.StringToColor(BackgroundColor);
                 Setting.WindowHeight = int.Parse(WindowHeight);
-                Setting.WindowWidth = int.Parse(WindoWidth);
+                Setting.WindowWidth = int.Parse(WindowWidth);
                 Setting.SmoothTime = int.Parse(SmoothTime);
                 Setting.FPS = int.Parse(FPS);
                 Setting.Topmost = bool.Parse(Topmost);
@@ -79,7 +79,7 @@ namespace RealTimePPDisplayer
             HitObjectFontColor = ColorConverter.ColorToString(Setting.HitObjectFontColor);
             BackgroundColor = ColorConverter.ColorToString(Setting.BackgroundColor);
             WindowHeight = Setting.WindowHeight.ToString();
-            WindoWidth = Setting.WindowWidth.ToString();
+            WindowWidth = Setting.WindowWidth.ToString();
             SmoothTime = Setting.SmoothTime.ToString();
             FPS = Setting.FPS.ToString();
             Topmost = Setting.Topmost.ToString();
