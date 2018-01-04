@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OsuRTDataProvider.Listen;
-using RealTimePPDisplayer.View;
+using RealTimePPDisplayer.Displayer.View;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using System.Threading;

@@ -1,4 +1,4 @@
-﻿using RealTimePPDisplayer.View;
+﻿using RealTimePPDisplayer.Displayer.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;

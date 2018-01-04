@@ -6,7 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace RealTimePPDisplayer.View
+namespace RealTimePPDisplayer.Displayer.View
 {
     /// <summary>
     /// UserControl1.xaml 的交互逻辑
@@ -75,6 +75,7 @@ namespace RealTimePPDisplayer.View
             };
 
             topmost_item.IsChecked = Setting.Topmost;
+            topmost_item.Header = (string)DefaultLanguage.UI_MENU_TOPMOST;
             Topmost = Setting.Topmost;
         }
 

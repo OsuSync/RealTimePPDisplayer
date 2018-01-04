@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Beatmap\BeatmapObject.cs" />
     <Compile Include="Beatmap\BeatmapReader.cs" />
+    <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Displayer\IDisplayer.cs" />
     <Compile Include="Displayer\TextDisplayer.cs" />
     <Compile Include="Displayer\WpfDisplayer.cs" />
@@ -56,7 +57,7 @@
     <Compile Include="RealTimePPDisplayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Setting.cs" />
-    <Compile Include="View\PPWindow.xaml.cs">
+    <Compile Include="Displayer\View\PPWindow.xaml.cs">
       <DependentUpon>PPWindow.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
@@ -71,7 +72,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="View\PPWindow.xaml">
+    <Page Include="Displayer\View\PPWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

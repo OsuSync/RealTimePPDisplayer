@@ -1,5 +1,6 @@
 ﻿using OsuRTDataProvider;
 using Sync.Plugins;
+using Sync.Tools;
 using System;
 using System.Linq;
 
@@ -22,6 +23,7 @@ namespace RealTimePPDisplayer
 
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
+            I18n.Instance.ApplyLanguage(new DefaultLanguage());
             base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(InitPlugin);
         }
 
