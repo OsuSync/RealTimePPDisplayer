@@ -13,7 +13,10 @@ namespace RealTimePPDisplayer.Displayer
 
         public TextDisplayer(string filename)
         {
-            m_filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+            if (Path.IsPathRooted(filename))
+                m_filename = filename;
+            else
+                m_filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
         }
 
         public void Clear()
