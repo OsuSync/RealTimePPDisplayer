@@ -34,15 +34,11 @@ namespace RealTimePPDisplayer
         private int m_nmiss = 0;
         private int m_time = 0;
 
-        string _path = Path.GetDirectoryName(Setting.TextOutputPath);
-        string _filename = Path.GetFileNameWithoutExtension(Setting.TextOutputPath);
-        string _ext = Path.GetExtension(Setting.TextOutputPath);
-
         public PPControl(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
             if (Setting.UseText)
-                m_displayer = new TextDisplayer(id!=null?$"{_path}\\{_filename}-{id}{_ext}": $"{_path}\\{_filename}{_ext}");
+                m_displayer = new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()));
             else
                 m_displayer = new WpfDisplayer(id);
 
