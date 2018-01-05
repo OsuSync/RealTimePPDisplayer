@@ -92,7 +92,7 @@ namespace RealTimePPDisplayer
     internal static class Setting
     {
         public static bool UseText = false;
-        public static string TextOutputPath = @"..\rtpp.txt";
+        public static string TextOutputPath = @"rtpp{0}.txt";
         public static bool DisplayHitObject = true;
         public static int PPFontSize = 48;
         public static Color PPFontColor = Colors.White;

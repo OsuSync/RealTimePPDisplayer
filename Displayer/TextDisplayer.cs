@@ -13,15 +13,12 @@ namespace RealTimePPDisplayer.Displayer
 
         public TextDisplayer(string filename)
         {
-            m_filename = filename;
+            m_filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
         }
 
         public void Clear()
         {
-            string str = "";
-            if (Setting.DisplayHitObject)
-                str += "";
-            File.WriteAllText(Setting.TextOutputPath, str);
+            File.WriteAllText(m_filename, string.Empty);
         }
 
         public void Display(double pp, int n300, int n100, int n50, int nmiss)
