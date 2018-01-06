@@ -50,6 +50,7 @@
     <Compile Include="Beatmap\BeatmapReader.cs" />
     <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Displayer\IDisplayer.cs" />
+    <Compile Include="Displayer\ObsDisplayer.cs" />
     <Compile Include="Displayer\TextDisplayer.cs" />
     <Compile Include="Displayer\WpfDisplayer.cs" />
     <Compile Include="PPControl.cs" />
