@@ -7,18 +7,20 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Displayer
 {
-    class ObsDisplayer : IDisplayer
+    class MmfDisplayer : IDisplayer
     {
+        private string m_mmf_name;
         private MemoryMappedFile m_mmf;
         private StringBuilder m_str_builder = new StringBuilder(1024);
         private byte[] m_str_buffer = new byte[1024];
 
-        public ObsDisplayer(int? id)
+        public MmfDisplayer(int? id)
         {
-            m_mmf = MemoryMappedFile.CreateOrOpen(id==null?"rtpp":$"rtpp{id}", 1024);
+            m_mmf_name = id == null ? "rtpp" : $"rtpp{id}";
+            m_mmf = MemoryMappedFile.CreateOrOpen(m_mmf_name, 1024);
         }
 
-        ~ObsDisplayer()
+        ~MmfDisplayer()
         {
             m_mmf.Dispose();
         }
@@ -32,8 +34,16 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
+        private bool _init = false;
+
         public void Display(double pp, int n300, int n100, int n50, int nmiss)
         {
+            if(!_init)
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, m_mmf_name), ConsoleColor.DarkGreen);
+                _init = true;
+            }
+
             m_str_builder.Clear();
             m_str_builder.AppendFormat("{0:F2}pp", pp);
 

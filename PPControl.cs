@@ -42,8 +42,8 @@ namespace RealTimePPDisplayer
                 m_displayers.Add(new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             if (Setting.OutputMethods.Contains("wpf"))
                 m_displayers.Add(new WpfDisplayer(id));
-            if (Setting.OutputMethods.Contains("obs"))
-                m_displayers.Add(new ObsDisplayer(id));
+            if (Setting.OutputMethods.Contains("mmf"))
+                m_displayers.Add(new MmfDisplayer(id));
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
             m_listener_manager.On300HitChanged += c => m_n300 = c;
