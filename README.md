@@ -9,7 +9,7 @@ Settings is in config.ini<br>
 
 | Setting Name  | Default Value | Description |
 |:------------- |:-------------|:-----|
-| UseDisplayers | wpf | The output mode of plugin ,you can choose "wpf" and "text" (segmenting with ',') |
+| OutputMethods | wpf | The output mode of plugin ,you can choose "wpf" and "text" (segmenting with ','. e.g: wpf,text) |
 | UseText  | False | Whether to output to txt file |
 | extOutputPath  | rtpp{0}.txt |  Output file path |
 | DisplayHitObject | True  | Whether to display hitobjects(like 300_count/50_count and others) |
