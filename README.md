@@ -9,9 +9,9 @@ Settings is in config.ini<br>
 
 | Setting Name  | Default Value | Description |
 |:------------- |:-------------|:-----|
-| OutputMethods | wpf | The output mode of plugin ,you can choose "wpf" and "text" (segmenting with ','. e.g: wpf,text) |
+| OutputMethods | wpf | The output mode of plugin ,you can choose "wpf" and "text" (segmenting with ',' e.g: wpf,text) |
 | UseText  | False | Whether to output to txt file |
-| extOutputPath  | rtpp{0}.txt |  Output file path |
+| TextOutputPath  | rtpp{0}.txt |  Output file path |
 | DisplayHitObject | True  | Whether to display hitobjects(like 300_count/50_count and others) |
 | PPFontSize | 48 | PP value text font size(pt) |
 | PPFontColor | FFFFFFFF | PP value text color (ARGB Hex  code and no prefix '#') |
