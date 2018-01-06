@@ -38,9 +38,9 @@ namespace RealTimePPDisplayer
         public PPControl(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
-            if (Setting.UseText||Setting.UseDisplayers.Contains("text"))
+            if (Setting.UseText||Setting.OutputMethods.Contains("text"))
                 m_displayers.Add(new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
-            if (Setting.UseDisplayers.Contains("wpf"))
+            if (Setting.OutputMethods.Contains("wpf"))
                 m_displayers.Add(new WpfDisplayer(id));
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
