@@ -39,7 +39,7 @@ namespace RealTimePPDisplayer.Displayer.View
         public PPWindow(int st,int fps)
         {
             InitializeComponent();
-            m_smooth_time = st/1000.0f;
+            m_smooth_time = st/1000.0;
             m_intertime = 1.0/fps;
 
             MouseLeftButtonDown += (s,e) => DragMove();
@@ -96,31 +96,19 @@ namespace RealTimePPDisplayer.Displayer.View
         private void UpdatePP(object sender,EventArgs e)
         {
             if (!display_pp) return;
-            m_current_pp = SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, m_intertime);
+            m_current_pp = SmoothMath.SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, m_intertime);
             pp_label.Content = $"{m_current_pp:F2}pp";
         }
 
         public void ClearPP()
         {
             display_pp = false;
-            m_current_pp = 0.0f;
-            m_target_pp = 0.0f;
+            m_current_pp = 0.0;
+            m_target_pp = 0.0;
+            m_speed = 0.0;
             pp_label.Content = "";
         }
         #endregion
-
-        //From: http://devblog.aliasinggames.com/inertialdamp-unity-smoothdamp-alternative/
-        private double SmoothDamp(double previousValue, double targetValue, ref double speed, double smoothTime, double h)
-        {
-            double T1 = 0.36f * smoothTime;
-            double T2 = 0.64f * smoothTime;
-            double x = previousValue - targetValue;
-            double newSpeed = speed + h * (-1f / (T1 * T2) * x - (T1 + T2) / (T1 * T2) * speed);
-            double newValue = x + h * speed;
-            speed = newSpeed;
-            return targetValue + newValue;
-        }
-
 
         private void WindowSizeChanged(object sender,SizeChangedEventArgs e)
         {
