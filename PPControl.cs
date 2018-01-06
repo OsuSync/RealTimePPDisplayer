@@ -19,7 +19,6 @@ namespace RealTimePPDisplayer
     class PPControl
     {
         private OsuListenerManager m_listener_manager;
-        private IDisplayer m_displayer;
 
         private BeatmapReader m_beatmap_reader;
         private ModsInfo m_cur_mods = new ModsInfo();
@@ -34,13 +33,15 @@ namespace RealTimePPDisplayer
         private int m_nmiss = 0;
         private int m_time = 0;
 
+        List<IDisplayer> m_displayers = new List<IDisplayer>();
+
         public PPControl(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
-            if (Setting.UseText)
-                m_displayer = new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()));
-            else
-                m_displayer = new WpfDisplayer(id);
+            if (Setting.UseText||Setting.UseDisplayers.Contains("text"))
+                m_displayers.Add(new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
+            if (Setting.UseDisplayers.Contains("wpf"))
+                m_displayers.Add(new WpfDisplayer(id));
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
             m_listener_manager.On300HitChanged += c => m_n300 = c;
@@ -56,7 +57,7 @@ namespace RealTimePPDisplayer
                     m_n100 = 0;
                     m_n50 = 0;
                     m_nmiss = 0;
-                    m_displayer.Clear();
+                    m_displayers.ForEach(d=>d.Clear());
                 }
             };
 
@@ -109,7 +110,7 @@ namespace RealTimePPDisplayer
 
                 if (pp > 100000.0) pp = 0.0;
 
-                m_displayer.Display(pp,m_n300,m_n100,m_n50,m_nmiss);
+                m_displayers.ForEach(d=>d.Display(pp,m_n300,m_n100,m_n50,m_nmiss));
 
                 m_time = time;
             };

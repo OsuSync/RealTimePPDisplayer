@@ -16,12 +16,18 @@ namespace RealTimePPDisplayer
 
         private PPControl[] m_osu_pp_displayers = new PPControl[16];
 
+        public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR){}
+
         public override void OnEnable()
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
+            base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(InitRTPP);
             Setting.PluginInstance = this;
+        }
 
-            m_memory_reader = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
+        private void InitRTPP(PluginEvents.LoadCompleteEvent e)
+        {
+            m_memory_reader = e.Host.EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
 
             if (m_memory_reader.TourneyListenerManagers == null)
             {
@@ -34,12 +40,6 @@ namespace RealTimePPDisplayer
                     m_osu_pp_displayers[i] = new PPControl(m_memory_reader.TourneyListenerManagers[i], i);
                 }
             }
-            Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
         }
-
-        public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
-        {
-        }
-        
     }
 }

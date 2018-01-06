@@ -1,6 +1,8 @@
 ﻿using OsuRTDataProvider.Handler;
 using Sync.Tools;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Media;
 
 namespace RealTimePPDisplayer
@@ -44,6 +46,7 @@ namespace RealTimePPDisplayer
         public ConfigurationElement FPS { get; set; }
         public ConfigurationElement Topmost { get; set; }
         public ConfigurationElement WindowTextShadow { get; set; }
+        public ConfigurationElement UseDisplayers { get; set; }
 
         public void onConfigurationLoad()
         {
@@ -63,6 +66,7 @@ namespace RealTimePPDisplayer
                 Setting.FPS = int.Parse(FPS);
                 Setting.Topmost = bool.Parse(Topmost);
                 Setting.WindowTextShadow = bool.Parse(WindowTextShadow);
+                Setting.UseDisplayers = ((string)UseDisplayers).Split(',').Select(s => s.Trim().ToLower());
             }
             catch (Exception e)
             {
@@ -86,11 +90,13 @@ namespace RealTimePPDisplayer
             FPS = Setting.FPS.ToString();
             Topmost = Setting.Topmost.ToString();
             WindowTextShadow = Setting.WindowTextShadow.ToString();
+            UseDisplayers = string.Join(",", Setting.UseDisplayers);
         }
     }
 
     internal static class Setting
     {
+        public static IEnumerable<string> UseDisplayers = new[]{ "wpf" };
         public static bool UseText = false;
         public static string TextOutputPath = @"rtpp{0}.txt";
         public static bool DisplayHitObject = true;
