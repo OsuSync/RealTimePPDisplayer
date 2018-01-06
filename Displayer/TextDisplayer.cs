@@ -10,6 +10,8 @@ namespace RealTimePPDisplayer.Displayer
     class TextDisplayer : IDisplayer
     {
         private string m_filename;
+        private StringBuilder m_str_builder=new StringBuilder(1024);
+        private byte[] m_str_buffer = new byte[1024];
 
         public TextDisplayer(string filename)
         {
@@ -21,16 +23,26 @@ namespace RealTimePPDisplayer.Displayer
 
         public void Clear()
         {
-            File.WriteAllText(m_filename, string.Empty);
+            using (var fp = File.Open(m_filename, FileMode.Create, FileAccess.Write, FileShare.Read))
+            {
+            }
         }
 
         public void Display(double pp, int n300, int n100, int n50, int nmiss)
         {
-            string str = $"{pp:F2}pp";
-            if (Setting.DisplayHitObject)
-                str += $"\n{n100}x100 {n50}x50 {nmiss}xMiss";
+            m_str_builder.Clear();
+            m_str_builder.AppendFormat("{0:F2}pp", pp);
 
-            File.WriteAllText(m_filename, str);
+            if (Setting.DisplayHitObject)
+                m_str_builder.AppendFormat("\n{0}x100 {1}x50 {2}xMiss",n100,n50,nmiss);
+
+            for (int i = 0; i < m_str_builder.Length; i++)
+                m_str_buffer[i] = (byte)m_str_builder[i];
+
+            using (var fp=File.Open(m_filename,FileMode.Create,FileAccess.Write,FileShare.Read))
+            {
+                fp.Write(m_str_buffer, 0, m_str_builder.Length);
+            }
         }
     }
 }

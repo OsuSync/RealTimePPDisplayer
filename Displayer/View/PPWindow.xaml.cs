@@ -97,7 +97,7 @@ namespace RealTimePPDisplayer.Displayer.View
         {
             if (!display_pp) return;
             m_current_pp = SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, m_intertime);
-            pp_label.Content = $"{m_current_pp:F}pp";
+            pp_label.Content = $"{m_current_pp:F2}pp";
         }
 
         public void ClearPP()

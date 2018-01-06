@@ -12,7 +12,6 @@ namespace RealTimePPDisplayer
     internal static class ColorConverter
     {
         public static Color StringToColor(string color_str)
-
         {
             var color = new Color();
             color.A = Convert.ToByte(color_str.Substring(0, 2), 16);
