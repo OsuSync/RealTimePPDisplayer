@@ -46,7 +46,7 @@ namespace RealTimePPDisplayer.Displayer
 
             using (MemoryMappedViewStream stream = m_mmf.CreateViewStream())
             {
-                stream.Write(m_str_buffer,0,m_str_builder.Length);
+                stream.Write(m_str_buffer,0,m_str_builder.Length+1);
             }
         }
     }
