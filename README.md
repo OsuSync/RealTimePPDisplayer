@@ -6,17 +6,18 @@ Please read Readme about [Osu!RTDP](https://github.com/KedamaOvO/OsuRTDataProvid
 
 # Settings
 Settings is in config.ini<br>
+
 | Setting Name  | Default Value | Description |
 |:------------- |:-------------|:-----|
-| UseDisplayers | wpf | The output mode of plugin ,you can choose "wpf" and "text" (segmenting with blank) |
+| UseDisplayers | wpf | The output mode of plugin ,you can choose "wpf" and "text" (segmenting with ',') |
 | UseText  | False | Whether to output to txt file |
 | extOutputPath  | rtpp{0}.txt |  Output file path |
 | DisplayHitObject | True  | Whether to display hitobjects(like 300_count/50_count and others) |
 | PPFontSize | 48 | PP value text font size(pt) |
 | PPFontColor | FFFFFFFF | PP value text color (ARGB Hex  code and no prefix '#') |
 | HitObjectFontSize | 24 | hitobjects text font size(pt) |
-| HitObjectFontColor | FFFFFFFF|hitobjects text color (ARGB Hex  code and no prefix '#') |
-| BackgroundColor | FF00FF00|Backgound color (default is green and good for colorkey in OBS) |
+| HitObjectFontColor | FFFFFFFF | hitobjects text color (ARGB Hex  code and no prefix '#') |
+| BackgroundColor | FF00FF00 | Backgound color (default is green and good for colorkey in OBS) |
 | WindowHeight | 172 | Window Height(px) |
 | WindowWidth | 280 | Window Width(px) |
 | SmoothTime | 200 | Time(ms) about smooth effect for updating pp |
