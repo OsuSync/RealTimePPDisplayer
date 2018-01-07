@@ -43,7 +43,7 @@ namespace RealTimePPDisplayer.Displayer
 
         public void Display(double pp, int n300, int n100, int n50, int nmiss)
         {
-            m_win?.Dispatcher.Invoke(() =>
+            m_win.Dispatcher.Invoke(() =>
             {
                 m_win.PP = pp;
                 m_win.hit_label.Content = $"{n100}x100 {n50}x50 {nmiss}xMiss";

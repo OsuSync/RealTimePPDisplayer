@@ -88,6 +88,8 @@ namespace RealTimePPDisplayer.Displayer
 
             m_output = true;
 
+            if (double.IsNaN(pp)) pp = 0;
+
             m_target_pp = pp;
             m_n300 = n300;
             m_n100 = n100;

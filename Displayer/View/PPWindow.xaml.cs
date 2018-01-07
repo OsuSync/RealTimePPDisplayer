@@ -23,8 +23,6 @@ namespace RealTimePPDisplayer.Displayer.View
             set
             {
                 if (double.IsNaN(value)) value = 0.0;
-                if (!display_pp)
-                    m_current_pp = value;
                 m_target_pp = value;
                 display_pp = true;
             }
@@ -35,7 +33,7 @@ namespace RealTimePPDisplayer.Displayer.View
         private double m_speed = 0.0;
         private double m_smooth_time;
         private double m_intertime = 0.033;
-
+        #region construct
         public PPWindow(int st,int fps)
         {
             InitializeComponent();
@@ -91,11 +89,14 @@ namespace RealTimePPDisplayer.Displayer.View
             topmost_item.Header = (string)DefaultLanguage.UI_MENU_TOPMOST;
             Topmost = Setting.Topmost;
         }
-
+        #endregion
         #region Show PP
         private void UpdatePP(object sender,EventArgs e)
         {
             if (!display_pp) return;
+            if (double.IsNaN(m_current_pp)) m_current_pp = 0;
+            if (double.IsNaN(m_speed)) m_speed = 0;
+
             m_current_pp = SmoothMath.SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, m_intertime);
             pp_label.Content = $"{m_current_pp:F2}pp";
         }

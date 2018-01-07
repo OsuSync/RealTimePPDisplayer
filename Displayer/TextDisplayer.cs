@@ -19,6 +19,7 @@ namespace RealTimePPDisplayer.Displayer
                 m_filename = filename;
             else
                 m_filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+            Clear();//Create File
         }
 
         public void Clear()
