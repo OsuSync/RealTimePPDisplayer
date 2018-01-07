@@ -21,13 +21,10 @@ namespace RealTimePPDisplayer
         public override void OnEnable()
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
-            base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(InitRTPP);
-            Setting.PluginInstance = this;
-        }
 
-        private void InitRTPP(PluginEvents.LoadCompleteEvent e)
-        {
-            m_memory_reader = e.Host.EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
+            Setting.PluginInstance = this;
+
+            m_memory_reader = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
 
             if (m_memory_reader.TourneyListenerManagers == null)
             {
