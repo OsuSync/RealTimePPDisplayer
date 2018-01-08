@@ -53,7 +53,9 @@ namespace RealTimePPDisplayer
                 m_status = cur;
                 if (cur == OsuStatus.Listening)//Reset(Change Song)
                 {
+                    m_combo = 0;
                     m_max_combo = 0;
+                    m_n300 = 0;
                     m_n100 = 0;
                     m_n50 = 0;
                     m_nmiss = 0;
@@ -98,7 +100,9 @@ namespace RealTimePPDisplayer
 
                 if (m_time > time)//Reset
                 {
+                    m_combo = 0;
                     m_max_combo = 0;
+                    m_n300 = 0;
                     m_n100 = 0;
                     m_n50 = 0;
                     m_nmiss = 0;
@@ -108,6 +112,7 @@ namespace RealTimePPDisplayer
                 
                 double pp = PP.Oppai.get_ppv2(m_beatmap_reader.BeatmapRaw, (uint)pos, (uint)m_cur_mods.Mod, m_n50, m_n100, m_nmiss, m_max_combo);
 
+                if (double.IsNaN(pp)) pp = 0.0;
                 if (pp > 100000.0) pp = 0.0;
 
                 m_displayers.ForEach(d=>d.Display(pp,m_n300,m_n100,m_n50,m_nmiss));
