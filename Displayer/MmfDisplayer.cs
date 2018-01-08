@@ -23,7 +23,6 @@ namespace RealTimePPDisplayer.Displayer
         private bool m_output = false;
         private int m_n50 = 0;
         private int m_n100 = 0;
-        private int m_n300 = 0;
         private int m_nmiss = 0;
 
         private double m_target_pp=0.0;
@@ -64,7 +63,6 @@ namespace RealTimePPDisplayer.Displayer
             m_target_pp = 0;
             m_current_pp = 0;
             m_speed = 0;
-            m_n300 = 0;
             m_n100 = 0;
             m_n50 = 0;
             m_nmiss = 0;
@@ -78,7 +76,7 @@ namespace RealTimePPDisplayer.Displayer
 
         private bool _init = false;
 
-        public void Display(double pp, int n300, int n100, int n50, int nmiss)
+        public void Display(double pp,int n100, int n50, int nmiss)
         {
             if(!_init)
             {
@@ -91,7 +89,6 @@ namespace RealTimePPDisplayer.Displayer
             if (double.IsNaN(pp)) pp = 0;
 
             m_target_pp = pp;
-            m_n300 = n300;
             m_n100 = n100;
             m_n50 = n50;
             m_nmiss = nmiss;

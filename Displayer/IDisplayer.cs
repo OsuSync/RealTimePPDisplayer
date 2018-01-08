@@ -8,7 +8,7 @@ namespace RealTimePPDisplayer.Displayer
 {
     interface IDisplayer
     {
-        void Display(double pp, int n300, int n100, int n50, int nmiss);
+        void Display(double pp,int n100, int n50, int nmiss);
         void Clear();
     }
 }

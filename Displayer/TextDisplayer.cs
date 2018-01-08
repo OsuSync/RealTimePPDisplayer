@@ -31,7 +31,7 @@ namespace RealTimePPDisplayer.Displayer
 
         private bool _init = false;
 
-        public void Display(double pp, int n300, int n100, int n50, int nmiss)
+        public void Display(double pp, int n100, int n50, int nmiss)
         {
             if (!_init)
             {
