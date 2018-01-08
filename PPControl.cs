@@ -66,6 +66,12 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnComboChanged += (combo) =>
             {
                 if (m_status != OsuStatus.Playing) return;
+                //combo maybe wrong.(small probability).
+                //jhlee0133's max kps is 70kps(7k).
+                //so,10*2*10s=200.
+                //10s is the assumed interval.
+                if (combo - m_max_combo > 200) return;
+
                 m_combo = combo;
                 m_max_combo = Math.Max(m_max_combo, m_combo);
             };
