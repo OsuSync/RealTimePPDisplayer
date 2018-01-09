@@ -6,13 +6,13 @@ using System.Linq;
 
 namespace RealTimePPDisplayer
 {
-    [SyncPluginDependency("18d8a3eb-d8d7-4c6c-9d8b-901b9957d6b0", Version = "^1.1.0", Require = true)]
-    [SyncPluginID("58390cf7-b61e-4800-b7a3-ba909eb8ab25", VERSION)]
+    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.1.1", Require = true)]
+    [SyncPluginID("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", VERSION)]
     public class RealTimePPDisplayerPlugin : Plugin
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.1.0";
+        public const string VERSION= "1.1.1";
 
         private OsuRTDataProvider.OsuRTDataProviderPlugin m_memory_reader;
 

@@ -91,9 +91,9 @@ namespace RealTimePPDisplayer
                     m_beatmap_reader = null;
                     return;
                 }
-#if DEBUG
-                Sync.Tools.IO.CurrentIO.Write($"[RealTimePPDisplayer]File:{file}");
-#endif
+
+                if(Setting.DebugMode)
+                    Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}",ConsoleColor.Blue);
                 m_beatmap_reader = new BeatmapReader(file);
             };
 

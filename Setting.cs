@@ -46,6 +46,7 @@ namespace RealTimePPDisplayer
         public ConfigurationElement Topmost { get; set; }
         public ConfigurationElement WindowTextShadow { get; set; }
         public ConfigurationElement OutputMethods { get; set; }
+        public ConfigurationElement DebugMode { get; set; }
 
         public void onConfigurationLoad()
         {
@@ -64,6 +65,7 @@ namespace RealTimePPDisplayer
                 Setting.SmoothTime = int.Parse(SmoothTime);
                 Setting.FPS = int.Parse(FPS);
                 Setting.Topmost = bool.Parse(Topmost);
+                Setting.DebugMode = bool.Parse(DebugMode);
                 Setting.WindowTextShadow = bool.Parse(WindowTextShadow);
                 Setting.OutputMethods = ((string)OutputMethods).Split(',').Select(s => s.Trim().ToLower());
             }
@@ -90,6 +92,7 @@ namespace RealTimePPDisplayer
             Topmost = Setting.Topmost.ToString();
             WindowTextShadow = Setting.WindowTextShadow.ToString();
             OutputMethods = string.Join(",", Setting.OutputMethods);
+            DebugMode = Setting.DebugMode.ToString();
         }
     }
 
@@ -110,6 +113,7 @@ namespace RealTimePPDisplayer
         public static int FPS = 60;
         public static bool Topmost = true;
         public static bool WindowTextShadow = true;
+        public static bool DebugMode = false;
 
         private static SettingIni setting_output = new SettingIni();
         private static PluginConfiuration plugin_config = null;
