@@ -56,7 +56,6 @@ namespace RealTimePPDisplayer
                 {
                     m_combo = 0;
                     m_max_combo = 0;
-                    m_n300 = 0;
                     m_n100 = 0;
                     m_n50 = 0;
                     m_nmiss = 0;
@@ -109,7 +108,6 @@ namespace RealTimePPDisplayer
                 {
                     m_combo = 0;
                     m_max_combo = 0;
-                    m_n300 = 0;
                     m_n100 = 0;
                     m_n50 = 0;
                     m_nmiss = 0;
