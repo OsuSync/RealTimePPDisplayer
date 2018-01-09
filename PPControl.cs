@@ -27,7 +27,7 @@ namespace RealTimePPDisplayer
 
         private int m_combo = 0;
         private int m_max_combo = 0;
-        private int m_n300 = 0;
+
         private int m_n100 = 0;
         private int m_n50 = 0;
         private int m_nmiss = 0;
@@ -42,9 +42,10 @@ namespace RealTimePPDisplayer
                 m_displayers.Add(new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             if (Setting.OutputMethods.Contains("wpf"))
                 m_displayers.Add(new WpfDisplayer(id));
+            if (Setting.OutputMethods.Contains("mmf"))
+                m_displayers.Add(new MmfDisplayer(id));
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
-            m_listener_manager.On300HitChanged += c => m_n300 = c;
             m_listener_manager.On100HitChanged += c => m_n100 = c;
             m_listener_manager.On50HitChanged += c => m_n50 = c;
             m_listener_manager.OnMissHitChanged += c => m_nmiss = c;
@@ -121,7 +122,7 @@ namespace RealTimePPDisplayer
                 if (double.IsNaN(pp)) pp = 0.0;
                 if (pp > 100000.0) pp = 0.0;
 
-                m_displayers.ForEach(d=>d.Display(pp,m_n300,m_n100,m_n50,m_nmiss));
+                m_displayers.ForEach(d=>d.Display(pp,m_n100,m_n50,m_nmiss));
 
                 m_time = time;
             };

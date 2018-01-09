@@ -19,6 +19,7 @@ namespace RealTimePPDisplayer.Displayer
                 m_filename = filename;
             else
                 m_filename = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
+            Clear();//Create File
         }
 
         public void Clear()
@@ -28,8 +29,16 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
-        public void Display(double pp, int n300, int n100, int n50, int nmiss)
+        private bool _init = false;
+
+        public void Display(double pp, int n100, int n50, int nmiss)
         {
+            if (!_init)
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.TEXT_MODE_OUTPUT_PATH_FORMAT, m_filename), ConsoleColor.DarkGreen);
+                _init = true;
+            }
+
             m_str_builder.Clear();
             m_str_builder.AppendFormat("{0:F2}pp", pp);
 
