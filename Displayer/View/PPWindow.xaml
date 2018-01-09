@@ -9,20 +9,22 @@
              SizeChanged="WindowSizeChanged"
              Title="PPShow">
     <Grid>
-        <StackPanel>
-            <StackPanel.ContextMenu>
-                <ContextMenu Name="cm" StaysOpen="true">
-                    <MenuItem Name="topmost_item" Header="Topmost" IsCheckable="True" Click="TopmostItem_Click"/>
-                </ContextMenu>
-            </StackPanel.ContextMenu>
-            <Label Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White"/>
-            <Label Name="pp_label" Content="0.00pp" HorizontalContentAlignment="Center"
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="40" />
+        </Grid.RowDefinitions>
+        <Grid.ContextMenu>
+            <ContextMenu Name="cm" StaysOpen="true">
+                <MenuItem Name="topmost_item" Header="Topmost" IsCheckable="True" Click="TopmostItem_Click" />
+            </ContextMenu>
+        </Grid.ContextMenu>
+        <Label Grid.Row="0" Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White" />
+        <Label Grid.Row="1" Name="pp_label" Content="0.00pp" HorizontalContentAlignment="Center"
                    VerticalContentAlignment="Center"  FontSize="48" Foreground="White"
-                   Margin="0,0,0,10" Height="93"/>
-            <Label Name="hit_label" Content="0x100 0x50 0xMiss"
+                   Margin="0,0,0,10" />
+        <Label Grid.Row="2" Name="hit_label" Content="0x100 0x50 0xMiss"
                    VerticalAlignment="Bottom" FontSize="24" Foreground="White"
-                   VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
-
-        </StackPanel>
+                   VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="40" Margin="0" />
     </Grid>
 </Window>
