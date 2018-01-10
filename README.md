@@ -24,7 +24,7 @@ Settings is in config.ini<br>
 | FPS | 60 | FPS |
 | Topmost | False | Whether to PP Window is topmost(You can right click pp window) |
 | WindowTextShadow | True|Whether to apply text shadow effect |
-| DebugMode | Enable debug ouput |
+| DebugMode | False |Enable debug ouput |
 
 # How to use MMF?
 1. Install [obs-text-rtpp-mmf](https://github.com/KedamaOvO/RealTimePPDisplayer/releases/download/v1.1.1/obs-text-rtpp-mmf.7z) to OBS (20.1.3).
