@@ -26,8 +26,18 @@ Settings is in config.ini<br>
 | WindowTextShadow | True|Whether to apply text shadow effect |
 | DebugMode | Enable debug ouput |
 
+# How to use MMF?
+1. Install obs-text-rtpp-mmf to OBS (20.1.3).
+2. Add **TextGDIPlusMMF** to scene.
+3. Right click **TextGDIPlusMMF**,select **Properties**.
+4. Find **Memory mapping file name**,input **rtpp**.(if tourney is enable,input rtpp{id}, e.g. rtpp0)
+5. Add **mmf** to **OutputMethods** in **config.ini**, save config.ini.
+
+**Memory mapping file name** = **内存映射文件名** = **記憶體對應檔案** = **MMF.Name**
+
 # Request 
 1. [Osu!Sync](https://github.com/Deliay/osuSync)
 2. [OsuRTDataProvider](https://github.com/KedamaOvO/OsuRTDataProvider-Release)
+
 # Preview
 Tourney Mode: [Youtube](https://www.youtube.com/watch?v=begp3yimqaI)
