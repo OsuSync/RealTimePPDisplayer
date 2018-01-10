@@ -9,7 +9,7 @@ Settings is in config.ini<br>
 
 | Setting Name  | Default Value | Description |
 |:------------- |:-------------|:-----|
-| OutputMethods | wpf | The output mode of plugin ,you can choose "wpf" and "text" (segmenting with ',' e.g: wpf,text) |
+| OutputMethods | wpf | The output mode of plugin ,you can choose "wpf","mmf" and "text" (segmenting with ',' e.g: wpf,text) |
 | UseText  | False | Whether to output to txt file(***recommended OutputMethods***) |
 | TextOutputPath  | rtpp{0}.txt |  Output file path |
 | DisplayHitObject | True  | Whether to display hitobjects(like 300_count/50_count and others) |
@@ -24,6 +24,7 @@ Settings is in config.ini<br>
 | FPS | 60 | FPS |
 | Topmost | False | Whether to PP Window is topmost(You can right click pp window) |
 | WindowTextShadow | True|Whether to apply text shadow effect |
+| DebugMode | Enable debug ouput |
 
 # Request 
 1. [Osu!Sync](https://github.com/Deliay/osuSync)
