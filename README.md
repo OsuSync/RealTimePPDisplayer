@@ -27,7 +27,7 @@ Settings is in config.ini<br>
 | DebugMode | Enable debug ouput |
 
 # How to use MMF?
-1. Install obs-text-rtpp-mmf to OBS (20.1.3).
+1. Install [obs-text-rtpp-mmf](https://github.com/KedamaOvO/RealTimePPDisplayer/releases/download/v1.1.1/obs-text-rtpp-mmf.7z) to OBS (20.1.3).
 2. Add **TextGDIPlusMMF** to scene.
 3. Right click **TextGDIPlusMMF**,select **Properties**.
 4. Find **Memory mapping file name**,input **rtpp**.(if tourney is enable,input rtpp{id}, e.g. rtpp0)
