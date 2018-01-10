@@ -87,7 +87,16 @@ namespace RealTimePPDisplayer
                 string file = beatmap.LocationFile;
                 if (string.IsNullOrWhiteSpace(file))
                 {
-                    Sync.Tools.IO.CurrentIO.Write("[RealTimePPDisplayer]No found .osu file");
+                    Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]No found .osu file({beatmap.Set.Artist} - {beatmap.Set.Title}[{beatmap.Diff}])",ConsoleColor.Yellow);
+                    if(beatmap.Set.AllLocationPath!=null)
+                    {
+                        Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]All beatmap folder(s)", ConsoleColor.Yellow);
+                        int i = 0;
+                        foreach (var folder in beatmap.Set.AllLocationPath)
+                        {
+                            Sync.Tools.IO.CurrentIO.WriteColor($"\t({i++}){folder}", ConsoleColor.Yellow);
+                        }
+                    }
                     m_beatmap_reader = null;
                     return;
                 }
