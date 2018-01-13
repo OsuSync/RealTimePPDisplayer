@@ -53,6 +53,7 @@
     <Compile Include="Displayer\MmfDisplayer.cs" />
     <Compile Include="Displayer\TextDisplayer.cs" />
     <Compile Include="Displayer\WpfDisplayer.cs" />
+    <Compile Include="StringFormatter.cs" />
     <Compile Include="SmoothMath.cs" />
     <Compile Include="PPControl.cs" />
     <Compile Include="PP\Oppai.cs" />

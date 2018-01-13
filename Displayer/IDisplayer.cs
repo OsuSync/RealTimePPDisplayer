@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Displayer
 {
-    interface IDisplayer
+    public interface IDisplayer
     {
-        void Display(double pp,int n100, int n50, int nmiss);
+        void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp);
+        void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo);
+        void Display();
+        void FixedDisplay(double time);
         void Clear();
     }
 }

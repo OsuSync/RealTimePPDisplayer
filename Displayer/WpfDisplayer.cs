@@ -43,11 +43,27 @@ namespace RealTimePPDisplayer.Displayer
 
         public void Display(double pp, int n100, int n50, int nmiss)
         {
-            m_win.Dispatcher.Invoke(() =>
-            {
-                m_win.PP = pp;
-                m_win.hit_label.Content = $"{n100}x100 {n50}x50 {nmiss}xMiss";
-            });
+
+        }
+
+        public void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Display()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void FixedDisplay(double time)
+        {
+            throw new NotImplementedException();
         }
     }
 }

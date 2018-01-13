@@ -1,4 +1,5 @@
 ﻿using OsuRTDataProvider;
+using RealTimePPDisplayer.Displayer;
 using Sync.Plugins;
 using Sync.Tools;
 using System;
@@ -14,9 +15,11 @@ namespace RealTimePPDisplayer
         public const string PLUGIN_AUTHOR = "KedamaOvO";
         public const string VERSION= "1.1.2";
 
-        private OsuRTDataProvider.OsuRTDataProviderPlugin m_memory_reader;
-
+        private OsuRTDataProviderPlugin m_memory_reader;
         private PPControl[] m_osu_pp_displayers = new PPControl[16];
+
+        public int TourneyWindowSize => m_memory_reader.TourneyListenerManagersCount;
+        public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
 
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR){}
 
@@ -39,6 +42,16 @@ namespace RealTimePPDisplayer
                     m_osu_pp_displayers[i] = new PPControl(m_memory_reader.TourneyListenerManagers[i], i);
                 }
             }
+        }
+
+        public bool RegisterDisplayer(string name,IDisplayer displayer)
+        {
+            return m_osu_pp_displayers[0].RegisterDisplayer(name, displayer);
+        }
+
+        public bool RegisterTourneyDisplayer(int id,string name, IDisplayer displayer)
+        {
+            return m_osu_pp_displayers[id].RegisterDisplayer(name, displayer);
         }
     }
 }

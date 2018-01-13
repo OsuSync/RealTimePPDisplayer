@@ -9,9 +9,11 @@ namespace RealTimePPDisplayer.Displayer
 {
     class TextDisplayer : IDisplayer
     {
+        private char[] m_pp_buffer = new char[1024];
+        private char[] m_hit_buffer = new char[1024];
+        private int m_pp_str_len = 0;
+        private int m_hit_str_len = 0;
         private string m_filename;
-        private StringBuilder m_str_builder=new StringBuilder(1024);
-        private byte[] m_str_buffer = new byte[1024];
 
         public TextDisplayer(string filename)
         {
@@ -29,9 +31,53 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
+        public void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp)
+        {
+            StringFormatter.PPFormatter.Clear();
+            foreach (var arg in StringFormatter.PPFormatter)
+            {
+                switch (arg)
+                {
+                    case "pp":
+                        StringFormatter.PPFormatter.Fill(arg, $"{cur_pp:F2}"); break;
+                    case "if_fc_pp":
+                        StringFormatter.PPFormatter.Fill(arg, $"{if_fc_pp:F2}"); break;
+                    case "max_pp":
+                        StringFormatter.PPFormatter.Fill(arg, $"{max_pp:F2}"); break;
+                }
+            }
+
+            m_pp_str_len = StringFormatter.HitCountFormat.CopyTo(0,m_pp_buffer,0);
+        }
+
+        public void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo)
+        {
+            StringFormatter.HitCountFormat.Clear();
+            foreach (var arg in StringFormatter.HitCountFormat)
+            {
+                switch (arg)
+                {
+                    case "n300":
+                        StringFormatter.HitCountFormat.Fill(arg, n300.ToString()); break;
+                    case "n100":
+                        StringFormatter.HitCountFormat.Fill(arg, n100.ToString()); break;
+                    case "n50":
+                        StringFormatter.HitCountFormat.Fill(arg, n50.ToString()); break;
+                    case "nmiss":
+                        StringFormatter.HitCountFormat.Fill(arg, nmiss.ToString()); break;
+                    case "combo":
+                        StringFormatter.HitCountFormat.Fill(arg, combo.ToString()); break;
+                    case "max_combo":
+                        StringFormatter.HitCountFormat.Fill(arg, max_combo.ToString()); break;
+                }
+            }
+
+            m_hit_str_len = StringFormatter.HitCountFormat.CopyTo(0, m_hit_buffer, 0);
+        }
+
         private bool _init = false;
 
-        public void Display(double pp, int n100, int n50, int nmiss)
+        public void Display()
         {
             if (!_init)
             {
@@ -39,19 +85,20 @@ namespace RealTimePPDisplayer.Displayer
                 _init = true;
             }
 
-            m_str_builder.Clear();
-            m_str_builder.AppendFormat("{0:F2}pp", pp);
-
-            if (Setting.DisplayHitObject)
-                m_str_builder.AppendFormat("\n{0}x100 {1}x50 {2}xMiss",n100,n50,nmiss);
-
-            for (int i = 0; i < m_str_builder.Length; i++)
-                m_str_buffer[i] = (byte)m_str_builder[i];
-
-            using (var fp=File.Open(m_filename,FileMode.Create,FileAccess.Write,FileShare.Read))
+            using (var fp = File.Open(m_filename, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
-                fp.Write(m_str_buffer, 0, m_str_builder.Length);
+                using (var sw = new StreamWriter(fp))
+                {
+                    sw.Write(m_pp_buffer, 0, m_pp_str_len);
+                    sw.Write('\n');
+                    sw.Write(m_hit_buffer, 0, m_hit_str_len);
+                    sw.Write('\0');
+                }
             }
+        }
+
+        public void FixedDisplay(double time)
+        {
         }
     }
 }

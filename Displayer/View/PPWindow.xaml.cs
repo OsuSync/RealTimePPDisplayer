@@ -54,11 +54,11 @@ namespace RealTimePPDisplayer.Displayer.View
             Top = 0;
 
             //Hit Label
-            hit_label.FontSize = Setting.HitObjectFontSize;
+            hit_label.FontSize = Setting.HitCountFontSize;
             hit_label.Visibility = Setting.DisplayHitObject?Visibility.Visible:Visibility.Hidden;
             hit_label.Foreground = new SolidColorBrush()
             {
-                Color = Setting.HitObjectFontColor
+                Color = Setting.HitCountFontColor
             };
 
             //PP Label
