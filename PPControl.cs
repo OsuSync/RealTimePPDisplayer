@@ -33,7 +33,12 @@ namespace RealTimePPDisplayer
         private int m_nmiss = 0;
         private int m_time = 0;
 
-        List<IDisplayer> m_displayers = new List<IDisplayer>();
+        private static List<IDisplayer> m_displayers = new List<IDisplayer>();
+
+        public static void AddDisplayer(IDisplayer disp)
+        {
+            m_displayers.Add(disp);
+        }
 
         public PPControl(OsuListenerManager mamger,int? id)
         {
