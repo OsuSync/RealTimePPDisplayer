@@ -28,8 +28,6 @@ namespace RealTimePPDisplayer
         private int m_combo = 0;
         private int m_max_combo = 0;
 
-        private double m_acc = 0.0;
-
         private int m_n300 = 0;
         private int m_n100 = 0;
         private int m_n50 = 0;
@@ -42,7 +40,6 @@ namespace RealTimePPDisplayer
         {
             m_listener_manager = mamger;
 
-            m_listener_manager.OnAccuracyChanged += (acc) => m_acc = acc;
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
             m_listener_manager.On300HitChanged += (n300) => m_n300 = n300;
             m_listener_manager.On100HitChanged += c => m_n100 = c;
