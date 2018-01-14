@@ -28,6 +28,7 @@ namespace RealTimePPDisplayer
         #region FixedDisplay
         private bool m_stop_fixed_update = false;
         private Dictionary<string, Func<int?, IDisplayer>> m_displayer_creators = new Dictionary<string,Func<int?, IDisplayer>>();
+        private object m_all_displayer_mtx = new object();
         private LinkedList<KeyValuePair<string,IDisplayer>> m_all_displayers = new LinkedList<KeyValuePair<string,IDisplayer>>();
         private TimeSpan m_fixed_interval;
 
@@ -71,8 +72,11 @@ namespace RealTimePPDisplayer
             {
                 while (!m_stop_fixed_update)
                 {
-                    foreach (var d in m_all_displayers)
-                        d.Value.FixedDisplay(m_fixed_interval.TotalSeconds);
+                    lock (m_all_displayer_mtx)
+                    {
+                        foreach (var d in m_all_displayers)
+                            d.Value.FixedDisplay(m_fixed_interval.TotalSeconds);
+                    }
                     Thread.Sleep(m_fixed_interval);
                 }
             });
@@ -113,43 +117,44 @@ namespace RealTimePPDisplayer
 
         private void AddDisplayer(string name,Func<int?, IDisplayer> creator)
         {
-            foreach (var p in m_all_displayers)
-                if (p.Key == name) return;
-
-            int size = TourneyMode ? m_memory_reader.TourneyListenerManagersCount : 1;
-
-            for (int i = 0; i < size; i++)
+            lock (m_all_displayer_mtx)
             {
-                var d = creator(i);
-                m_osu_pp_controls[i].AddDisplayer(name, d);
-                m_all_displayers.AddLast(new KeyValuePair<string, IDisplayer>(name,d));
+                foreach (var p in m_all_displayers)
+                    if (p.Key == name) return;
+
+                int size = TourneyMode ? m_memory_reader.TourneyListenerManagersCount : 1;
+
+                for (int i = 0; i < size; i++)
+                {
+                    var d = creator(i);
+                    m_osu_pp_controls[i].AddDisplayer(name, d);
+                    m_all_displayers.AddLast(new KeyValuePair<string, IDisplayer>(name, d));
+                }
             }
         }
 
         private void RemoveDisplayer(string name)
         {
-            for (var node = m_all_displayers.First; node != null;)
+            lock (m_all_displayer_mtx)
             {
-                if (node.Value.Key == name)
+                for (var node = m_all_displayers.First; node != null;)
                 {
-                    if(TourneyMode)
+                    if (node.Value.Key == name)
                     {
-                        for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
+                        int size = TourneyMode ? m_memory_reader.TourneyListenerManagersCount : 1;
+                        for (int i = 0; i < size; i++)
                         {
                             m_osu_pp_controls[i].RemoveDisplayer(name);
+
                         }
+                        node.Value.Value.OnDestroy();
+                        var nnode = node.Next;
+                        m_all_displayers.Remove(node);
+                        node = nnode;
+                        continue;
                     }
-                    else
-                    {
-                        m_osu_pp_controls[0].RemoveDisplayer(name);
-                    }
-                    node.Value.Value.OnDestroy();
-                    var nnode = node.Next;
-                    m_all_displayers.Remove(node);
-                    node = nnode;
-                    continue;
+                    node = node.Next;
                 }
-                node = node.Next;
             }
         }
         #endregion
