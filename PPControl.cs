@@ -36,38 +36,11 @@ namespace RealTimePPDisplayer
         private int m_nmiss = 0;
         private int m_time = 0;
 
-        private List<IDisplayer> m_displayers = new List<IDisplayer>();
-
-        private static bool s_stop_fixed_update=false;
-        private static List<IDisplayer> s_all_displayers = new List<IDisplayer>();
-        private static int s_fixed_interval = 33;
-        private static double s_fixed_interval_s = 0.033;
-
-        private static Task s_fixed_update_thread;
-
-        static PPControl()
-        {
-            s_fixed_interval = 1000 / Setting.FPS;
-            s_fixed_interval_s = 1.0 / Setting.FPS;
-
-            s_fixed_update_thread = Task.Run(() =>
-            {
-                while(!s_stop_fixed_update)
-                {
-                    foreach(var d in s_all_displayers)
-                        d.FixedDisplay(s_fixed_interval_s);
-                    Thread.Sleep(s_fixed_interval);
-                }
-            });
-        }
+        private Dictionary<string,IDisplayer> m_displayers = new Dictionary<string,IDisplayer>();
 
         public PPControl(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
-
-            RegisterDisplayer("wpf", ()=>new WpfDisplayer(id));
-            RegisterDisplayer("mmf", ()=>new MmfDisplayer(id));
-            RegisterDisplayer("text", ()=>new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
 
             m_listener_manager.OnAccuracyChanged += (acc) => m_acc = acc;
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
@@ -85,7 +58,8 @@ namespace RealTimePPDisplayer
                     m_n100 = 0;
                     m_n50 = 0;
                     m_nmiss = 0;
-                    m_displayers.ForEach(d => d.Clear());
+                    foreach (var p in m_displayers)
+                        p.Value.Clear();
                 }
             };
 
@@ -168,26 +142,28 @@ namespace RealTimePPDisplayer
             if (double.IsNaN(pp)) pp = 0.0;
             if (pp > 100000.0) pp = 0.0;
 
-            m_displayers.ForEach(d => {
-                d.OnUpdatePP(pp, if_fc_pp, max_pp);
-                if(Setting.DisplayHitObject)
-                    d.OnUpdateHitCount(m_n300, m_n100, m_n50, m_nmiss, m_combo, m_max_combo);
-                d.Display();
-            });
+            foreach(var p in m_displayers)
+            {
+                p.Value.OnUpdatePP(pp, if_fc_pp, max_pp);
+                if (Setting.DisplayHitObject)
+                    p.Value.OnUpdateHitCount(m_n300, m_n100, m_n50, m_nmiss, m_combo, m_max_combo);
+                p.Value.Display();
+            }
 
             m_time = time;
         }
 
-        public bool RegisterDisplayer<T>(string name,Func<T> creator)where T:IDisplayer
+        public void AddDisplayer(string name,IDisplayer displayer)
         {
-            if (Setting.OutputMethods.Contains(name))
+            m_displayers[name]=displayer;
+        }
+
+        public void RemoveDisplayer(string name)
+        {
+            if (m_displayers.ContainsKey(name))
             {
-                var displayer = creator();
-                m_displayers.Add(displayer);
-                s_all_displayers.Add(displayer);
-                return true;
+                m_displayers.Remove(name);
             }
-            return false;
         }
     }
 

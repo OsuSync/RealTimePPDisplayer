@@ -3,7 +3,10 @@ using RealTimePPDisplayer.Displayer;
 using Sync.Plugins;
 using Sync.Tools;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer
 {
@@ -17,10 +20,18 @@ namespace RealTimePPDisplayer
 
         private OsuRTDataProviderPlugin m_memory_reader;
         private PPControl[] m_osu_pp_controls = new PPControl[16];
-
+        
         public int TourneyWindowSize => m_memory_reader.TourneyListenerManagersCount;
         public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
 
+        #region FixedDisplay
+        private bool m_stop_fixed_update = false;
+        private Dictionary<string, Func<int?, IDisplayer>> m_displayer_creators = new Dictionary<string,Func<int?, IDisplayer>>();
+        private LinkedList<KeyValuePair<string,IDisplayer>> m_all_displayers = new LinkedList<KeyValuePair<string,IDisplayer>>();
+        private TimeSpan m_fixed_interval;
+
+        private Task m_fixed_update_thread;
+        #endregion
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
@@ -33,35 +44,122 @@ namespace RealTimePPDisplayer
 
             m_memory_reader = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
 
-            if (m_memory_reader.TourneyListenerManagers == null)
+            if (m_memory_reader == null)
             {
-                m_osu_pp_controls[0] = new PPControl(m_memory_reader.ListenerManager, null);
+                Sync.Tools.IO.CurrentIO.WriteColor("No found OsuRTDataProvider!", ConsoleColor.Red);
+                return;
             }
-            else
+
+            int size = TourneyMode ? m_memory_reader.TourneyListenerManagersCount : 1;
+
+            for (int i = 0; i < size; i++)
             {
-                for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
+                var manager = m_memory_reader.ListenerManager;
+                int? id = null;
+                if (TourneyMode)
                 {
-                    m_osu_pp_controls[i] = new PPControl(m_memory_reader.TourneyListenerManagers[i], i);
+                    id = i;
+                    manager = m_memory_reader.TourneyListenerManagers[i];
                 }
+                m_osu_pp_controls[i] = new PPControl(manager,id);
+            }
+
+            m_fixed_interval = TimeSpan.FromSeconds(1.0 / Setting.FPS);
+
+            m_fixed_update_thread = Task.Run(() =>
+            {
+                while (!m_stop_fixed_update)
+                {
+                    foreach (var d in m_all_displayers)
+                        d.Value.FixedDisplay(m_fixed_interval.TotalSeconds);
+                    Thread.Sleep(m_fixed_interval);
+                }
+            });
+
+            RegisterDisplayer("wpf", (id) => new WpfDisplayer(id));
+            RegisterDisplayer("mmf", (id) => new MmfDisplayer(id));
+            RegisterDisplayer("text", (id) => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
+
+            InitDisplayer();
+        }
+
+        #region Displayer operation
+        public bool RegisterDisplayer(string name,Func<int?,IDisplayer> creator)
+        {
+            if(m_displayer_creators.ContainsKey(name))
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
+                return false;
+            }
+            m_displayer_creators[name]=creator;
+            return true;
+        }
+
+        private void InitDisplayer()
+        {
+            foreach (var creator_pair in m_displayer_creators)
+            {
+                var name = creator_pair.Key;
+                var creator = creator_pair.Value;
+
+                if (!Setting.OutputMethods.Contains(name)) continue;
+
+                AddDisplayer(name,creator);
             }
         }
 
-        public bool RegisterDisplayer<T>(string name,Func<int?,T> creator)where T:IDisplayer
+        private void AddDisplayer(string name,Func<int?, IDisplayer> creator)
         {
-            if (!TourneyMode)
+            foreach (var p in m_all_displayers)
+                if (p.Key == name) return;
+
+            int size = TourneyMode ? m_memory_reader.TourneyListenerManagersCount : 1;
+
+            for (int i = 0; i < size; i++)
             {
-                return m_osu_pp_controls[0].RegisterDisplayer<T>(name, ()=>creator(null));
+                var d = creator(i);
+                m_osu_pp_controls[i].AddDisplayer(name, d);
+                m_all_displayers.AddLast(new KeyValuePair<string, IDisplayer>(name,d));
             }
-            else
+        }
+
+        private void RemoveDisplayer(string name)
+        {
+            for (var node = m_all_displayers.First; node != null;)
             {
-                for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
+                if (node.Value.Key == name)
                 {
-                    bool flag = m_osu_pp_controls[i].RegisterDisplayer<T>(name, ()=>creator(i));
-                    if (flag == false)
-                        return false;
+                    if(TourneyMode)
+                    {
+                        for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
+                        {
+                            m_osu_pp_controls[i].RemoveDisplayer(name);
+                        }
+                    }
+                    else
+                    {
+                        m_osu_pp_controls[0].RemoveDisplayer(name);
+                    }
+                    node.Value.Value.OnDestroy();
+                    var nnode = node.Next;
+                    m_all_displayers.Remove(node);
+                    node = nnode;
+                    continue;
                 }
+                node = node.Next;
             }
-            return true;
+        }
+        #endregion
+
+        private void ModifySetting(string name,string val)
+        {
+            switch(name)
+            {
+                case "SmoothTime":
+                    if(int.TryParse(val,out int ival))
+                        Setting.SmoothTime = ival;
+                    break;
+            }
         }
 
         private void InitCommand(PluginEvents.InitCommandEvent @e)
@@ -72,13 +170,20 @@ namespace RealTimePPDisplayer
                 {
                     switch(args[0])
                     {
-                        case "SmoothTime":
-                            if(int.TryParse(args[1],out int val))
-                                Setting.SmoothTime = val;
+                        case "setting":
+                            ModifySetting(args[1], args[2]);
                             break;
-                        case "DisplayHitObject":
-                            if (bool.TryParse(args[1], out bool bval))
-                                Setting.DisplayHitObject = bval;
+
+                        case "add":
+                            if (!m_displayer_creators.ContainsKey(args[1])) return false;
+                            var creator = m_displayer_creators[args[1]];
+                            AddDisplayer(args[1], creator);
+                            break;
+
+                        case "remove":
+                            if (!m_displayer_creators.ContainsKey(args[1])) return false;
+                            RemoveDisplayer(args[1]);
+
                             break;
                     }
                     return true;

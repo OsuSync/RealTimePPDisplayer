@@ -34,11 +34,6 @@ namespace RealTimePPDisplayer.Displayer
             m_mmf = MemoryMappedFile.CreateOrOpen(m_mmf_name, 1024);
         }
 
-        ~MmfDisplayer()
-        {
-            m_mmf.Dispose();
-        }
-
         public void Clear()
         {
             m_output = false;
@@ -134,6 +129,11 @@ namespace RealTimePPDisplayer.Displayer
                     sw.Write('\0');
                 }
             }
+        }
+
+        public void OnDestroy()
+        {
+            m_mmf.Dispose();
         }
     }
 }

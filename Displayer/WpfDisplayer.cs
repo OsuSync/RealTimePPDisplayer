@@ -131,5 +131,10 @@ namespace RealTimePPDisplayer.Displayer
 
             m_win.ShowDialog();
         }
+
+        public void OnDestroy()
+        {
+            m_win.Dispatcher.Invoke(() => m_win.Close());
+        }
     }
 }
