@@ -46,15 +46,17 @@ namespace RealTimePPDisplayer
             }
         }
 
-        public bool RegisterDisplayer<T>(string name,Func<T> creator)where T:IDisplayer
+        public bool RegisterDisplayer<T>(string name,Func<int?,T> creator)where T:IDisplayer
         {
-            if(!TourneyMode)
-                return m_osu_pp_controls[0].RegisterDisplayer<T>(name, creator);
+            if (!TourneyMode)
+            {
+                return m_osu_pp_controls[0].RegisterDisplayer<T>(name, ()=>creator(null));
+            }
             else
             {
                 for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
                 {
-                    bool flag=m_osu_pp_controls[i].RegisterDisplayer<T>(name, creator);
+                    bool flag = m_osu_pp_controls[i].RegisterDisplayer<T>(name, ()=>creator(i));
                     if (flag == false)
                         return false;
                 }
