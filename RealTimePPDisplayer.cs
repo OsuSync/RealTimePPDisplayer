@@ -16,42 +16,73 @@ namespace RealTimePPDisplayer
         public const string VERSION= "1.1.2";
 
         private OsuRTDataProviderPlugin m_memory_reader;
-        private PPControl[] m_osu_pp_displayers = new PPControl[16];
+        private PPControl[] m_osu_pp_controls = new PPControl[16];
 
         public int TourneyWindowSize => m_memory_reader.TourneyListenerManagersCount;
         public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
 
-        public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR){}
+        public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
+        {
+            I18n.Instance.ApplyLanguage(new DefaultLanguage());
+            base.EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
+        }
 
         public override void OnEnable()
         {
-            I18n.Instance.ApplyLanguage(new DefaultLanguage());
-
             Setting.PluginInstance = this;
 
             m_memory_reader = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
 
             if (m_memory_reader.TourneyListenerManagers == null)
             {
-                m_osu_pp_displayers[0] = new PPControl(m_memory_reader.ListenerManager, null);
+                m_osu_pp_controls[0] = new PPControl(m_memory_reader.ListenerManager, null);
             }
             else
             {
                 for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
                 {
-                    m_osu_pp_displayers[i] = new PPControl(m_memory_reader.TourneyListenerManagers[i], i);
+                    m_osu_pp_controls[i] = new PPControl(m_memory_reader.TourneyListenerManagers[i], i);
                 }
             }
         }
 
-        public bool RegisterDisplayer(string name,IDisplayer displayer)
+        public bool RegisterDisplayer<T>(string name,Func<T> creator)where T:IDisplayer
         {
-            return m_osu_pp_displayers[0].RegisterDisplayer(name, displayer);
+            if(!TourneyMode)
+                return m_osu_pp_controls[0].RegisterDisplayer<T>(name, creator);
+            else
+            {
+                for (int i = 0; i < m_memory_reader.TourneyListenerManagersCount; i++)
+                {
+                    bool flag=m_osu_pp_controls[i].RegisterDisplayer<T>(name, creator);
+                    if (flag == false)
+                        return false;
+                }
+            }
+            return true;
         }
 
-        public bool RegisterTourneyDisplayer(int id,string name, IDisplayer displayer)
+        private void InitCommand(PluginEvents.InitCommandEvent @e)
         {
-            return m_osu_pp_displayers[id].RegisterDisplayer(name, displayer);
+            @e.Commands.Dispatch.bind("rtpp", (args) =>
+            {
+                if(args.Count>=2)
+                {
+                    switch(args[0])
+                    {
+                        case "SmoothTime":
+                            if(int.TryParse(args[1],out int val))
+                                Setting.SmoothTime = val;
+                            break;
+                        case "DisplayHitObject":
+                            if (bool.TryParse(args[1], out bool bval))
+                                Setting.DisplayHitObject = bval;
+                            break;
+                    }
+                    return true;
+                }
+                return false;
+            }, "Real Time PP Displayer control panel");
         }
     }
 }

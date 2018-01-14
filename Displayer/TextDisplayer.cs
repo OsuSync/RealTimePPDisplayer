@@ -33,46 +33,47 @@ namespace RealTimePPDisplayer.Displayer
 
         public void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp)
         {
-            StringFormatter.PPFormatter.Clear();
-            foreach (var arg in StringFormatter.PPFormatter)
+            var formatter = StringFormatter.GetPPFormatter();
+
+            foreach (var arg in formatter)
             {
                 switch (arg)
                 {
                     case "pp":
-                        StringFormatter.PPFormatter.Fill(arg, $"{cur_pp:F2}"); break;
+                        formatter.Fill(arg, cur_pp); break;
                     case "if_fc_pp":
-                        StringFormatter.PPFormatter.Fill(arg, $"{if_fc_pp:F2}"); break;
+                        formatter.Fill(arg, if_fc_pp); break;
                     case "max_pp":
-                        StringFormatter.PPFormatter.Fill(arg, $"{max_pp:F2}"); break;
+                        formatter.Fill(arg, max_pp); break;
                 }
             }
 
-            m_pp_str_len = StringFormatter.HitCountFormat.CopyTo(0,m_pp_buffer,0);
+            m_pp_str_len = formatter.CopyTo(0,m_pp_buffer,0);
         }
 
         public void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo)
         {
-            StringFormatter.HitCountFormat.Clear();
-            foreach (var arg in StringFormatter.HitCountFormat)
+            var formatter = StringFormatter.GetHitCountFormatter();
+            foreach (var arg in formatter)
             {
                 switch (arg)
                 {
                     case "n300":
-                        StringFormatter.HitCountFormat.Fill(arg, n300.ToString()); break;
+                        formatter.Fill(arg, n300); break;
                     case "n100":
-                        StringFormatter.HitCountFormat.Fill(arg, n100.ToString()); break;
+                        formatter.Fill(arg, n100); break;
                     case "n50":
-                        StringFormatter.HitCountFormat.Fill(arg, n50.ToString()); break;
+                        formatter.Fill(arg, n50); break;
                     case "nmiss":
-                        StringFormatter.HitCountFormat.Fill(arg, nmiss.ToString()); break;
+                        formatter.Fill(arg, nmiss); break;
                     case "combo":
-                        StringFormatter.HitCountFormat.Fill(arg, combo.ToString()); break;
+                        formatter.Fill(arg, combo); break;
                     case "max_combo":
-                        StringFormatter.HitCountFormat.Fill(arg, max_combo.ToString()); break;
+                        formatter.Fill(arg, max_combo); break;
                 }
             }
 
-            m_hit_str_len = StringFormatter.HitCountFormat.CopyTo(0, m_hit_buffer, 0);
+            m_hit_str_len = formatter.CopyTo(0, m_hit_buffer, 0);
         }
 
         private bool _init = false;
@@ -98,6 +99,14 @@ namespace RealTimePPDisplayer.Displayer
         }
 
         public void FixedDisplay(double time)
+        {
+        }
+
+        public void OnEnable()
+        {
+        }
+
+        public void OnDisable()
         {
         }
     }

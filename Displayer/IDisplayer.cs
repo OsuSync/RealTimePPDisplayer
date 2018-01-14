@@ -8,6 +8,9 @@ namespace RealTimePPDisplayer.Displayer
 {
     public interface IDisplayer
     {
+        void OnEnable();
+        void OnDisable();
+
         void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp);
         void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo);
         void Display();

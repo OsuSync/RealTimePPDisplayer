@@ -84,17 +84,16 @@ namespace RealTimePPDisplayer.Beatmap
             return pos;
         }
 
-        private Dictionary<ModsInfo, double> m_cache_max_pp = new Dictionary<ModsInfo, double>(16);
+        private ModsInfo _max_mods = ModsInfo.Empty;
+        private double _max_pp = 0.0;
         public double GetMaxPP(ModsInfo mod)
         {
-            if (m_cache_max_pp.ContainsKey(mod))
-            {
-                return m_cache_max_pp[mod];
-            }
+            bool need_update = false;
+            need_update = need_update || mod != _max_mods;
 
-            double pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0, -1);
-            m_cache_max_pp[mod] = pp;
-            return pp;
+            if(need_update)
+                _max_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0, -1);
+            return _max_pp;
         }
 
         private double _fc_acc = 0;

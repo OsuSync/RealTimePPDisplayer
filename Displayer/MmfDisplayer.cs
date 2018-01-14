@@ -28,14 +28,10 @@ namespace RealTimePPDisplayer.Displayer
 
         private double m_speed=0.0;
 
-        private double m_smooth_time = 0.2;
-
         public MmfDisplayer(int? id)
         {
             m_mmf_name = id == null ? "rtpp" : $"rtpp{id}";
             m_mmf = MemoryMappedFile.CreateOrOpen(m_mmf_name, 1024);
-
-            m_smooth_time = Setting.SmoothTime / 1000.0;
         }
 
         ~MmfDisplayer()
@@ -72,27 +68,27 @@ namespace RealTimePPDisplayer.Displayer
 
         public void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo)
         {
-            StringFormatter.HitCountFormat.Clear();
-            foreach (var arg in StringFormatter.HitCountFormat)
+            var formatter = StringFormatter.GetHitCountFormatter();
+            foreach (var arg in formatter)
             {
                 switch (arg)
                 {
                     case "n300":
-                        StringFormatter.HitCountFormat.Fill(arg, n300.ToString()); break;
+                        formatter.Fill(arg, n300); break;
                     case "n100":
-                        StringFormatter.HitCountFormat.Fill(arg, n100.ToString()); break;
+                        formatter.Fill(arg, n100); break;
                     case "n50":
-                        StringFormatter.HitCountFormat.Fill(arg, n50.ToString()); break;
+                        formatter.Fill(arg, n50); break;
                     case "nmiss":
-                        StringFormatter.HitCountFormat.Fill(arg, nmiss.ToString()); break;
+                        formatter.Fill(arg, nmiss); break;
                     case "combo":
-                        StringFormatter.HitCountFormat.Fill(arg, combo.ToString()); break;
+                        formatter.Fill(arg, combo); break;
                     case "max_combo":
-                        StringFormatter.HitCountFormat.Fill(arg, max_combo.ToString()); break;
+                        formatter.Fill(arg, max_combo); break;
                 }
             }
 
-            m_hit_str_len=StringFormatter.HitCountFormat.CopyTo(0,m_hit_buffer,0);
+            m_hit_str_len= formatter.CopyTo(0,m_hit_buffer,0);
         }
 
         public void Display()
@@ -110,22 +106,23 @@ namespace RealTimePPDisplayer.Displayer
             if (double.IsNaN(m_current_pp)) m_current_pp = 0;
             if (double.IsNaN(m_speed)) m_speed = 0;
 
-            m_current_pp = SmoothMath.SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, time);
-            StringFormatter.PPFormatter.Clear();
-            foreach (var arg in StringFormatter.PPFormatter)
+            m_current_pp = SmoothMath.SmoothDamp(m_current_pp, m_target_pp, ref m_speed, Setting.SmoothTime*0.001, time);
+
+            var formatter = StringFormatter.GetPPFormatter();
+            foreach (var arg in formatter)
             {
                 switch (arg)
                 {
                     case "rtpp":
-                        StringFormatter.PPFormatter.Fill(arg, $"{m_current_pp:F2}"); break;
+                        formatter.Fill(arg, m_current_pp); break;
                     case "if_fc_pp":
-                        StringFormatter.PPFormatter.Fill(arg, $"{m_if_fc_pp:F2}"); break;
+                        formatter.Fill(arg, m_if_fc_pp); break;
                     case "max_pp":
-                        StringFormatter.PPFormatter.Fill(arg, $"{m_max_pp:F2}"); break;
+                        formatter.Fill(arg, m_max_pp); break;
                 }
             }
 
-            int len=StringFormatter.PPFormatter.CopyTo(0,m_pp_buffer,0);
+            int len= formatter.CopyTo(0,m_pp_buffer,0);
 
             using (MemoryMappedViewStream stream = m_mmf.CreateViewStream())
             {
@@ -137,6 +134,14 @@ namespace RealTimePPDisplayer.Displayer
                     sw.Write('\0');
                 }
             }
+        }
+
+        public void OnEnable()
+        {
+        }
+
+        public void OnDisable()
+        {
         }
     }
 }

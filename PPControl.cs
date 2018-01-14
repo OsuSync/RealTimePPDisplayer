@@ -64,9 +64,9 @@ namespace RealTimePPDisplayer
         {
             m_listener_manager = mamger;
 
-            RegisterDisplayer("wpf", new WpfDisplayer(id));
-            RegisterDisplayer("mmf", new MmfDisplayer(id));
-            RegisterDisplayer("text", new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
+            RegisterDisplayer("wpf", ()=>new WpfDisplayer(id));
+            RegisterDisplayer("mmf", ()=>new MmfDisplayer(id));
+            RegisterDisplayer("text", ()=>new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
 
             m_listener_manager.OnAccuracyChanged += (acc) => m_acc = acc;
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
@@ -151,7 +151,7 @@ namespace RealTimePPDisplayer
             }
 
             double if_fc_pp=0.0,pp=0.0,max_pp=0.0;
-            foreach(var arg in StringFormatter.PPFormatter)
+            foreach(var arg in StringFormatter.GetPPFormatter())
             {
                 switch(arg)
                 {
@@ -177,12 +177,14 @@ namespace RealTimePPDisplayer
             m_time = time;
         }
 
-        public bool RegisterDisplayer(string name,IDisplayer displayer)
+        public bool RegisterDisplayer<T>(string name,Func<T> creator)where T:IDisplayer
         {
             if (Setting.OutputMethods.Contains(name))
             {
+                var displayer = creator();
                 m_displayers.Add(displayer);
                 s_all_displayers.Add(displayer);
+                displayer.OnEnable();
                 return true;
             }
             return false;

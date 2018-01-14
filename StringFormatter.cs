@@ -12,11 +12,8 @@ namespace RealTimePPDisplayer
 {
     class StringFormatter:IEnumerable<string>
     {
-        private static ThreadLocal<StringFormatter> m_pp_format_local = new ThreadLocal<StringFormatter>(() => new StringFormatter(Setting.PPFormat));
-        public static StringFormatter PPFormatter => m_pp_format_local.Value;
-
-        private static ThreadLocal<StringFormatter> m_hit_count_format_local = new ThreadLocal<StringFormatter>(() => new StringFormatter(Setting.HitCountFormat));
-        public static StringFormatter HitCountFormat => m_hit_count_format_local.Value;
+        private static ThreadLocal<StringFormatter> s_pp_format_local = new ThreadLocal<StringFormatter>(() => new StringFormatter(Setting.PPFormat));
+        private static ThreadLocal<StringFormatter> s_hit_count_format_local = new ThreadLocal<StringFormatter>(() => new StringFormatter(Setting.HitCountFormat));
 
         private string m_format;
         private StringBuilder m_builder=new StringBuilder(1024);
@@ -24,7 +21,7 @@ namespace RealTimePPDisplayer
         public List<string> m_args = new List<string>(16);
         static Regex pattern = new Regex(@"\$\{(.+?)\}");
 
-        private StringFormatter(string format)
+        protected StringFormatter(string format)
         {
             m_format = format;
             m_builder.Append(format);
@@ -61,6 +58,16 @@ namespace RealTimePPDisplayer
             m_builder.Replace($"${{{key}}}", val);
         }
 
+        public void Fill(string name, int n)
+        {
+            Fill(name, n.ToString());
+        }
+
+        public void Fill(string name, double n)
+        {
+            Fill(name, $"{n:F2}");
+        }
+
         public IEnumerator<string> GetEnumerator()
         {
             foreach (var p in m_args)
@@ -71,6 +78,20 @@ namespace RealTimePPDisplayer
         {
             foreach (var p in m_args)
                 yield return p;
+        }
+
+        public static StringFormatter GetPPFormatter()
+        {
+            var t = s_pp_format_local.Value;
+            t.Clear();
+            return t;
+        }
+
+        public static StringFormatter GetHitCountFormatter()
+        {
+            var t = s_hit_count_format_local.Value;
+            t.Clear();
+            return t;
         }
     }
 }
