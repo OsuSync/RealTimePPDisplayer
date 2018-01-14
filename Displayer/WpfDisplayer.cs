@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 
 namespace RealTimePPDisplayer.Displayer
 {
@@ -82,7 +83,7 @@ namespace RealTimePPDisplayer.Displayer
 
             m_win?.Dispatcher.Invoke(() => {
                 m_win.hit_label.Content = str;
-            });
+            },DispatcherPriority.ApplicationIdle);
         }
 
         public void Display()
@@ -113,10 +114,10 @@ namespace RealTimePPDisplayer.Displayer
 
             string str = formatter.ToString();
 
-            m_win?.Dispatcher.Invoke(() =>
+           m_win?.Dispatcher.Invoke(() =>
             {
                 m_win.pp_label.Content = str;
-            });
+            },DispatcherPriority.ApplicationIdle);
         }
 
         private void ShowPPWindow(int? id)

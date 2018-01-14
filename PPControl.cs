@@ -54,7 +54,8 @@ namespace RealTimePPDisplayer
             {
                 while(!s_stop_fixed_update)
                 {
-                    s_all_displayers.ForEach(d => d.FixedDisplay(s_fixed_interval_s));
+                    foreach(var d in s_all_displayers)
+                        d.FixedDisplay(s_fixed_interval_s);
                     Thread.Sleep(s_fixed_interval);
                 }
             });

@@ -39,7 +39,7 @@ namespace RealTimePPDisplayer.Displayer
             {
                 switch (arg)
                 {
-                    case "pp":
+                    case "rtpp":
                         formatter.Fill(arg, cur_pp); break;
                     case "if_fc_pp":
                         formatter.Fill(arg, if_fc_pp); break;
@@ -93,7 +93,6 @@ namespace RealTimePPDisplayer.Displayer
                     sw.Write(m_pp_buffer, 0, m_pp_str_len);
                     sw.Write('\n');
                     sw.Write(m_hit_buffer, 0, m_hit_str_len);
-                    sw.Write('\0');
                 }
             }
         }
