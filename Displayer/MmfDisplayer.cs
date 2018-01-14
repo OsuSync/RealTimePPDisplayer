@@ -135,13 +135,5 @@ namespace RealTimePPDisplayer.Displayer
                 }
             }
         }
-
-        public void OnEnable()
-        {
-        }
-
-        public void OnDisable()
-        {
-        }
     }
 }

@@ -184,7 +184,6 @@ namespace RealTimePPDisplayer
                 var displayer = creator();
                 m_displayers.Add(displayer);
                 s_all_displayers.Add(displayer);
-                displayer.OnEnable();
                 return true;
             }
             return false;

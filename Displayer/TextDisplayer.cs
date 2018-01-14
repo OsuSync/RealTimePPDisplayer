@@ -101,13 +101,5 @@ namespace RealTimePPDisplayer.Displayer
         public void FixedDisplay(double time)
         {
         }
-
-        public void OnEnable()
-        {
-        }
-
-        public void OnDisable()
-        {
-        }
     }
 }

@@ -10,7 +10,6 @@ namespace RealTimePPDisplayer.Displayer
 {
     class WpfDisplayer : IDisplayer
     {
-        private int? m_id = null;
         private PPWindow m_win;
         private Thread m_win_thread;
 
@@ -26,7 +25,9 @@ namespace RealTimePPDisplayer.Displayer
 
         public WpfDisplayer(int? id)
         {
-            m_id = id;
+            m_win_thread = new Thread(() => ShowPPWindow(id));
+            m_win_thread.SetApartmentState(ApartmentState.STA);
+            m_win_thread.Start();
         }
 
         public void Clear()
@@ -128,17 +129,6 @@ namespace RealTimePPDisplayer.Displayer
             m_win.client_id.Content = id?.ToString() ?? "";
 
             m_win.ShowDialog();
-        }
-
-        public void OnEnable()
-        {
-            m_win_thread = new Thread(() => ShowPPWindow(m_id));
-            m_win_thread.SetApartmentState(ApartmentState.STA);
-            m_win_thread.Start();
-        }
-
-        public void OnDisable()
-        {
         }
     }
 }
