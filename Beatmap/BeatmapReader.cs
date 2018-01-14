@@ -99,18 +99,21 @@ namespace RealTimePPDisplayer.Beatmap
             return _max_pp;
         }
 
-        private double _fc_acc = 0;
+        private int _fc_n100 = -1;
+        private int _fc_n50 = -1;
         private double _fc_pp = 0;
 
-        public double GetIfFcPP(ModsInfo mods,double acc)
+        public double GetIfFcPP(ModsInfo mods,int n100,int n50)
         {
             bool need_update = false;
-            need_update = need_update || (Math.Abs(_fc_acc - acc)>10e-6);
+            need_update = need_update || _fc_n100 != n100;
+            need_update = need_update || _fc_n50 != n50;
 
             if (need_update)
             {
-                _fc_acc = acc;
-                _fc_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, 0, 0, 0, -1, acc);
+                _fc_n100 = n100;
+                _fc_n50 = n50;
+                _fc_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, n50, n100, 0, -1, -1);
             }
 
             return _fc_pp;

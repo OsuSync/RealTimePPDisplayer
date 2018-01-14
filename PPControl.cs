@@ -156,9 +156,9 @@ namespace RealTimePPDisplayer
                 switch(arg)
                 {
                     case "rtpp":
-                        pp = m_beatmap_reader.GetCurrentPP(time, m_cur_mods, m_n50, m_n100, m_nmiss, m_max_combo);break;
+                        pp = m_beatmap_reader.GetCurrentPP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);break;
                     case "if_fc_pp":
-                        if_fc_pp = m_beatmap_reader.GetIfFcPP(m_cur_mods, m_acc);break;
+                        if_fc_pp = m_beatmap_reader.GetIfFcPP(m_cur_mods,m_n100,m_n50);break;
                     case "max_pp":
                         max_pp = m_beatmap_reader.GetMaxPP(m_cur_mods);break;
                 }
