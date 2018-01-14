@@ -153,11 +153,20 @@ namespace RealTimePPDisplayer
             m_time = time;
         }
 
+        /// <summary>
+        /// Add a displayer to update list
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="displayer"></param>
         public void AddDisplayer(string name,IDisplayer displayer)
         {
             m_displayers[name]=displayer;
         }
 
+        /// <summary>
+        /// Remove a displayer from update list
+        /// </summary>
+        /// <param name="name"></param>
         public void RemoveDisplayer(string name)
         {
             if (m_displayers.ContainsKey(name))

@@ -40,6 +40,9 @@ namespace RealTimePPDisplayer
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
         }
 
+        /// <summary>
+        /// Plugin Init
+        /// </summary>
         public override void OnEnable()
         {
             Setting.PluginInstance = this;
@@ -90,18 +93,6 @@ namespace RealTimePPDisplayer
             ExitHandler.OnConsloeExit += OnExit;
         }
 
-        #region Displayer operation
-        public bool RegisterDisplayer(string name,Func<int?,IDisplayer> creator)
-        {
-            if(m_displayer_creators.ContainsKey(name))
-            {
-                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
-                return false;
-            }
-            m_displayer_creators[name]=creator;
-            return true;
-        }
-
         private void InitDisplayer()
         {
             foreach (var creator_pair in m_displayer_creators)
@@ -111,8 +102,26 @@ namespace RealTimePPDisplayer
 
                 if (!Setting.OutputMethods.Contains(name)) continue;
 
-                AddDisplayer(name,creator);
+                AddDisplayer(name, creator);
             }
+        }
+
+        #region Displayer operation
+        /// <summary>
+        /// Register Displayer
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="creator"></param>
+        /// <returns></returns>
+        public bool RegisterDisplayer(string name,Func<int?,IDisplayer> creator)
+        {
+            if(m_displayer_creators.ContainsKey(name))
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
+                return false;
+            }
+            m_displayer_creators[name]=creator;
+            return true;
         }
 
         private void AddDisplayer(string name,Func<int?, IDisplayer> creator)
@@ -126,9 +135,12 @@ namespace RealTimePPDisplayer
 
                 for (int i = 0; i < size; i++)
                 {
-                    var d = creator(i);
-                    m_osu_pp_controls[i].AddDisplayer(name, d);
-                    m_all_displayers.AddLast(new KeyValuePair<string, IDisplayer>(name, d));
+                    int? id = null;
+                    if (TourneyMode) id = i;
+
+                    var displayer = creator(id);
+                    m_osu_pp_controls[i].AddDisplayer(name, displayer);
+                    m_all_displayers.AddLast(new KeyValuePair<string, IDisplayer>(name, displayer));
                 }
             }
         }
