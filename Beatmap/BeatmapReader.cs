@@ -91,8 +91,11 @@ namespace RealTimePPDisplayer.Beatmap
             bool need_update = false;
             need_update = need_update || mod != _max_mods;
 
-            if(need_update)
+            if (need_update)
+            {
+                _max_mods = mod;
                 _max_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0, -1);
+            }
             return _max_pp;
         }
 
@@ -105,7 +108,10 @@ namespace RealTimePPDisplayer.Beatmap
             need_update = need_update || (Math.Abs(_fc_acc - acc)>10e-6);
 
             if (need_update)
-                _fc_pp = PP.Oppai.get_ppv2_acc(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, acc,0,-1);
+            {
+                _fc_acc = acc;
+                _fc_pp = PP.Oppai.get_ppv2_acc(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, acc, 0, -1);
+            }
 
             return _fc_pp;
         }
@@ -128,8 +134,15 @@ namespace RealTimePPDisplayer.Beatmap
             need_update = need_update || _nmiss != nmiss;
             need_update = need_update || _max_combo != max_combo;
 
-            if(need_update)
+            if (need_update)
+            {
+                _pos = pos;
+                _n100 = n100;
+                _n50 = n50;
+                _nmiss = nmiss;
+                _max_combo = max_combo;
                 _pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)pos, (uint)mods.Mod, n50, n100, nmiss, max_combo);
+            }
 
             return _pp;
         }

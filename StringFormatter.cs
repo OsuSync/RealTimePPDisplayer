@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer
 {
-    class StringFormatter:IEnumerable<string>
+    public class StringFormatter:IEnumerable<string>
     {
         private static ThreadLocal<StringFormatter> s_pp_format_local = new ThreadLocal<StringFormatter>(() => new StringFormatter(Setting.PPFormat));
         private static ThreadLocal<StringFormatter> s_hit_count_format_local = new ThreadLocal<StringFormatter>(() => new StringFormatter(Setting.HitCountFormat));
