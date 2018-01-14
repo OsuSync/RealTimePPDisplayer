@@ -1,4 +1,5 @@
 ﻿using OsuRTDataProvider;
+using OsuRTDataProvider.Handler;
 using RealTimePPDisplayer.Displayer;
 using Sync.Plugins;
 using Sync.Tools;
@@ -81,6 +82,8 @@ namespace RealTimePPDisplayer
             RegisterDisplayer("text", (id) => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
 
             InitDisplayer();
+
+            ExitHandler.OnConsloeExit += OnExit;
         }
 
         #region Displayer operation
@@ -190,6 +193,15 @@ namespace RealTimePPDisplayer
                 }
                 return false;
             }, "Real Time PP Displayer control panel");
+        }
+
+        public override void OnExit()
+        {
+            foreach(var p in m_all_displayers)
+            {
+                p.Value.OnDestroy();
+            }
+            m_all_displayers.Clear();
         }
     }
 }
