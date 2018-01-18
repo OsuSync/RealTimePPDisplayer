@@ -34,7 +34,7 @@ namespace RealTimePPDisplayer
         private int m_nmiss = 0;
         private int m_time = 0;
 
-        private Dictionary<string,IDisplayer> m_displayers = new Dictionary<string,IDisplayer>();
+        private Dictionary<string,DisplayerBase> m_displayers = new Dictionary<string,DisplayerBase>();
 
         public PPControl(OsuListenerManager mamger,int? id)
         {
@@ -155,7 +155,7 @@ namespace RealTimePPDisplayer
         /// </summary>
         /// <param name="name"></param>
         /// <param name="displayer"></param>
-        public void AddDisplayer(string name,IDisplayer displayer)
+        public void AddDisplayer(string name,DisplayerBase displayer)
         {
             m_displayers[name]=displayer;
         }

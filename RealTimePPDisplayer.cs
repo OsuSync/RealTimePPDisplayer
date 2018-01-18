@@ -27,9 +27,9 @@ namespace RealTimePPDisplayer
 
         #region FixedDisplay
         private bool m_stop_fixed_update = false;
-        private Dictionary<string, Func<int?, IDisplayer>> m_displayer_creators = new Dictionary<string,Func<int?, IDisplayer>>();
+        private Dictionary<string, Func<int?, DisplayerBase>> m_displayer_creators = new Dictionary<string,Func<int?, DisplayerBase>>();
         private object m_all_displayer_mtx = new object();
-        private LinkedList<KeyValuePair<string,IDisplayer>> m_all_displayers = new LinkedList<KeyValuePair<string,IDisplayer>>();
+        private LinkedList<KeyValuePair<string,DisplayerBase>> m_all_displayers = new LinkedList<KeyValuePair<string,DisplayerBase>>();
         private TimeSpan m_fixed_interval;
 
         private Task m_fixed_update_thread;
@@ -113,7 +113,7 @@ namespace RealTimePPDisplayer
         /// <param name="name"></param>
         /// <param name="creator"></param>
         /// <returns></returns>
-        public bool RegisterDisplayer(string name,Func<int?,IDisplayer> creator)
+        public bool RegisterDisplayer(string name,Func<int?,DisplayerBase> creator)
         {
             if(m_displayer_creators.ContainsKey(name))
             {
@@ -124,7 +124,7 @@ namespace RealTimePPDisplayer
             return true;
         }
 
-        private void AddDisplayer(string name,Func<int?, IDisplayer> creator)
+        private void AddDisplayer(string name,Func<int?, DisplayerBase> creator)
         {
             lock (m_all_displayer_mtx)
             {
@@ -140,7 +140,7 @@ namespace RealTimePPDisplayer
 
                     var displayer = creator(id);
                     m_osu_pp_controls[i].AddDisplayer(name, displayer);
-                    m_all_displayers.AddLast(new KeyValuePair<string, IDisplayer>(name, displayer));
+                    m_all_displayers.AddLast(new KeyValuePair<string, DisplayerBase>(name, displayer));
                 }
             }
         }

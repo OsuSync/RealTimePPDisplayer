@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Displayer
 {
-    class MmfDisplayer : IDisplayer
+    class MmfDisplayer : DisplayerBase
     {
         private string m_mmf_name;
 
@@ -34,7 +34,7 @@ namespace RealTimePPDisplayer.Displayer
             m_mmf = MemoryMappedFile.CreateOrOpen(m_mmf_name, 1024);
         }
 
-        public void Clear()
+        public override void Clear()
         {
             m_output = false;
             m_target_pp = 0;
@@ -49,7 +49,7 @@ namespace RealTimePPDisplayer.Displayer
 
         private bool _init = false;
 
-        public void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp)
+        public override void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp)
         {
             m_output = true;
 
@@ -61,32 +61,14 @@ namespace RealTimePPDisplayer.Displayer
             m_max_pp = max_pp;
         }
 
-        public void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo)
+        public override void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo)
         {
-            var formatter = StringFormatter.GetHitCountFormatter();
-            foreach (var arg in formatter)
-            {
-                switch (arg)
-                {
-                    case "n300":
-                        formatter.Fill(arg, n300); break;
-                    case "n100":
-                        formatter.Fill(arg, n100); break;
-                    case "n50":
-                        formatter.Fill(arg, n50); break;
-                    case "nmiss":
-                        formatter.Fill(arg, nmiss); break;
-                    case "combo":
-                        formatter.Fill(arg, combo); break;
-                    case "max_combo":
-                        formatter.Fill(arg, max_combo); break;
-                }
-            }
+            var formatter = GetFormattedHitCount(n300, n100, n50, nmiss, combo, max_combo);
 
             m_hit_str_len= formatter.CopyTo(0,m_hit_buffer,0);
         }
 
-        public void Display()
+        public override void Display()
         {
             if (!_init)
             {
@@ -95,7 +77,7 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
-        public void FixedDisplay(double time)
+        public override void FixedDisplay(double time)
         {
             if (!m_output) return;
             if (double.IsNaN(m_current_pp)) m_current_pp = 0;
@@ -103,19 +85,7 @@ namespace RealTimePPDisplayer.Displayer
 
             m_current_pp = SmoothMath.SmoothDamp(m_current_pp, m_target_pp, ref m_speed, Setting.SmoothTime*0.001, time);
 
-            var formatter = StringFormatter.GetPPFormatter();
-            foreach (var arg in formatter)
-            {
-                switch (arg)
-                {
-                    case "rtpp":
-                        formatter.Fill(arg, m_current_pp); break;
-                    case "if_fc_pp":
-                        formatter.Fill(arg, m_if_fc_pp); break;
-                    case "max_pp":
-                        formatter.Fill(arg, m_max_pp); break;
-                }
-            }
+            var formatter = GetFormattedPP(m_current_pp, m_if_fc_pp, m_max_pp);
 
             int len= formatter.CopyTo(0,m_pp_buffer,0);
 
@@ -131,7 +101,7 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
-        public void OnDestroy()
+        public override void OnDestroy()
         {
             m_mmf.Dispose();
         }
