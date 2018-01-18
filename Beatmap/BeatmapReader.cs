@@ -100,7 +100,7 @@ namespace RealTimePPDisplayer.Beatmap
             if (need_update)
             {
                 _max_mods = mod;
-                _max_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0,m_cache.max_combo,true,m_cache);
+                _max_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0,Oppai.FullCombo,true,m_cache);
             }
             return _max_pp;
         }
