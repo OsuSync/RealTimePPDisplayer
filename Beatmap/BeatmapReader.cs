@@ -100,7 +100,7 @@ namespace RealTimePPDisplayer.Beatmap
             if (need_update)
             {
                 _max_mods = mod;
-                _max_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0,Oppai.FullCombo,true,m_cache);
+                _max_pp = Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0,Oppai.FullCombo,true,m_cache);
             }
             return _max_pp;
         }
@@ -119,7 +119,7 @@ namespace RealTimePPDisplayer.Beatmap
             {
                 _fc_n100 = n100;
                 _fc_n50 = n50;
-                _fc_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, n50, n100, 0, Oppai.FullCombo,true,m_cache);
+                _fc_pp = Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, n50, n100, 0, Oppai.FullCombo,true,m_cache);
             }
 
             return _fc_pp;
@@ -151,7 +151,7 @@ namespace RealTimePPDisplayer.Beatmap
                 _nmiss = nmiss;
                 _max_combo = max_combo;
 
-                _pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)pos, (uint)mods.Mod, n50, n100, nmiss, max_combo,false,null);
+                _pp = Oppai.get_ppv2(m_beatmap_raw, (uint)pos, (uint)mods.Mod, n50, n100, nmiss, max_combo,false,null);
             }
 
             return _pp;
