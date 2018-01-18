@@ -38,11 +38,11 @@ namespace RealTimePPDisplayer.Displayer
             m_current_pp = 0;
             m_speed = 0;
 
-            m_win.Dispatcher.Invoke(() =>
+            if (m_win != null)
             {
-                m_win.pp_label.Content = "";
-                m_win.hit_label.Content = "";
-            });
+                m_win.HitCountContext = "";
+                m_win.PPContext = "";
+            }
         }
 
         public override void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp)
@@ -63,9 +63,8 @@ namespace RealTimePPDisplayer.Displayer
 
             string str = formatter.ToString();
 
-            m_win?.Dispatcher.Invoke(() => {
-                m_win.hit_label.Content = str;
-            });
+            if (m_win != null)
+                m_win.HitCountContext = formatter.ToString();
         }
 
         public override void FixedDisplay(double time)
@@ -80,10 +79,8 @@ namespace RealTimePPDisplayer.Displayer
 
             string str = formatter.ToString();
 
-           m_win?.Dispatcher.Invoke(() =>
-            {
-                m_win.pp_label.Content = str;
-            });
+            if (m_win != null)
+                m_win.PPContext = formatter.ToString();
         }
 
         private void ShowPPWindow(int? id)
