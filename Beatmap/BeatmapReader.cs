@@ -1,4 +1,5 @@
 ﻿using OsuRTDataProvider.Mods;
+using RealTimePPDisplayer.PP;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,8 @@ namespace RealTimePPDisplayer.Beatmap
 
         private List<BeatmapObject> m_object_list = new List<BeatmapObject>();
 
+        private Oppai.pp_params m_cache=new Oppai.pp_params();
+
         public BeatmapReader(string file)
         {
             m_beatmap_header.Offset = 0;
@@ -36,6 +39,9 @@ namespace RealTimePPDisplayer.Beatmap
                 }
             }
             Parser();
+
+            //Cache Beatmap
+            Oppai.get_ppv2(BeatmapRaw, (uint)BeatmapRaw.Length, (uint)ModsInfo.Mods.None, 0, 0, 0, Oppai.FullCombo, false, m_cache);
         }
 
         void ReadLine(out int offset,out int length,ref int position)
@@ -94,7 +100,7 @@ namespace RealTimePPDisplayer.Beatmap
             if (need_update)
             {
                 _max_mods = mod;
-                _max_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0, -1);
+                _max_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0,m_cache.max_combo,true,m_cache);
             }
             return _max_pp;
         }
@@ -113,7 +119,7 @@ namespace RealTimePPDisplayer.Beatmap
             {
                 _fc_n100 = n100;
                 _fc_n50 = n50;
-                _fc_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, n50, n100, 0, -1);
+                _fc_pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, n50, n100, 0, Oppai.FullCombo,true,m_cache);
             }
 
             return _fc_pp;
@@ -144,7 +150,8 @@ namespace RealTimePPDisplayer.Beatmap
                 _n50 = n50;
                 _nmiss = nmiss;
                 _max_combo = max_combo;
-                _pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)pos, (uint)mods.Mod, n50, n100, nmiss, max_combo);
+
+                _pp = PP.Oppai.get_ppv2(m_beatmap_raw, (uint)pos, (uint)mods.Mod, n50, n100, nmiss, max_combo,false,null);
             }
 
             return _pp;

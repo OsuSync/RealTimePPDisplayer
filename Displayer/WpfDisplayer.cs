@@ -65,7 +65,7 @@ namespace RealTimePPDisplayer.Displayer
 
             m_win?.Dispatcher.Invoke(() => {
                 m_win.hit_label.Content = str;
-            },DispatcherPriority.ApplicationIdle);
+            });
         }
 
         public override void FixedDisplay(double time)
@@ -83,7 +83,7 @@ namespace RealTimePPDisplayer.Displayer
            m_win?.Dispatcher.Invoke(() =>
             {
                 m_win.pp_label.Content = str;
-            },DispatcherPriority.ApplicationIdle);
+            });
         }
 
         private void ShowPPWindow(int? id)
