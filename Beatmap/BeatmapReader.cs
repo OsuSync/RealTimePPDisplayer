@@ -39,9 +39,6 @@ namespace RealTimePPDisplayer.Beatmap
                 }
             }
             Parser();
-
-            //Cache Beatmap
-           // Oppai.get_ppv2(BeatmapRaw, (uint)BeatmapRaw.Length, (uint)ModsInfo.Mods.None, 0, 0, 0, Oppai.FullCombo, false, m_cache);
         }
 
         void ReadLine(out int offset,out int length,ref int position)
@@ -100,6 +97,7 @@ namespace RealTimePPDisplayer.Beatmap
             if (need_update)
             {
                 _max_mods = mod;
+                //Cache Beatmap
                 _max_pp = Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0,Oppai.FullCombo,false,m_cache);
             }
             return _max_pp;
@@ -109,11 +107,15 @@ namespace RealTimePPDisplayer.Beatmap
         private int _fc_n50 = -1;
         private double _fc_pp = 0;
 
-        public double GetIfFcPP(ModsInfo mods,int n100,int n50)
+        public double GetIfFcPP(ModsInfo mods,int n300,int n100,int n50,int nmiss)
         {
+            double acc=Oppai.acc_calc(n300, n100, n50, nmiss)*100.0;
+            Oppai.acc_round(acc, m_cache.nobjects, nmiss, out n300, out n100, out n50);
+
             bool need_update = false;
             need_update = need_update || _fc_n100 != n100;
             need_update = need_update || _fc_n50 != n50;
+
 
             if (need_update)
             {
