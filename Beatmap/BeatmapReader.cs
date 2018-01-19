@@ -135,7 +135,7 @@ namespace RealTimePPDisplayer.Beatmap
         private int _max_combo = -1;
         private double _pp = 0;
 
-        public double GetCurrentPP(int end_time,ModsInfo mods,int n100,int n50,int nmiss,int max_combo)
+        public double GetRealTimePP(int end_time,ModsInfo mods,int n100,int n50,int nmiss,int max_combo)
         {
             int pos = GetPosition(end_time);
 

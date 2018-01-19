@@ -124,9 +124,9 @@ namespace RealTimePPDisplayer
         public static bool WindowTextShadow = true;
         public static bool DebugMode = false;
         public static int RoundDigits = 2;
-        //current_pp fc_pp max_pp
+        //rtpp fcpp maxpp
         public static string PPFormat = "${rtpp}pp";
-        //combo max_combo full_combo n300 n100 n50 nmiss
+        //combo maxcombo fullcombo n300 n100 n50 nmiss
         public static string HitCountFormat = "${n100}x100 ${n50}x50 ${nmiss}xMiss";
         
 

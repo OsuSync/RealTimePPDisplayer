@@ -73,9 +73,9 @@ namespace RealTimePPDisplayer.Displayer
                 {
                     case "rtpp":
                         formatter.Fill(arg, tuple.RealTimePP); break;
-                    case "fc_pp":
+                    case "fcpp":
                         formatter.Fill(arg, tuple.FullComboPP); break;
-                    case "max_pp":
+                    case "maxpp":
                         formatter.Fill(arg, tuple.MaxPP); break;
                 }
             }
@@ -99,9 +99,9 @@ namespace RealTimePPDisplayer.Displayer
                         formatter.Fill(arg, tuple.CountMiss); break;
                     case "combo":
                         formatter.Fill(arg, tuple.Combo); break;
-                    case "max_combo":
+                    case "maxcombo":
                         formatter.Fill(arg, tuple.MaxCombo); break;
-                    case "full_combo":
+                    case "fullcombo":
                         formatter.Fill(arg, tuple.FullCombo); break;
                 }
             }

@@ -125,10 +125,10 @@ namespace RealTimePPDisplayer
             PPTuple pp_tuple;
             pp_tuple.MaxPP = m_beatmap_reader.GetMaxPP(m_cur_mods);
             pp_tuple.FullComboPP=m_beatmap_reader.GetIfFcPP(m_cur_mods, m_n300, m_n100, m_n50, m_nmiss);
-            pp_tuple.RealTimePP = m_beatmap_reader.GetCurrentPP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);
+            pp_tuple.RealTimePP = m_beatmap_reader.GetRealTimePP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);
             
             if (double.IsNaN(pp_tuple.RealTimePP)) pp_tuple.RealTimePP = 0.0;
-            if (pp_tuple.RealTimePP > 100000.0) pp_tuple.RealTimePP = 0.0;
+            if (Math.Abs(pp_tuple.RealTimePP) > 100000.0) pp_tuple.RealTimePP = 0.0;
 
             foreach(var p in m_displayers)
             {
