@@ -65,7 +65,8 @@ namespace RealTimePPDisplayer
 
         public void Fill(string name, double n)
         {
-            Fill(name, $"{n:F2}");
+ 
+            Fill(name, string.Format($"{{0:F{Setting.RoundDigits}}}",n));
         }
 
         public IEnumerator<string> GetEnumerator()

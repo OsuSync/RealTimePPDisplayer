@@ -49,6 +49,7 @@ namespace RealTimePPDisplayer
         public ConfigurationElement DebugMode { get; set; }
         public ConfigurationElement PPFormat { get; set; }
         public ConfigurationElement HitCountFormat { get; set; }
+        public ConfigurationElement RoundDigits { get; set; }
 
         public void onConfigurationLoad()
         {
@@ -72,6 +73,7 @@ namespace RealTimePPDisplayer
                 Setting.OutputMethods = ((string)OutputMethods).Split(',').Select(s => s.Trim().ToLower());
                 Setting.HitCountFormat = HitCountFormat;
                 Setting.PPFormat = PPFormat;
+                Setting.RoundDigits = int.Parse(RoundDigits);
             }
             catch (Exception e)
             {
@@ -99,6 +101,7 @@ namespace RealTimePPDisplayer
             DebugMode = Setting.DebugMode.ToString();
             PPFormat = Setting.PPFormat;
             HitCountFormat = Setting.HitCountFormat;
+            RoundDigits = Setting.RoundDigits.ToString();
         }
     }
 
@@ -120,6 +123,7 @@ namespace RealTimePPDisplayer
         public static bool Topmost = true;
         public static bool WindowTextShadow = true;
         public static bool DebugMode = false;
+        public static int RoundDigits = 2;
         //current_pp if_fc_pp max_pp
         public static string PPFormat = "${rtpp}pp";
         //combo max_combo n300 n100 n50 nmiss

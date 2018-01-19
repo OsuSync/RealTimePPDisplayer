@@ -19,14 +19,16 @@ namespace RealTimePPDisplayer.Displayer
         private MemoryMappedFile m_mmf;
 
         private bool m_output = false;
-
-        private double m_target_pp=0.0;
-        private double m_current_pp=0.0;
-
         private double m_max_pp = 0.0;
-        private double m_if_fc_pp = 0.0;
 
-        private double m_speed=0.0;
+        private double m_target_pp = 0.0;
+        private double m_current_pp = 0.0;
+
+        private double m_if_fc_pp = 0.0;
+        private double m_current_fc_pp = 0.0;
+
+        private double m_speed = 0.0;
+        private double m_speed_fc = 0.0;
 
         public MmfDisplayer(int? id)
         {
@@ -40,6 +42,10 @@ namespace RealTimePPDisplayer.Displayer
             m_target_pp = 0;
             m_current_pp = 0;
             m_speed = 0;
+            m_current_fc_pp = 0.0;
+            m_max_pp = 0.0;
+            m_speed_fc = 0.0;
+            m_if_fc_pp = 0.0;
 
             using (MemoryMappedViewStream stream = m_mmf.CreateViewStream())
             {
@@ -84,8 +90,9 @@ namespace RealTimePPDisplayer.Displayer
             if (double.IsNaN(m_speed)) m_speed = 0;
 
             m_current_pp = SmoothMath.SmoothDamp(m_current_pp, m_target_pp, ref m_speed, Setting.SmoothTime*0.001, time);
+            m_current_fc_pp = SmoothMath.SmoothDamp(m_current_fc_pp, m_if_fc_pp, ref m_speed_fc, Setting.SmoothTime * 0.001, time);
 
-            var formatter = GetFormattedPP(m_current_pp, m_if_fc_pp, m_max_pp);
+            var formatter = GetFormattedPP(m_current_pp, m_current_fc_pp, m_max_pp);
 
             int len= formatter.CopyTo(0,m_pp_buffer,0);
 

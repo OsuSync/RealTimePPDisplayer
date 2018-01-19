@@ -24,7 +24,6 @@ namespace RealTimePPDisplayer.Beatmap
 
         private List<BeatmapObject> m_object_list = new List<BeatmapObject>();
 
-        private bool m_beatmap_cached = false;
         private Oppai.pp_params m_cache=new Oppai.pp_params();
 
         public BeatmapReader(string file)
@@ -100,7 +99,6 @@ namespace RealTimePPDisplayer.Beatmap
                 _max_mods = mod;
                 //Cache Beatmap
                 _max_pp = Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0,Oppai.FullCombo,false,m_cache);
-                m_beatmap_cached = true;
             }
             return _max_pp;
         }
@@ -111,8 +109,6 @@ namespace RealTimePPDisplayer.Beatmap
 
         public double GetIfFcPP(ModsInfo mods,int n300,int n100,int n50,int nmiss)
         {
-            if (!m_beatmap_cached) return 0.0;
-
             double acc=Oppai.acc_calc(n300, n100, n50, nmiss)*100.0;
             Oppai.acc_round(acc, m_cache.nobjects, nmiss, out n300, out n100, out n50);
 

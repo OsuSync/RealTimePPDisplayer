@@ -41,7 +41,7 @@ namespace RealTimePPDisplayer
             m_listener_manager = mamger;
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
-            m_listener_manager.On300HitChanged += (n300) => m_n300 = n300;
+            m_listener_manager.On300HitChanged += c => m_n300 = c;
             m_listener_manager.On100HitChanged += c => m_n100 = c;
             m_listener_manager.On50HitChanged += c => m_n50 = c;
             m_listener_manager.OnMissHitChanged += c => m_nmiss = c;
@@ -123,16 +123,16 @@ namespace RealTimePPDisplayer
             }
 
             double if_fc_pp=0.0,pp=0.0,max_pp=0.0;
-            foreach(var arg in StringFormatter.GetPPFormatter())
+            max_pp = m_beatmap_reader.GetMaxPP(m_cur_mods);
+
+            foreach (var arg in StringFormatter.GetPPFormatter())
             {
                 switch(arg)
                 {
                     case "rtpp":
                         pp = m_beatmap_reader.GetCurrentPP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);break;
                     case "if_fc_pp":
-                        if_fc_pp = m_beatmap_reader.GetIfFcPP(m_cur_mods,m_n100,m_n50);break;
-                    case "max_pp":
-                        max_pp = m_beatmap_reader.GetMaxPP(m_cur_mods);break;
+                        if_fc_pp = m_beatmap_reader.GetIfFcPP(m_cur_mods,m_n300,m_n100,m_n50,m_nmiss);break;
                 }
             }
             
