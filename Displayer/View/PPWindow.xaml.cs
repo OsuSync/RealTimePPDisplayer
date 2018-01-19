@@ -81,7 +81,7 @@ namespace RealTimePPDisplayer.Displayer.View
             }
         }
 
-        private string m_pp_context = "0.00PP";
+        private string m_pp_context = "0.00pp";
         public string PPContext
         {
             get => m_pp_context;
