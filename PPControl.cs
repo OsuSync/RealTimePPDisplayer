@@ -122,28 +122,29 @@ namespace RealTimePPDisplayer
                 m_nmiss = 0;
             }
 
-            double if_fc_pp=0.0,pp=0.0,max_pp=0.0;
-            max_pp = m_beatmap_reader.GetMaxPP(m_cur_mods);
-
-            foreach (var arg in StringFormatter.GetPPFormatter())
-            {
-                switch(arg)
-                {
-                    case "rtpp":
-                        pp = m_beatmap_reader.GetCurrentPP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);break;
-                    case "if_fc_pp":
-                        if_fc_pp = m_beatmap_reader.GetIfFcPP(m_cur_mods,m_n300,m_n100,m_n50,m_nmiss);break;
-                }
-            }
+            PPTuple pp_tuple;
+            pp_tuple.MaxPP = m_beatmap_reader.GetMaxPP(m_cur_mods);
+            pp_tuple.FullComboPP=m_beatmap_reader.GetIfFcPP(m_cur_mods, m_n300, m_n100, m_n50, m_nmiss);
+            pp_tuple.RealTimePP = m_beatmap_reader.GetCurrentPP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);
             
-            if (double.IsNaN(pp)) pp = 0.0;
-            if (pp > 100000.0) pp = 0.0;
+            if (double.IsNaN(pp_tuple.RealTimePP)) pp_tuple.RealTimePP = 0.0;
+            if (pp_tuple.RealTimePP > 100000.0) pp_tuple.RealTimePP = 0.0;
 
             foreach(var p in m_displayers)
             {
-                p.Value.OnUpdatePP(pp, if_fc_pp, max_pp);
+                p.Value.OnUpdatePP(pp_tuple);
                 if (Setting.DisplayHitObject)
-                    p.Value.OnUpdateHitCount(m_n300, m_n100, m_n50, m_nmiss, m_combo, m_max_combo);
+                {
+                    HitCountTuple hit_tuple;
+                    hit_tuple.Count300 = m_n300;
+                    hit_tuple.Count100 = m_n100;
+                    hit_tuple.Count50 = m_n50;
+                    hit_tuple.CountMiss = m_nmiss;
+                    hit_tuple.Combo = m_combo;
+                    hit_tuple.FullCombo = m_beatmap_reader.FullCombo;
+                    hit_tuple.MaxCombo = m_max_combo;
+                    p.Value.OnUpdateHitCount(hit_tuple);
+                }
                 p.Value.Display();
             }
 

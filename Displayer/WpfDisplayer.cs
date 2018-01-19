@@ -16,13 +16,8 @@ namespace RealTimePPDisplayer.Displayer
 
         private bool m_output = false;
 
-        private double m_max_pp = 0.0;
-
-        private double m_target_pp = 0.0;
-        private double m_current_pp = 0.0;
-
-        private double m_if_fc_pp = 0.0;
-        private double m_current_fc_pp = 0.0;
+        PPTuple m_current_pp;
+        PPTuple m_target_pp;
 
         private double m_speed = 0.0;
         private double m_speed_fc = 0.0;
@@ -37,13 +32,15 @@ namespace RealTimePPDisplayer.Displayer
         public override void Clear()
         {
             m_output = false;
-            m_target_pp = 0;
-            m_current_pp = 0;
+            m_target_pp.RealTimePP = 0;
+            m_target_pp.FullComboPP = 0;
+            m_target_pp.MaxPP = 0;
+            m_current_pp.RealTimePP = 0;
+            m_current_pp.FullComboPP = 0;
+            m_current_pp.MaxPP = 0;
+
             m_speed = 0;
-            m_current_fc_pp = 0.0;
-            m_max_pp = 0.0;
             m_speed_fc = 0.0;
-            m_if_fc_pp = 0.0;
 
             if (m_win != null)
             {
@@ -52,21 +49,19 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
-        public override void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp)
+        public override void OnUpdatePP(PPTuple tuple)
         {
             m_output = true;
 
-            if (double.IsNaN(cur_pp)) cur_pp = 0;
-            if (double.IsNaN(if_fc_pp)) if_fc_pp = 0;
-            if (double.IsNaN(max_pp)) max_pp = 0;
-            m_target_pp = cur_pp;
-            m_if_fc_pp = if_fc_pp;
-            m_max_pp = max_pp;
+            m_target_pp.RealTimePP = double.IsNaN(tuple.RealTimePP)?0:tuple.RealTimePP;
+            m_target_pp.FullComboPP = double.IsNaN(tuple.FullComboPP) ? 0 : tuple.FullComboPP;
+
+            m_current_pp.MaxPP = double.IsNaN(tuple.MaxPP) ? 0 : tuple.MaxPP;
         }
 
-        public override void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo)
+        public override void OnUpdateHitCount(HitCountTuple tuple)
         {
-            var formatter = GetFormattedHitCount(n300, n100, n50, nmiss, combo, max_combo);
+            var formatter = GetFormattedHitCount(tuple);
 
             string str = formatter.ToString();
 
@@ -77,14 +72,15 @@ namespace RealTimePPDisplayer.Displayer
         public override void FixedDisplay(double time)
         {
             if (!m_output)return;
-            if (double.IsNaN(m_current_pp)) m_current_pp = 0;
+            if (double.IsNaN(m_current_pp.RealTimePP)) m_current_pp.RealTimePP = 0;
+            if (double.IsNaN(m_current_pp.FullComboPP)) m_current_pp.FullComboPP = 0;
             if (double.IsNaN(m_speed)) m_speed = 0;
+            if (double.IsNaN(m_speed_fc)) m_speed_fc = 0;
 
-            m_current_pp = SmoothMath.SmoothDamp(m_current_pp, m_target_pp, ref m_speed, Setting.SmoothTime*0.001, time);
-            m_current_fc_pp = SmoothMath.SmoothDamp(m_current_fc_pp, m_if_fc_pp, ref m_speed_fc, Setting.SmoothTime * 0.001, time);
+            m_current_pp.RealTimePP = SmoothMath.SmoothDamp(m_current_pp.RealTimePP, m_target_pp.RealTimePP, ref m_speed, Setting.SmoothTime*0.001, time);
+            m_current_pp.FullComboPP = SmoothMath.SmoothDamp(m_current_pp.FullComboPP, m_target_pp.FullComboPP, ref m_speed_fc, Setting.SmoothTime * 0.001, time);
 
-            var formatter = GetFormattedPP(m_current_pp, m_current_fc_pp, m_max_pp);
-
+            var formatter = GetFormattedPP(m_current_pp);
             string str = formatter.ToString();
 
             if (m_win != null)

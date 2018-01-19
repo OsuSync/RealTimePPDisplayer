@@ -25,6 +25,7 @@ namespace RealTimePPDisplayer.Beatmap
         private List<BeatmapObject> m_object_list = new List<BeatmapObject>();
 
         private Oppai.pp_params m_cache=new Oppai.pp_params();
+        public int FullCombo => m_cache.max_combo;
 
         public BeatmapReader(string file)
         {

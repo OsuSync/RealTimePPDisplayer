@@ -31,16 +31,16 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
-        public override void OnUpdatePP(double cur_pp, double if_fc_pp, double max_pp)
+        public override void OnUpdatePP(PPTuple tuple)
         {
-            var formatter = GetFormattedPP(cur_pp, if_fc_pp, max_pp);
+            var formatter = GetFormattedPP(tuple);
 
             m_pp_str_len = formatter.CopyTo(0,m_pp_buffer,0);
         }
 
-        public override void OnUpdateHitCount(int n300, int n100, int n50, int nmiss, int combo, int max_combo)
+        public override void OnUpdateHitCount(HitCountTuple tuple)
         {
-            var formatter = GetFormattedHitCount(n300, n100, n50, nmiss, combo, max_combo);
+            var formatter = GetFormattedHitCount(tuple);
 
             m_hit_str_len = formatter.CopyTo(0, m_hit_buffer, 0);
         }
