@@ -27,7 +27,7 @@ namespace RealTimePPDisplayer.PP
             public UInt16 n300, n100, n50; /* defaults to SS */
             public UInt16 nmiss; /* defaults to 0 */
             public UInt16 score_version; /* defaults to PP_DEFAULT_SCORING */
-        };
+        }
 
         public const Int32 FullCombo = -1; 
 

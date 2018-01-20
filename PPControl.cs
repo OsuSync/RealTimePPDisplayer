@@ -63,14 +63,11 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnComboChanged += (combo) =>
             {
                 if (m_status != OsuStatus.Playing) return;
-                //combo maybe wrong.(small probability).
-                //jhlee0133's max kps is 70kps(7k).
-                //so,10*2*10s=200.
-                //10s is the assumed interval.
-                if (combo - m_max_combo > 200) return;
-
-                m_combo = combo;
-                m_max_combo = Math.Max(m_max_combo, m_combo);
+                if(combo<=m_beatmap_reader?.FullCombo)
+                {
+                    m_combo = combo;
+                    m_max_combo = Math.Max(m_max_combo, m_combo);
+                }
             };
 
             m_listener_manager.OnBeatmapChanged += RTPPOnBeatmapChanged;
@@ -79,7 +76,7 @@ namespace RealTimePPDisplayer
 
         private void RTPPOnBeatmapChanged(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
         {
-            if (string.IsNullOrWhiteSpace(beatmap.Diff))
+            if (string.IsNullOrWhiteSpace(beatmap.Difficulty))
             {
                 m_beatmap_reader = null;
                 return;
@@ -88,7 +85,7 @@ namespace RealTimePPDisplayer
             string file = beatmap.FilenameFull;
             if (string.IsNullOrWhiteSpace(file))
             {
-                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]No found .osu file({beatmap.Artist} - {beatmap.Title}[{beatmap.Diff}])", ConsoleColor.Yellow);
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]No found .osu file({beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}])", ConsoleColor.Yellow);
                 m_beatmap_reader = null;
                 return;
             }
@@ -112,14 +109,15 @@ namespace RealTimePPDisplayer
                 m_n50 = 0;
                 m_nmiss = 0;
             }
-
+            
             PPTuple pp_tuple;
             pp_tuple.MaxPP = m_beatmap_reader.GetMaxPP(m_cur_mods);
             pp_tuple.FullComboPP=m_beatmap_reader.GetIfFcPP(m_cur_mods, m_n300, m_n100, m_n50, m_nmiss);
             pp_tuple.RealTimePP = m_beatmap_reader.GetRealTimePP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);
             
             if (double.IsNaN(pp_tuple.RealTimePP)) pp_tuple.RealTimePP = 0.0;
-            if (Math.Abs(pp_tuple.RealTimePP) > 100000.0) pp_tuple.RealTimePP = 0.0;
+            if (Math.Abs(pp_tuple.RealTimePP) > pp_tuple.MaxPP) pp_tuple.RealTimePP = 0.0;
+            if (m_max_combo > m_beatmap_reader.FullCombo) m_max_combo = 0;
 
             foreach(var p in m_displayers)
             {
