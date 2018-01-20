@@ -89,26 +89,35 @@ namespace RealTimePPDisplayer.Beatmap
         }
 
         private ModsInfo _max_mods = ModsInfo.Empty;
-        private double _max_pp = 0.0;
-        public double GetMaxPP(ModsInfo mod)
+        private Oppai.pp_calc _max_result;
+
+        public Oppai.pp_calc GetMaxPP(ModsInfo mods)
         {
             bool need_update = false;
-            need_update = need_update || mod != _max_mods;
+            need_update = need_update || mods != _max_mods;
 
             if (need_update)
             {
-                _max_mods = mod;
+                _max_mods = mods;
+
+                Oppai.rtpp_params args;
+                args.combo = Oppai.FullCombo;
+                args.mods = (uint)mods.Mod;
+                args.n100 = 0;
+                args.n50 = 0;
+                args.nmiss = 0;
+
                 //Cache Beatmap
-                _max_pp = Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mod.Mod, 0, 0, 0,Oppai.FullCombo,false,m_cache);
+                Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length,ref args, false,m_cache,ref _max_result);
             }
-            return _max_pp;
+            return _max_result;
         }
 
         private int _fc_n100 = -1;
         private int _fc_n50 = -1;
-        private double _fc_pp = 0;
+        private Oppai.pp_calc _fc_result;
 
-        public double GetIfFcPP(ModsInfo mods,int n300,int n100,int n50,int nmiss)
+        public Oppai.pp_calc GetIfFcPP(ModsInfo mods,int n300,int n100,int n50,int nmiss)
         {
             double acc=Oppai.acc_calc(n300, n100, n50, nmiss)*100.0;
             Oppai.acc_round(acc, m_cache.nobjects, nmiss, out n300, out n100, out n50);
@@ -122,10 +131,18 @@ namespace RealTimePPDisplayer.Beatmap
             {
                 _fc_n100 = n100;
                 _fc_n50 = n50;
-                _fc_pp = Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length, (uint)mods.Mod, n50, n100, 0, Oppai.FullCombo,true,m_cache);
+
+                Oppai.rtpp_params args;
+                args.combo = Oppai.FullCombo;
+                args.mods = (uint)mods.Mod;
+                args.n100 = n100;
+                args.n50 = n50;
+                args.nmiss = 0;
+
+                Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length,ref args,true,m_cache,ref _fc_result);
             }
 
-            return _fc_pp;
+            return _fc_result;
         }
 
         private int _pos = -1;
@@ -133,9 +150,9 @@ namespace RealTimePPDisplayer.Beatmap
         private int _n50 = -1;
         private int _nmiss = -1;
         private int _max_combo = -1;
-        private double _pp = 0;
+        private Oppai.pp_calc _rtpp_result;
 
-        public double GetRealTimePP(int end_time,ModsInfo mods,int n100,int n50,int nmiss,int max_combo)
+        public Oppai.pp_calc GetRealTimePP(int end_time,ModsInfo mods,int n100,int n50,int nmiss,int max_combo)
         {
             int pos = GetPosition(end_time);
 
@@ -154,10 +171,17 @@ namespace RealTimePPDisplayer.Beatmap
                 _nmiss = nmiss;
                 _max_combo = max_combo;
 
-                _pp = Oppai.get_ppv2(m_beatmap_raw, (uint)pos, (uint)mods.Mod, n50, n100, nmiss, max_combo,false,null);
+                Oppai.rtpp_params args;
+                args.combo = Oppai.FullCombo;
+                args.mods = (uint)mods.Mod;
+                args.n100 = n100;
+                args.n50 = n50;
+                args.nmiss = 0;
+
+                Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,null, ref _rtpp_result);
             }
 
-            return _pp;
+            return _rtpp_result;
         }
     }
 }

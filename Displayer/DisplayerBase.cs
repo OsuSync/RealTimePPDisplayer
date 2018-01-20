@@ -8,9 +8,22 @@ namespace RealTimePPDisplayer.Displayer
 {
     public struct PPTuple
     {
+        public static readonly PPTuple Empty;
+
         public double RealTimePP;
+        public double RealTimeAimPP;
+        public double RealTimeSpeedPP;
+        public double RealTimeAccuracyPP;
+
         public double FullComboPP;
+        public double FullComboAimPP;
+        public double FullComboSpeedPP;
+        public double FullComboAccuracyPP;
+
         public double MaxPP;
+        public double MaxAimPP;
+        public double MaxSpeedPP;
+        public double MaxAccuracyPP;
     }
 
     public struct HitCountTuple
@@ -73,10 +86,30 @@ namespace RealTimePPDisplayer.Displayer
                 {
                     case "rtpp":
                         formatter.Fill(arg, tuple.RealTimePP); break;
+                    case "rtpp_aim":
+                        formatter.Fill(arg, tuple.RealTimeAimPP); break;
+                    case "rtpp_speed":
+                        formatter.Fill(arg, tuple.RealTimeSpeedPP); break;
+                    case "rtpp_acc":
+                        formatter.Fill(arg, tuple.RealTimeAccuracyPP); break;
+
                     case "fcpp":
                         formatter.Fill(arg, tuple.FullComboPP); break;
+                    case "fcpp_aim":
+                        formatter.Fill(arg, tuple.FullComboAimPP); break;
+                    case "fcpp_speed":
+                        formatter.Fill(arg, tuple.FullComboSpeedPP); break;
+                    case "fcpp_acc":
+                        formatter.Fill(arg, tuple.FullComboAccuracyPP); break;
+
                     case "maxpp":
                         formatter.Fill(arg, tuple.MaxPP); break;
+                    case "maxpp_aim":
+                        formatter.Fill(arg, tuple.MaxAimPP); break;
+                    case "maxpp_speed":
+                        formatter.Fill(arg, tuple.MaxSpeedPP); break;
+                    case "maxpp_acc":
+                        formatter.Fill(arg, tuple.MaxAccuracyPP); break;
                 }
             }
 

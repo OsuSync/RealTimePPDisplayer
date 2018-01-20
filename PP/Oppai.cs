@@ -29,11 +29,26 @@ namespace RealTimePPDisplayer.PP
             public UInt16 score_version; /* defaults to PP_DEFAULT_SCORING */
         }
 
+        [StructLayout(LayoutKind.Sequential)]
+        public struct pp_calc
+        {
+            /* ppv2 will store results here */
+            public double total, aim, speed, acc;
+            public double accuracy; /* 0.0 - 1.0 */
+        };
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct rtpp_params
+        {
+            public UInt32 mods;
+            public int n50,n100,nmiss;
+            public int combo;
+        }
+
         public const Int32 FullCombo = -1; 
 
         [DllImport(@"oppai.dll")]
-        public extern static double get_ppv2(byte[] data, UInt32 data_size,
-            UInt32 mods,Int32 n50, Int32 n100, Int32 nmiss, Int32 combo,Boolean use_cache,pp_params @params);
+        public extern static double get_ppv2(byte[] data, UInt32 data_size,ref rtpp_params args, Boolean use_cache,pp_params cache,ref pp_calc result);
 
         #region oppai-ng function
 

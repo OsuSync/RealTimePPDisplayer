@@ -22,9 +22,7 @@ namespace RealTimePPDisplayer.Displayer
 
         PPTuple m_current_pp;
         PPTuple m_target_pp;
-
-        private double m_speed = 0.0;
-        private double m_speed_fc = 0.0;
+        PPTuple m_speed;
 
         public MmfDisplayer(int? id)
         {
@@ -35,15 +33,9 @@ namespace RealTimePPDisplayer.Displayer
         public override void Clear()
         {
             m_output = false;
-            m_target_pp.RealTimePP = 0;
-            m_target_pp.FullComboPP = 0;
-            m_target_pp.MaxPP = 0;
-            m_current_pp.RealTimePP = 0;
-            m_current_pp.FullComboPP = 0;
-            m_current_pp.MaxPP = 0;
-
-            m_speed = 0;
-            m_speed_fc = 0.0;
+            m_speed = PPTuple.Empty;
+            m_current_pp = PPTuple.Empty;
+            m_target_pp = PPTuple.Empty;
 
             using (MemoryMappedViewStream stream = m_mmf.CreateViewStream())
             {
@@ -56,10 +48,8 @@ namespace RealTimePPDisplayer.Displayer
         public override void OnUpdatePP(PPTuple tuple)
         {
             m_output = true;
-            m_target_pp.RealTimePP = double.IsNaN(tuple.RealTimePP) ? 0 : tuple.RealTimePP;
-            m_target_pp.FullComboPP = double.IsNaN(tuple.FullComboPP) ? 0 : tuple.FullComboPP;
 
-            m_current_pp.MaxPP = double.IsNaN(tuple.MaxPP) ? 0 : tuple.MaxPP;
+            m_target_pp = tuple;
         }
 
         public override void OnUpdateHitCount(HitCountTuple tuple)
@@ -83,12 +73,10 @@ namespace RealTimePPDisplayer.Displayer
             if (!m_output) return;
             if (double.IsNaN(m_current_pp.RealTimePP)) m_current_pp.RealTimePP = 0;
             if (double.IsNaN(m_current_pp.FullComboPP)) m_current_pp.FullComboPP = 0;
-            if (double.IsNaN(m_speed)) m_speed = 0;
-            if (double.IsNaN(m_speed_fc)) m_speed_fc = 0;
+            if (double.IsNaN(m_speed.RealTimePP)) m_speed.RealTimePP = 0;
+            if (double.IsNaN(m_speed.FullComboPP)) m_speed.FullComboPP = 0;
 
-            m_current_pp.RealTimePP = SmoothMath.SmoothDamp(m_current_pp.RealTimePP, m_target_pp.RealTimePP, ref m_speed, Setting.SmoothTime * 0.001, time);
-            m_current_pp.FullComboPP = SmoothMath.SmoothDamp(m_current_pp.FullComboPP, m_target_pp.FullComboPP, ref m_speed_fc, Setting.SmoothTime * 0.001, time);
-
+            m_current_pp = SmoothMath.SmoothDampPPTuple(m_current_pp, m_target_pp, ref m_speed, Setting.SmoothTime * 0.001, time);
 
             var formatter = GetFormattedPP(m_current_pp);
 

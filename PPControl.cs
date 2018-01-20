@@ -111,10 +111,24 @@ namespace RealTimePPDisplayer
             }
             
             PPTuple pp_tuple;
-            pp_tuple.MaxPP = m_beatmap_reader.GetMaxPP(m_cur_mods);
-            pp_tuple.FullComboPP=m_beatmap_reader.GetIfFcPP(m_cur_mods, m_n300, m_n100, m_n50, m_nmiss);
-            pp_tuple.RealTimePP = m_beatmap_reader.GetRealTimePP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);
-            
+            var result=m_beatmap_reader.GetMaxPP(m_cur_mods);
+            pp_tuple.MaxPP = result.total;
+            pp_tuple.MaxAimPP = result.aim;
+            pp_tuple.MaxSpeedPP = result.speed;
+            pp_tuple.MaxAccuracyPP = result.acc;
+
+            result = m_beatmap_reader.GetIfFcPP(m_cur_mods, m_n300, m_n100, m_n50, m_nmiss);
+            pp_tuple.FullComboPP = result.total;
+            pp_tuple.FullComboAimPP = result.aim;
+            pp_tuple.FullComboSpeedPP = result.speed;
+            pp_tuple.FullComboAccuracyPP = result.acc;
+
+            result = m_beatmap_reader.GetRealTimePP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);
+            pp_tuple.RealTimePP = result.total;
+            pp_tuple.RealTimeAimPP = result.aim;
+            pp_tuple.RealTimeSpeedPP = result.speed;
+            pp_tuple.RealTimeAccuracyPP = result.acc;
+
             if (double.IsNaN(pp_tuple.RealTimePP)) pp_tuple.RealTimePP = 0.0;
             if (Math.Abs(pp_tuple.RealTimePP) > pp_tuple.MaxPP) pp_tuple.RealTimePP = 0.0;
             if (m_max_combo > m_beatmap_reader.FullCombo) m_max_combo = 0;
