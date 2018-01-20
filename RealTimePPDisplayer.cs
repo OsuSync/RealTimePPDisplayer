@@ -25,7 +25,7 @@ namespace RealTimePPDisplayer
         public int TourneyWindowSize => m_memory_reader.TourneyListenerManagersCount;
         public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
 
-        #region FixedDisplay
+        #region FixedDisplay Field
         private bool m_stop_fixed_update = false;
         private Dictionary<string, Func<int?, DisplayerBase>> m_displayer_creators = new Dictionary<string,Func<int?, DisplayerBase>>();
         private object m_all_displayer_mtx = new object();
@@ -34,6 +34,7 @@ namespace RealTimePPDisplayer
 
         private Task m_fixed_update_thread;
         #endregion
+
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
@@ -88,22 +89,7 @@ namespace RealTimePPDisplayer
             RegisterDisplayer("mmf", (id) => new MmfDisplayer(id));
             RegisterDisplayer("text", (id) => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
 
-            InitDisplayer();
-
             ExitHandler.OnConsloeExit += OnExit;
-        }
-
-        private void InitDisplayer()
-        {
-            foreach (var creator_pair in m_displayer_creators)
-            {
-                var name = creator_pair.Key;
-                var creator = creator_pair.Value;
-
-                if (!Setting.OutputMethods.Contains(name)) continue;
-
-                AddDisplayer(name, creator);
-            }
         }
 
         #region Displayer operation
@@ -121,6 +107,10 @@ namespace RealTimePPDisplayer
                 return false;
             }
             m_displayer_creators[name]=creator;
+
+            if (Setting.OutputMethods.Contains(name))
+                AddDisplayer(name, creator);
+
             return true;
         }
 
