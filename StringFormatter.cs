@@ -20,10 +20,12 @@ namespace RealTimePPDisplayer
 
         public List<string> m_args = new List<string>(16);
         static Regex pattern = new Regex(@"\$\{(.+?)\}");
+        static Regex new_line_pattern = new Regex(@"(?<=[^\\])\\n");
 
         protected StringFormatter(string format)
         {
-            m_format = format;
+            m_format =new_line_pattern.Replace(format,Environment.NewLine);
+
             m_builder.Append(format);
 
             var result = pattern.Match(format);
