@@ -48,7 +48,7 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnStatusChanged += (last, cur) =>
             {
                 m_status = cur;
-                if (cur == OsuStatus.Listening)//Reset(Change Song)
+                if (cur == OsuStatus.Listening || cur == OsuStatus.Editing)//Clear Output
                 {
                     m_combo = 0;
                     m_max_combo = 0;
