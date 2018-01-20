@@ -85,7 +85,7 @@ namespace RealTimePPDisplayer
             string file = beatmap.FilenameFull;
             if (string.IsNullOrWhiteSpace(file))
             {
-                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]No found .osu file({beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}])", ConsoleColor.Yellow);
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]No found .osu file(Set:{beatmap.BeatmapSetID} Beatmap:{beatmap.BeatmapID}])", ConsoleColor.Yellow);
                 m_beatmap_reader = null;
                 return;
             }
