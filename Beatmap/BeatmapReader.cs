@@ -172,11 +172,11 @@ namespace RealTimePPDisplayer.Beatmap
                 _max_combo = max_combo;
 
                 Oppai.rtpp_params args;
-                args.combo = Oppai.FullCombo;
+                args.combo = max_combo;
                 args.mods = (uint)mods.Mod;
                 args.n100 = n100;
                 args.n50 = n50;
-                args.nmiss = 0;
+                args.nmiss = nmiss;
 
                 Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,null, ref _rtpp_result);
             }
