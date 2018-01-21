@@ -21,118 +21,162 @@ namespace RealTimePPDisplayer
         private OsuListenerManager m_listener_manager;
 
         private BeatmapReader m_beatmap_reader;
-        private ModsInfo m_cur_mods = new ModsInfo();
+        private ModsInfo m_cur_mods = ModsInfo.Empty;
 
         private OsuStatus m_status;
 
         private int m_combo = 0;
         private int m_max_combo = 0;
 
+        private int m_n300 = 0;
         private int m_n100 = 0;
         private int m_n50 = 0;
         private int m_nmiss = 0;
         private int m_time = 0;
 
-        List<IDisplayer> m_displayers = new List<IDisplayer>();
+        private Dictionary<string,DisplayerBase> m_displayers = new Dictionary<string,DisplayerBase>();
 
         public PPControl(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
-            if (Setting.UseText||Setting.OutputMethods.Contains("text"))
-                m_displayers.Add(new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
-            if (Setting.OutputMethods.Contains("wpf"))
-                m_displayers.Add(new WpfDisplayer(id));
-            if (Setting.OutputMethods.Contains("mmf"))
-                m_displayers.Add(new MmfDisplayer(id));
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
+            m_listener_manager.On300HitChanged += c => m_n300 = c;
             m_listener_manager.On100HitChanged += c => m_n100 = c;
             m_listener_manager.On50HitChanged += c => m_n50 = c;
             m_listener_manager.OnMissHitChanged += c => m_nmiss = c;
             m_listener_manager.OnStatusChanged += (last, cur) =>
             {
                 m_status = cur;
-                if (cur == OsuStatus.Listening)//Reset(Change Song)
+                if (cur == OsuStatus.Listening || cur == OsuStatus.Editing)//Clear Output
                 {
                     m_combo = 0;
                     m_max_combo = 0;
                     m_n100 = 0;
                     m_n50 = 0;
                     m_nmiss = 0;
-                    m_displayers.ForEach(d=>d.Clear());
+                    foreach (var p in m_displayers)
+                        p.Value.Clear();
                 }
             };
 
             m_listener_manager.OnComboChanged += (combo) =>
             {
                 if (m_status != OsuStatus.Playing) return;
-                //combo maybe wrong.(small probability).
-                //jhlee0133's max kps is 70kps(7k).
-                //so,10*2*10s=200.
-                //10s is the assumed interval.
-                if (combo - m_max_combo > 200) return;
-
-                m_combo = combo;
-                m_max_combo = Math.Max(m_max_combo, m_combo);
+                if(combo<=m_beatmap_reader?.FullCombo)
+                {
+                    m_combo = combo;
+                    m_max_combo = Math.Max(m_max_combo, m_combo);
+                }
             };
 
-            m_listener_manager.OnBeatmapChanged += (beatmap) =>
+            m_listener_manager.OnBeatmapChanged += RTPPOnBeatmapChanged;
+            m_listener_manager.OnPlayingTimeChanged += RTPPOnPlayingTimeChanged;
+        }
+
+        private void RTPPOnBeatmapChanged(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
+        {
+            if (string.IsNullOrWhiteSpace(beatmap.Difficulty))
             {
-                if (string.IsNullOrWhiteSpace(beatmap.Diff))
-                {
-                    m_beatmap_reader = null;
-                    return;
-                }
+                m_beatmap_reader = null;
+                return;
+            }
 
-                string file = beatmap.LocationFile;
-                if (string.IsNullOrWhiteSpace(file))
-                {
-                    Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]No found .osu file({beatmap.Set.Artist} - {beatmap.Set.Title}[{beatmap.Diff}])",ConsoleColor.Yellow);
-                    if(beatmap.Set.AllLocationPath!=null)
-                    {
-                        Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]All beatmap folder(s)", ConsoleColor.Yellow);
-                        int i = 0;
-                        foreach (var folder in beatmap.Set.AllLocationPath)
-                        {
-                            Sync.Tools.IO.CurrentIO.WriteColor($"\t({i++}){folder}", ConsoleColor.Yellow);
-                        }
-                    }
-                    m_beatmap_reader = null;
-                    return;
-                }
-
-                if(Setting.DebugMode)
-                    Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}",ConsoleColor.Blue);
-                m_beatmap_reader = new BeatmapReader(file);
-            };
-
-            m_listener_manager.OnPlayingTimeChanged += time =>
+            string file = beatmap.FilenameFull;
+            if (string.IsNullOrWhiteSpace(file))
             {
-                if (time < 0) return;
-                if (m_beatmap_reader == null) return;
-                if (m_status != OsuStatus.Playing) return;
-                if (m_cur_mods == ModsInfo.Mods.Unknown) return;
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]No found .osu file(Set:{beatmap.BeatmapSetID} Beatmap:{beatmap.BeatmapID}])", ConsoleColor.Yellow);
+                m_beatmap_reader = null;
+                return;
+            }
 
-                if (m_time > time)//Reset
+            if (Setting.DebugMode)
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}", ConsoleColor.Blue);
+            m_beatmap_reader = new BeatmapReader(file);
+        }
+        private void RTPPOnPlayingTimeChanged(int time)
+        {
+            if (time < 0) return;
+            if (m_beatmap_reader == null) return;
+            if (m_status != OsuStatus.Playing) return;
+            if (m_cur_mods == ModsInfo.Mods.Unknown) return;
+
+            if (m_time > time)//Reset
+            {
+                m_combo = 0;
+                m_max_combo = 0;
+                m_n100 = 0;
+                m_n50 = 0;
+                m_nmiss = 0;
+            }
+            
+            PPTuple pp_tuple;
+            var result=m_beatmap_reader.GetMaxPP(m_cur_mods);
+            pp_tuple.MaxPP = result.total;
+            pp_tuple.MaxAimPP = result.aim;
+            pp_tuple.MaxSpeedPP = result.speed;
+            pp_tuple.MaxAccuracyPP = result.acc;
+
+            result = m_beatmap_reader.GetIfFcPP(m_cur_mods, m_n300, m_n100, m_n50, m_nmiss);
+            pp_tuple.FullComboPP = result.total;
+            pp_tuple.FullComboAimPP = result.aim;
+            pp_tuple.FullComboSpeedPP = result.speed;
+            pp_tuple.FullComboAccuracyPP = result.acc;
+
+            result = m_beatmap_reader.GetRealTimePP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);
+            pp_tuple.RealTimePP = result.total;
+            pp_tuple.RealTimeAimPP = result.aim;
+            pp_tuple.RealTimeSpeedPP = result.speed;
+            pp_tuple.RealTimeAccuracyPP = result.acc;
+
+            if (double.IsNaN(pp_tuple.RealTimePP)) pp_tuple.RealTimePP = 0.0;
+            if (Math.Abs(pp_tuple.RealTimePP) > pp_tuple.MaxPP) pp_tuple.RealTimePP = 0.0;
+            if (m_max_combo > m_beatmap_reader.FullCombo) m_max_combo = 0;
+
+            foreach(var p in m_displayers)
+            {
+                p.Value.OnUpdatePP(pp_tuple);
+                if (Setting.DisplayHitObject)
                 {
-                    m_combo = 0;
-                    m_max_combo = 0;
-                    m_n100 = 0;
-                    m_n50 = 0;
-                    m_nmiss = 0;
+                    HitCountTuple hit_tuple;
+                    hit_tuple.Count300 = m_n300;
+                    hit_tuple.Count100 = m_n100;
+                    hit_tuple.Count50 = m_n50;
+                    hit_tuple.CountMiss = m_nmiss;
+                    hit_tuple.Combo = m_combo;
+                    hit_tuple.FullCombo = m_beatmap_reader.FullCombo;
+                    hit_tuple.MaxCombo = m_max_combo;
+                    p.Value.OnUpdateHitCount(hit_tuple);
                 }
+                p.Value.Display();
+            }
 
-                int pos = m_beatmap_reader.GetPosition(time);
-                
-                double pp = PP.Oppai.get_ppv2(m_beatmap_reader.BeatmapRaw, (uint)pos, (uint)m_cur_mods.Mod, m_n50, m_n100, m_nmiss, m_max_combo);
+            m_time = time;
+        }
 
-                if (double.IsNaN(pp)) pp = 0.0;
-                if (pp > 100000.0) pp = 0.0;
+        /// <summary>
+        /// Add a displayer to update list
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="displayer"></param>
+        public void AddDisplayer(string name,DisplayerBase displayer)
+        {
+            m_displayers[name]=displayer;
+        }
 
-                m_displayers.ForEach(d=>d.Display(pp,m_n100,m_n50,m_nmiss));
-
-                m_time = time;
-            };
+        /// <summary>
+        /// Remove a displayer from update list
+        /// </summary>
+        /// <param name="name"></param>
+        public void RemoveDisplayer(string name)
+        {
+            if (m_displayers.ContainsKey(name))
+            {
+                m_displayers.Remove(name);
+            }
         }
     }
+
+
+    
 }

@@ -7,11 +7,13 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Displayer
 {
-    class TextDisplayer : IDisplayer
+    class TextDisplayer : DisplayerBase
     {
+        private char[] m_pp_buffer = new char[1024];
+        private char[] m_hit_buffer = new char[1024];
+        private int m_pp_str_len = 0;
+        private int m_hit_str_len = 0;
         private string m_filename;
-        private StringBuilder m_str_builder=new StringBuilder(1024);
-        private byte[] m_str_buffer = new byte[1024];
 
         public TextDisplayer(string filename)
         {
@@ -22,16 +24,30 @@ namespace RealTimePPDisplayer.Displayer
             Clear();//Create File
         }
 
-        public void Clear()
+        public override void Clear()
         {
             using (var fp = File.Open(m_filename, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
             }
         }
 
+        public override void OnUpdatePP(PPTuple tuple)
+        {
+            var formatter = GetFormattedPP(tuple);
+
+            m_pp_str_len = formatter.CopyTo(0,m_pp_buffer,0);
+        }
+
+        public override void OnUpdateHitCount(HitCountTuple tuple)
+        {
+            var formatter = GetFormattedHitCount(tuple);
+
+            m_hit_str_len = formatter.CopyTo(0, m_hit_buffer, 0);
+        }
+
         private bool _init = false;
 
-        public void Display(double pp, int n100, int n50, int nmiss)
+        public override void Display()
         {
             if (!_init)
             {
@@ -39,18 +55,14 @@ namespace RealTimePPDisplayer.Displayer
                 _init = true;
             }
 
-            m_str_builder.Clear();
-            m_str_builder.AppendFormat("{0:F2}pp", pp);
-
-            if (Setting.DisplayHitObject)
-                m_str_builder.AppendFormat("\n{0}x100 {1}x50 {2}xMiss",n100,n50,nmiss);
-
-            for (int i = 0; i < m_str_builder.Length; i++)
-                m_str_buffer[i] = (byte)m_str_builder[i];
-
-            using (var fp=File.Open(m_filename,FileMode.Create,FileAccess.Write,FileShare.Read))
+            using (var fp = File.Open(m_filename, FileMode.Create, FileAccess.Write, FileShare.Read))
             {
-                fp.Write(m_str_buffer, 0, m_str_builder.Length);
+                using (var sw = new StreamWriter(fp))
+                {
+                    sw.Write(m_pp_buffer, 0, m_pp_str_len);
+                    sw.Write('\n');
+                    sw.Write(m_hit_buffer, 0, m_hit_str_len);
+                }
             }
         }
     }

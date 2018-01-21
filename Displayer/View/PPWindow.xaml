@@ -19,12 +19,13 @@
                 <MenuItem Name="topmost_item" Header="Topmost" IsCheckable="True" Click="TopmostItem_Click" />
             </ContextMenu>
         </Grid.ContextMenu>
-        <Label Grid.Row="0" Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White" />
-        <Label Grid.Row="1" Name="pp_label" Content="0.00pp" HorizontalContentAlignment="Center"
+        <Label Grid.Row="0" Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White"/>
+        <Label Grid.Row="1" Name="pp_label" Content="{Binding PPContext}" HorizontalContentAlignment="Center"
                    VerticalContentAlignment="Center"  FontSize="48" Foreground="White"
-                   Margin="0,0,0,10" />
-        <Label Grid.Row="2" Name="hit_label" Content="0x100 0x50 0xMiss"
+                   Margin="0,0,0,10"  TextOptions.TextHintingMode="Animated"/>
+        <Label Grid.Row="2" Name="hit_label" Content="{Binding HitCountContext}" 
                    VerticalAlignment="Bottom" FontSize="24" Foreground="White"
-                   VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Height="40" Margin="0" />
+                   VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
+                   Height="40" Margin="0"  TextOptions.TextHintingMode="Animated"/>
     </Grid>
 </Window>

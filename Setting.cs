@@ -1,5 +1,4 @@
-﻿using OsuRTDataProvider.Handler;
-using Sync.Tools;
+﻿using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,8 +35,8 @@ namespace RealTimePPDisplayer
         public ConfigurationElement DisplayHitObject { set; get; }
         public ConfigurationElement PPFontSize { set; get; }
         public ConfigurationElement PPFontColor { set; get; }
-        public ConfigurationElement HitObjectFontSize { set; get; }
-        public ConfigurationElement HitObjectFontColor { set; get; }
+        public ConfigurationElement HitCountFontSize { set; get; }
+        public ConfigurationElement HitCountFontColor { set; get; }
         public ConfigurationElement BackgroundColor { set; get; }
         public ConfigurationElement WindowHeight { set; get; }
         public ConfigurationElement WindowWidth { set; get; }
@@ -47,6 +46,9 @@ namespace RealTimePPDisplayer
         public ConfigurationElement WindowTextShadow { get; set; }
         public ConfigurationElement OutputMethods { get; set; }
         public ConfigurationElement DebugMode { get; set; }
+        public ConfigurationElement PPFormat { get; set; }
+        public ConfigurationElement HitCountFormat { get; set; }
+        public ConfigurationElement RoundDigits { get; set; }
 
         public void onConfigurationLoad()
         {
@@ -57,8 +59,8 @@ namespace RealTimePPDisplayer
                 Setting.DisplayHitObject = bool.Parse(DisplayHitObject);
                 Setting.PPFontColor = ColorConverter.StringToColor(PPFontColor);
                 Setting.PPFontSize = int.Parse(PPFontSize);
-                Setting.HitObjectFontSize = int.Parse(HitObjectFontSize);
-                Setting.HitObjectFontColor = ColorConverter.StringToColor(HitObjectFontColor);
+                Setting.HitCountFontSize = int.Parse(HitCountFontSize);
+                Setting.HitCountFontColor = ColorConverter.StringToColor(HitCountFontColor);
                 Setting.BackgroundColor = ColorConverter.StringToColor(BackgroundColor);
                 Setting.WindowHeight = int.Parse(WindowHeight);
                 Setting.WindowWidth = int.Parse(WindowWidth);
@@ -68,11 +70,19 @@ namespace RealTimePPDisplayer
                 Setting.DebugMode = bool.Parse(DebugMode);
                 Setting.WindowTextShadow = bool.Parse(WindowTextShadow);
                 Setting.OutputMethods = ((string)OutputMethods).Split(',').Select(s => s.Trim().ToLower());
+                Setting.HitCountFormat = HitCountFormat;
+                Setting.PPFormat = PPFormat;
+                Setting.RoundDigits = int.Parse(RoundDigits);
             }
             catch (Exception e)
             {
                 onConfigurationSave();
             }
+        }
+
+        public void onConfigurationReload()
+        {
+            onConfigurationLoad();
         }
 
         public void onConfigurationSave()
@@ -82,8 +92,8 @@ namespace RealTimePPDisplayer
             DisplayHitObject = Setting.DisplayHitObject.ToString();
             PPFontColor = ColorConverter.ColorToString(Setting.PPFontColor);
             PPFontSize = Setting.PPFontSize.ToString();
-            HitObjectFontSize = Setting.HitObjectFontSize.ToString();
-            HitObjectFontColor = ColorConverter.ColorToString(Setting.HitObjectFontColor);
+            HitCountFontSize = Setting.HitCountFontSize.ToString();
+            HitCountFontColor = ColorConverter.ColorToString(Setting.HitCountFontColor);
             BackgroundColor = ColorConverter.ColorToString(Setting.BackgroundColor);
             WindowHeight = Setting.WindowHeight.ToString();
             WindowWidth = Setting.WindowWidth.ToString();
@@ -93,6 +103,9 @@ namespace RealTimePPDisplayer
             WindowTextShadow = Setting.WindowTextShadow.ToString();
             OutputMethods = string.Join(",", Setting.OutputMethods);
             DebugMode = Setting.DebugMode.ToString();
+            PPFormat = Setting.PPFormat;
+            HitCountFormat = Setting.HitCountFormat;
+            RoundDigits = Setting.RoundDigits.ToString();
         }
     }
 
@@ -104,8 +117,8 @@ namespace RealTimePPDisplayer
         public static bool DisplayHitObject = true;
         public static int PPFontSize = 48;
         public static Color PPFontColor = Colors.White;
-        public static int HitObjectFontSize = 24;
-        public static Color HitObjectFontColor = Colors.White;
+        public static int HitCountFontSize = 24;
+        public static Color HitCountFontColor = Colors.White;
         public static Color BackgroundColor = ColorConverter.StringToColor("FF00FF00");
         public static int WindowWidth = 280;
         public static int WindowHeight = 172;
@@ -114,21 +127,13 @@ namespace RealTimePPDisplayer
         public static bool Topmost = true;
         public static bool WindowTextShadow = true;
         public static bool DebugMode = false;
+        public static int RoundDigits = 2;
+        //rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc
+        public static string PPFormat = "${rtpp}pp";
+        //combo maxcombo fullcombo n300 n100 n50 nmiss
+        public static string HitCountFormat = "${n100}x100 ${n50}x50 ${nmiss}xMiss";
+        
 
         private static SettingIni setting_output = new SettingIni();
-        private static PluginConfiuration plugin_config = null;
-
-        public static RealTimePPDisplayerPlugin PluginInstance
-        {
-            set
-            {
-                plugin_config = new PluginConfiuration(value, setting_output);
-            }
-        }
-
-        static Setting()
-        {
-            ExitHandler.OnConsloeExit += () => plugin_config?.ForceSave();
-        }
     }
 }

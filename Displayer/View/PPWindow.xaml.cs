@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -12,39 +13,15 @@ namespace RealTimePPDisplayer.Displayer.View
     /// <summary>
     /// UserControl1.xaml 的交互逻辑
     /// </summary>
-    public partial class PPWindow : Window
-    {
-        private DispatcherTimer m_timer = new DispatcherTimer();
-
-        private bool display_pp = false;
-
-        public double PP
-        {
-            set
-            {
-                if (double.IsNaN(value)) value = 0.0;
-                m_target_pp = value;
-                display_pp = true;
-            }
-        }
-
-        private double m_current_pp = 0.0;
-        private double m_target_pp = 0.0;
-        private double m_speed = 0.0;
-        private double m_smooth_time;
-        private double m_intertime = 0.033;
+    public partial class PPWindow : Window, INotifyPropertyChanged
+    { 
         #region construct
         public PPWindow(int st,int fps)
         {
             InitializeComponent();
-            m_smooth_time = st/1000.0;
-            m_intertime = 1.0/fps;
+            DataContext = this;
 
             MouseLeftButtonDown += (s,e) => DragMove();
- 
-            m_timer.Tick += UpdatePP;
-            m_timer.Interval = TimeSpan.FromSeconds(m_intertime);
-            m_timer.Start();
 
             Width = Setting.WindowWidth;
             Height = Setting.WindowHeight;
@@ -54,11 +31,11 @@ namespace RealTimePPDisplayer.Displayer.View
             Top = 0;
 
             //Hit Label
-            hit_label.FontSize = Setting.HitObjectFontSize;
+            hit_label.FontSize = Setting.HitCountFontSize;
             hit_label.Visibility = Setting.DisplayHitObject?Visibility.Visible:Visibility.Hidden;
             hit_label.Foreground = new SolidColorBrush()
             {
-                Color = Setting.HitObjectFontColor
+                Color = Setting.HitCountFontColor
             };
 
             //PP Label
@@ -90,25 +67,42 @@ namespace RealTimePPDisplayer.Displayer.View
             Topmost = Setting.Topmost;
         }
         #endregion
-        #region Show PP
-        private void UpdatePP(object sender,EventArgs e)
-        {
-            if (!display_pp) return;
-            if (double.IsNaN(m_current_pp)) m_current_pp = 0;
-            if (double.IsNaN(m_speed)) m_speed = 0;
 
-            m_current_pp = SmoothMath.SmoothDamp(m_current_pp, m_target_pp, ref m_speed, m_smooth_time, m_intertime);
-            pp_label.Content = $"{m_current_pp:F2}pp";
+        #region property 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChangedEventHandler handler = this.PropertyChanged;
+            if (handler != null)
+            {
+                PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
+                handler(this, e);
+            }
         }
 
-        public void ClearPP()
+        private string m_pp_context = "0.00pp";
+        public string PPContext
         {
-            display_pp = false;
-            m_current_pp = 0.0;
-            m_target_pp = 0.0;
-            m_speed = 0.0;
-            pp_label.Content = "";
+            get => m_pp_context;
+            set
+            {
+                m_pp_context = value;
+                OnPropertyChanged("PPContext");
+            }
         }
+
+        private string m_hit_count_context = "0x100 0x50 0xMiss";
+        public string HitCountContext
+        {
+            get => m_hit_count_context;
+            set
+            {
+                m_hit_count_context = value;
+                OnPropertyChanged("HitCountContext");
+            }
+        }
+
         #endregion
 
         private void WindowSizeChanged(object sender,SizeChangedEventArgs e)
