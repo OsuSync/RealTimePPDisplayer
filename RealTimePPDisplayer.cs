@@ -161,18 +161,16 @@ namespace RealTimePPDisplayer
                 }
             }
         }
-        #endregion
 
-        private void ModifySetting(string name,string val)
+        private void RemoveAllDisplayer()
         {
-            switch(name)
+            foreach (var p in m_all_displayers)
             {
-                case "SmoothTime":
-                    if(int.TryParse(val,out int ival))
-                        Setting.SmoothTime = ival;
-                    break;
+                p.Value.OnDestroy();
             }
+            m_all_displayers.Clear();
         }
+        #endregion
 
         private void InitCommand(PluginEvents.InitCommandEvent @e)
         {
@@ -182,10 +180,6 @@ namespace RealTimePPDisplayer
                 {
                     switch(args[0])
                     {
-                        case "setting":
-                            ModifySetting(args[1], args[2]);
-                            break;
-
                         case "add":
                             if (!m_displayer_creators.ContainsKey(args[1])) return false;
                             var creator = m_displayer_creators[args[1]];
@@ -204,15 +198,19 @@ namespace RealTimePPDisplayer
             }, "Real Time PP Displayer control panel");
         }
 
-        
+        public override void OnDisable()
+        {
+            m_stop_fixed_update = true;
+            m_fixed_update_thread.Wait(5000);
+            RemoveAllDisplayer();
+            m_displayer_creators.Clear();
+            for (int i = 0; i < m_osu_pp_controls.Length; i++)
+                m_osu_pp_controls[i] = null;
+        }
 
         public override void OnExit()
         {
-            foreach(var p in m_all_displayers)
-            {
-                p.Value.OnDestroy();
-            }
-            m_all_displayers.Clear();
+            RemoveAllDisplayer();
         }
     }
 }
