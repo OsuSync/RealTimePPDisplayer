@@ -33,6 +33,7 @@ namespace RealTimePPDisplayer
         public ConfigurationElement UseText { get; set; }
         public ConfigurationElement TextOutputPath { get; set; }
         public ConfigurationElement DisplayHitObject { set; get; }
+        public ConfigurationElement FontName { set; get; }
         public ConfigurationElement PPFontSize { set; get; }
         public ConfigurationElement PPFontColor { set; get; }
         public ConfigurationElement HitCountFontSize { set; get; }
@@ -57,6 +58,7 @@ namespace RealTimePPDisplayer
                 Setting.UseText = bool.Parse(UseText);
                 Setting.TextOutputPath = TextOutputPath;
                 Setting.DisplayHitObject = bool.Parse(DisplayHitObject);
+                Setting.FontName = FontName;
                 Setting.PPFontColor = ColorConverter.StringToColor(PPFontColor);
                 Setting.PPFontSize = int.Parse(PPFontSize);
                 Setting.HitCountFontSize = int.Parse(HitCountFontSize);
@@ -91,6 +93,7 @@ namespace RealTimePPDisplayer
             UseText = Setting.UseText.ToString();
             TextOutputPath = Setting.TextOutputPath;
             DisplayHitObject = Setting.DisplayHitObject.ToString();
+            FontName = Setting.FontName;
             PPFontColor = ColorConverter.ColorToString(Setting.PPFontColor);
             PPFontSize = Setting.PPFontSize.ToString();
             HitCountFontSize = Setting.HitCountFontSize.ToString();
@@ -116,6 +119,7 @@ namespace RealTimePPDisplayer
         public static bool UseText = false;
         public static string TextOutputPath = @"rtpp{0}.txt";
         public static bool DisplayHitObject = true;
+        public static string FontName = "Segoe UI";
         public static int PPFontSize = 48;
         public static Color PPFontColor = Colors.White;
         public static int HitCountFontSize = 24;

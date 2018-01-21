@@ -90,6 +90,8 @@ namespace RealTimePPDisplayer.Displayer.View
             Width = Setting.WindowWidth;
             Height = Setting.WindowHeight;
 
+            FontFamily = new FontFamily(Setting.FontName);
+
             //Hit Label
             hit_label.FontSize = Setting.HitCountFontSize;
             hit_label.Visibility = Setting.DisplayHitObject ? Visibility.Visible : Visibility.Hidden;
