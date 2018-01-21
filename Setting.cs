@@ -1,5 +1,4 @@
-﻿using OsuRTDataProvider.Handler;
-using Sync.Tools;
+﻿using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,6 +80,11 @@ namespace RealTimePPDisplayer
             }
         }
 
+        public void onConfigurationReload()
+        {
+            onConfigurationLoad();
+        }
+
         public void onConfigurationSave()
         {
             UseText = Setting.UseText.ToString();
@@ -131,15 +135,5 @@ namespace RealTimePPDisplayer
         
 
         private static SettingIni setting_output = new SettingIni();
-        private static PluginConfiuration plugin_config = null;
-
-        public static RealTimePPDisplayerPlugin PluginInstance
-        {
-            set
-            {
-                plugin_config = new PluginConfiuration(value, setting_output);
-                plugin_config.ForceLoad();
-            }
-        }
     }
 }

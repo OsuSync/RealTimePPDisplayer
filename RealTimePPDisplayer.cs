@@ -1,5 +1,4 @@
 ﻿using OsuRTDataProvider;
-using OsuRTDataProvider.Handler;
 using RealTimePPDisplayer.Displayer;
 using Sync.Plugins;
 using Sync.Tools;
@@ -21,7 +20,9 @@ namespace RealTimePPDisplayer
 
         private OsuRTDataProviderPlugin m_memory_reader;
         private PPControl[] m_osu_pp_controls = new PPControl[16];
-        
+
+        private PluginConfigurationManager m_config_manager;
+
         public int TourneyWindowSize => m_memory_reader.TourneyListenerManagersCount;
         public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
 
@@ -46,7 +47,8 @@ namespace RealTimePPDisplayer
         /// </summary>
         public override void OnEnable()
         {
-            Setting.PluginInstance = this;
+            m_config_manager = new PluginConfigurationManager(this);
+            m_config_manager.AddItem(new SettingIni());
 
             m_memory_reader = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
 
@@ -89,7 +91,7 @@ namespace RealTimePPDisplayer
             RegisterDisplayer("mmf", (id) => new MmfDisplayer(id));
             RegisterDisplayer("text", (id) => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
 
-            ExitHandler.OnConsloeExit += OnExit;
+            Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
         }
 
         #region Displayer operation
@@ -201,6 +203,8 @@ namespace RealTimePPDisplayer
                 return false;
             }, "Real Time PP Displayer control panel");
         }
+
+        
 
         public override void OnExit()
         {
