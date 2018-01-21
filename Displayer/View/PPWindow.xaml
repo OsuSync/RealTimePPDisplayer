@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:RealTimePPDisplayer.Displayer.View"
              mc:Ignorable="d" Width="280" Height="172" WindowStyle="None"
              Background="#ff00ff00"
-             SizeChanged="WindowSizeChanged"
+             SizeChanged="WindowSizeChanged" FontFamily="Consolas"
              Title="PPShow" Closed="Window_Closed">
     <Grid>
         <Grid.RowDefinitions>

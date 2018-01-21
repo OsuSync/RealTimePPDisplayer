@@ -21,13 +21,18 @@ namespace RealTimePPDisplayer.Displayer.View
             InitializeComponent();
             DataContext = this;
 
+            //Transparency
+            if (Setting.BackgroundColor.A != 255)
+                AllowsTransparency = true;
+
+            LoadSetting();
+
             WindowStartupLocation = WindowStartupLocation.Manual;
             Left = SystemParameters.PrimaryScreenWidth - Width - 50;
             Top = 0;
 
             MouseLeftButtonDown += (s,e) => DragMove();
             Setting.OnSettingChanged += ReloadSetting;
-            LoadSetting();
         }
         #endregion
 
@@ -112,10 +117,6 @@ namespace RealTimePPDisplayer.Displayer.View
                 hit_label.Effect = new DropShadowEffect() { BlurRadius = 4 };
                 client_id.Effect = new DropShadowEffect() { BlurRadius = 3 };
             }
-
-            //Transparency
-            if (Setting.BackgroundColor.A != 255)
-                AllowsTransparency = true;
 
             topmost_item.IsChecked = Setting.Topmost;
             topmost_item.Header = (string)DefaultLanguage.UI_MENU_TOPMOST;

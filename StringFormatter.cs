@@ -12,8 +12,8 @@ namespace RealTimePPDisplayer
 {
     public class StringFormatter:IEnumerable<string>
     {
-        private static ThreadLocal<StringFormatter> s_pp_format_local = new ThreadLocal<StringFormatter>(() => new StringFormatter(Setting.PPFormat));
-        private static ThreadLocal<StringFormatter> s_hit_count_format_local = new ThreadLocal<StringFormatter>(() => new StringFormatter(Setting.HitCountFormat));
+        private static ThreadLocal<StringFormatter> s_pp_format_local = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
+        private static ThreadLocal<StringFormatter> s_hit_count_format_local = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
 
         private string m_format;
         private StringBuilder m_builder=new StringBuilder(1024);
@@ -36,6 +36,11 @@ namespace RealTimePPDisplayer
                 m_args.Add(key);
                 result=result.NextMatch();
             }
+        }
+
+        protected void ReplaceFormat(string format)
+        {
+            m_format = new_line_pattern.Replace(format, Environment.NewLine);
         }
 
         public void Clear()
@@ -95,6 +100,29 @@ namespace RealTimePPDisplayer
             var t = s_hit_count_format_local.Value;
             t.Clear();
             return t;
+        }
+    }
+
+    internal class PPStringFormatter : StringFormatter
+    {
+        public PPStringFormatter():base(Setting.PPFormat)
+        {
+            Setting.OnSettingChanged += () =>
+              {
+                  ReplaceFormat(Setting.PPFormat);
+              };
+        }
+    }
+
+
+    internal class HitCountStringFormatter : StringFormatter
+    {
+        public HitCountStringFormatter() : base(Setting.HitCountFormat)
+        {
+            Setting.OnSettingChanged += () =>
+            {
+                ReplaceFormat(Setting.HitCountFormat);
+            };
         }
     }
 }
