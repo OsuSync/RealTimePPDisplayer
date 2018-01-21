@@ -183,5 +183,22 @@ namespace RealTimePPDisplayer.Beatmap
 
             return _rtpp_result;
         }
+
+        public void Clear()
+        {
+            _pos = -1;
+            _n100 = -1;
+            _n50 = -1;
+            _nmiss = -1;
+            _max_combo = -1;
+            _rtpp_result = Oppai.pp_calc.Empty;
+
+            _fc_n100 = -1;
+            _fc_n50 = -1;
+            _fc_result = Oppai.pp_calc.Empty;
+
+            _max_mods = ModsInfo.Empty;
+            _max_result = Oppai.pp_calc.Empty;
+        }
     }
 }

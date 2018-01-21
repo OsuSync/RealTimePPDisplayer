@@ -57,6 +57,7 @@ namespace RealTimePPDisplayer
                     m_nmiss = 0;
                     foreach (var p in m_displayers)
                         p.Value.Clear();
+                    m_beatmap_reader?.Clear();
                 }
             };
 

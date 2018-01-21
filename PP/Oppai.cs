@@ -35,6 +35,7 @@ namespace RealTimePPDisplayer.PP
             /* ppv2 will store results here */
             public double total, aim, speed, acc;
             public double accuracy; /* 0.0 - 1.0 */
+            public static pp_calc Empty;
         };
 
         [StructLayout(LayoutKind.Sequential)]
