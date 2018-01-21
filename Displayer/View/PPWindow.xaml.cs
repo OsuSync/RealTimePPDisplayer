@@ -21,50 +21,13 @@ namespace RealTimePPDisplayer.Displayer.View
             InitializeComponent();
             DataContext = this;
 
-            MouseLeftButtonDown += (s,e) => DragMove();
-
-            Width = Setting.WindowWidth;
-            Height = Setting.WindowHeight;
-
             WindowStartupLocation = WindowStartupLocation.Manual;
             Left = SystemParameters.PrimaryScreenWidth - Width - 50;
             Top = 0;
 
-            //Hit Label
-            hit_label.FontSize = Setting.HitCountFontSize;
-            hit_label.Visibility = Setting.DisplayHitObject?Visibility.Visible:Visibility.Hidden;
-            hit_label.Foreground = new SolidColorBrush()
-            {
-                Color = Setting.HitCountFontColor
-            };
-
-            //PP Label
-            pp_label.FontSize = Setting.PPFontSize;
-            pp_label.Foreground = new SolidColorBrush()
-            {
-                Color = Setting.PPFontColor
-            };
-
-            Background = new SolidColorBrush()
-            {
-                Color = Setting.BackgroundColor
-            };
-
-            //Text Shadow
-            if (Setting.WindowTextShadow)
-            {
-                pp_label.Effect = new DropShadowEffect() { BlurRadius = 5 };
-                hit_label.Effect = new DropShadowEffect() { BlurRadius = 4 };
-                client_id.Effect = new DropShadowEffect() { BlurRadius = 3 };
-            }
-
-            //Transparency
-            if (Setting.BackgroundColor.A != 255)
-                AllowsTransparency = true;
-
-            topmost_item.IsChecked = Setting.Topmost;
-            topmost_item.Header = (string)DefaultLanguage.UI_MENU_TOPMOST;
-            Topmost = Setting.Topmost;
+            MouseLeftButtonDown += (s,e) => DragMove();
+            Setting.OnSettingChanged += ReloadSetting;
+            LoadSetting();
         }
         #endregion
 
@@ -115,6 +78,58 @@ namespace RealTimePPDisplayer.Displayer.View
         {
             Topmost = topmost_item.IsChecked;
             Setting.Topmost = Topmost;
+        }
+
+        private void LoadSetting()
+        {
+            Width = Setting.WindowWidth;
+            Height = Setting.WindowHeight;
+
+            //Hit Label
+            hit_label.FontSize = Setting.HitCountFontSize;
+            hit_label.Visibility = Setting.DisplayHitObject ? Visibility.Visible : Visibility.Hidden;
+            hit_label.Foreground = new SolidColorBrush()
+            {
+                Color = Setting.HitCountFontColor
+            };
+
+            //PP Label
+            pp_label.FontSize = Setting.PPFontSize;
+            pp_label.Foreground = new SolidColorBrush()
+            {
+                Color = Setting.PPFontColor
+            };
+
+            Background = new SolidColorBrush()
+            {
+                Color = Setting.BackgroundColor
+            };
+
+            //Text Shadow
+            if (Setting.WindowTextShadow)
+            {
+                pp_label.Effect = new DropShadowEffect() { BlurRadius = 5 };
+                hit_label.Effect = new DropShadowEffect() { BlurRadius = 4 };
+                client_id.Effect = new DropShadowEffect() { BlurRadius = 3 };
+            }
+
+            //Transparency
+            if (Setting.BackgroundColor.A != 255)
+                AllowsTransparency = true;
+
+            topmost_item.IsChecked = Setting.Topmost;
+            topmost_item.Header = (string)DefaultLanguage.UI_MENU_TOPMOST;
+            Topmost = Setting.Topmost;
+        }
+
+        private void ReloadSetting()
+        {
+            Dispatcher.Invoke(() => LoadSetting());
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Setting.OnSettingChanged -= ReloadSetting;
         }
     }
 }

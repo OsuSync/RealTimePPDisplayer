@@ -83,6 +83,7 @@ namespace RealTimePPDisplayer
         public void onConfigurationReload()
         {
             onConfigurationLoad();
+            Setting.SettingChanged();
         }
 
         public void onConfigurationSave()
@@ -132,8 +133,13 @@ namespace RealTimePPDisplayer
         public static string PPFormat = "${rtpp}pp";
         //combo maxcombo fullcombo n300 n100 n50 nmiss
         public static string HitCountFormat = "${n100}x100 ${n50}x50 ${nmiss}xMiss";
-        
 
-        private static SettingIni setting_output = new SettingIni();
+
+        public static event Action OnSettingChanged;
+
+        public static void SettingChanged()
+        {
+            OnSettingChanged?.Invoke();
+        }
     }
 }

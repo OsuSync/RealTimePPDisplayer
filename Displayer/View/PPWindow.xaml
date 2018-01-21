@@ -7,7 +7,7 @@
              mc:Ignorable="d" Width="280" Height="172" WindowStyle="None"
              Background="#ff00ff00"
              SizeChanged="WindowSizeChanged"
-             Title="PPShow">
+             Title="PPShow" Closed="Window_Closed">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="20" />
