@@ -26,8 +26,8 @@ Settings is in config.ini<br>
 | WindowTextShadow | True|Whether to apply text shadow effect |
 | DebugMode | False | Enable debug ouput |
 | RoundDigits | 2 | accurate up to {**RoundDigits**} decimal places. |
-| PPFormat | ${rtpp}pp | you can choose **rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc** |
-| HitCountFormat | ${n100}x100 ${n50}x50 ${nmiss}xMiss | you can choose **combo maxcombo fullcombo n300 n100 n50 nmiss**|
+| PPFormat | ${rtpp}pp | you can choose **rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc** [more](https://github.com/KedamaOvO/RealTimePPDisplayer/wiki/How-to-customize-my-output-content%3F)|
+| HitCountFormat | ${n100}x100 ${n50}x50 ${nmiss}xMiss | you can choose **combo maxcombo fullcombo n300 n100 n50 nmiss** [more](https://github.com/KedamaOvO/RealTimePPDisplayer/wiki/How-to-customize-my-output-content%3F)|
 | FontName | Segoe UI | Font name |
 
 # How to use MMF?
