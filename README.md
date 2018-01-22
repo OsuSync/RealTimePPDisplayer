@@ -10,7 +10,7 @@ Settings is in config.ini<br>
 | Setting Name  | Default Value | Description |
 |:------------- |:-------------|:-----|
 | OutputMethods | wpf | The output mode of plugin ,you can choose "wpf","mmf" and "text" (segmenting with ',' e.g: wpf,text) |
-| UseText  | False | Whether to output to txt file(***recommended OutputMethods***) |
+| UseText  | False | Whether to output to txt file(**recommended OutputMethods**) |
 | TextOutputPath  | rtpp{0}.txt |  Output file path |
 | DisplayHitObject | True  | Whether to display hitobjects(like 300_count/50_count and others) |
 | PPFontSize | 48 | PP value text font size(pt) |
@@ -24,7 +24,11 @@ Settings is in config.ini<br>
 | FPS | 60 | FPS |
 | Topmost | False | Whether to PP Window is topmost(You can right click pp window) |
 | WindowTextShadow | True|Whether to apply text shadow effect |
-| DebugMode | False |Enable debug ouput |
+| DebugMode | False | Enable debug ouput |
+| RoundDigits | 2 | accurate up to {**RoundDigits**} decimal places. |
+| PPFormat | ${rtpp}pp | you can choose **rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc** |
+| HitCountFormat | ${n100}x100 ${n50}x50 ${nmiss}xMiss | you can choose **combo maxcombo fullcombo n300 n100 n50 nmiss**|
+| FontName | Segoe UI | Font name |
 
 # How to use MMF?
 1. Install [obs-text-rtpp-mmf](https://github.com/KedamaOvO/RealTimePPDisplayer/releases/download/v1.1.1/obs-text-rtpp-mmf.7z) to OBS (20.1.3).
