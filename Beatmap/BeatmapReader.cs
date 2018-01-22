@@ -178,7 +178,10 @@ namespace RealTimePPDisplayer.Beatmap
                 args.n50 = n50;
                 args.nmiss = nmiss;
 
-                Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,null, ref _rtpp_result);
+                if(!Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,null, ref _rtpp_result))
+                {
+                    return Oppai.pp_calc.Empty;
+                }
             }
 
             return _rtpp_result;

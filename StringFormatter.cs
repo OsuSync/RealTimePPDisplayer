@@ -24,23 +24,22 @@ namespace RealTimePPDisplayer
 
         protected StringFormatter(string format)
         {
-            m_format =new_line_pattern.Replace(format,Environment.NewLine);
-
-            m_builder.Append(format);
-
-            var result = pattern.Match(format);
-
-            while(result.Success)
-            {
-                var key = result.Groups[1].Value.Trim();
-                m_args.Add(key);
-                result=result.NextMatch();
-            }
+            ReplaceFormat(format);
         }
 
         protected void ReplaceFormat(string format)
         {
+            m_args.Clear();
             m_format = new_line_pattern.Replace(format, Environment.NewLine);
+
+            var result = pattern.Match(format);
+
+            while (result.Success)
+            {
+                var key = result.Groups[1].Value.Trim();
+                m_args.Add(key);
+                result = result.NextMatch();
+            }
         }
 
         public void Clear()

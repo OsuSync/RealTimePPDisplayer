@@ -49,7 +49,7 @@ namespace RealTimePPDisplayer.PP
         public const Int32 FullCombo = -1; 
 
         [DllImport(@"oppai.dll")]
-        public extern static double get_ppv2(byte[] data, UInt32 data_size,ref rtpp_params args, Boolean use_cache,pp_params cache,ref pp_calc result);
+        public extern static bool get_ppv2(byte[] data, UInt32 data_size,ref rtpp_params args, Boolean use_cache,pp_params cache,ref pp_calc result);
 
         #region oppai-ng function
 
