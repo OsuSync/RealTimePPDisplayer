@@ -31,6 +31,8 @@ namespace RealTimePPDisplayer.Displayer
         public int Count300;
         public int Count100;
         public int Count50;
+        public int CountGeki;
+        public int CountKatu;
         public int CountMiss;
         public int Combo;
         public int MaxCombo;
@@ -130,6 +132,10 @@ namespace RealTimePPDisplayer.Displayer
                         formatter.Fill(arg, tuple.Count50); break;
                     case "nmiss":
                         formatter.Fill(arg, tuple.CountMiss); break;
+                    case "ngeki":
+                        formatter.Fill(arg, tuple.CountGeki); break;
+                    case "nkatu":
+                        formatter.Fill(arg, tuple.CountKatu); break;
                     case "combo":
                         formatter.Fill(arg, tuple.Combo); break;
                     case "maxcombo":

@@ -27,12 +27,12 @@ namespace RealTimePPDisplayer.Beatmap
         private Oppai.pp_params m_cache=new Oppai.pp_params();
         public int FullCombo => m_cache.max_combo;
 
-        public BeatmapReader(string file)
+        public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
         {
             m_beatmap_header.Offset = 0;
             m_beatmap_header.Length = 0;
 
-            using (var fs = File.OpenRead(file))
+            using (var fs = File.OpenRead(beatmap.FilenameFull))
             {
                 using (var reader = new StreamReader(fs))
                 {
@@ -76,13 +76,15 @@ namespace RealTimePPDisplayer.Beatmap
             }
         }
 
-        private int GetPosition(int end_time)
+        private int GetPosition(int end_time,out int nline)
         {
             int pos = m_beatmap_header.Length;
+            nline = 0;
             foreach(var obj in m_object_list)
             {
                 if (obj.Time > end_time) break;
                 pos+=(obj.Length);
+                nline++;
             }
 
             return pos;
@@ -154,7 +156,7 @@ namespace RealTimePPDisplayer.Beatmap
 
         public Oppai.pp_calc GetRealTimePP(int end_time,ModsInfo mods,int n100,int n50,int nmiss,int max_combo)
         {
-            int pos = GetPosition(end_time);
+            int pos = GetPosition(end_time,out int nobject);
 
             bool need_update = false;
             need_update = need_update || _pos != pos;
