@@ -20,6 +20,7 @@ namespace RealTimePPDisplayer
     class PPControl
     {
         private OsuListenerManager m_listener_manager;
+        private BeatmapReader m_beatmap_reader;
 
         private PPCalculatorBase m_pp_calculator=new StdPPCalculator();
         private ModsInfo m_cur_mods = ModsInfo.Empty;
@@ -58,7 +59,10 @@ namespace RealTimePPDisplayer
                         m_pp_calculator = new StdPPCalculator(); break;
                     case OsuPlayMode.OsuMania:
                         m_pp_calculator = new ManiaPPCalculator(); break;
+                    case OsuPlayMode.Taiko:
+                        m_pp_calculator = new TaikoPPCalculator(); break;
                     default:
+                        Sync.Tools.IO.CurrentIO.WriteColor("Unsupported Mode",ConsoleColor.Red);
                         m_pp_calculator = null; break;
                 }
             };
@@ -75,7 +79,7 @@ namespace RealTimePPDisplayer
                     m_nmiss = 0;
                     foreach (var p in m_displayers)
                         p.Value.Clear();
-                    //m_beatmap_reader?.Clear();
+                    m_beatmap_reader?.Clear();
                 }
             };
 
@@ -99,13 +103,13 @@ namespace RealTimePPDisplayer
             if (string.IsNullOrWhiteSpace(file))
             {
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]No found .osu file(Set:{beatmap.BeatmapSetID} Beatmap:{beatmap.BeatmapID}])", ConsoleColor.Yellow);
-                m_pp_calculator.Beatmap = null;
+                m_beatmap_reader = null;
                 return;
             }
 
             if (Setting.DebugMode)
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}", ConsoleColor.Blue);
-            m_pp_calculator.Beatmap = new BeatmapReader(beatmap);
+            m_beatmap_reader = new BeatmapReader(beatmap);
         }
         private void RTPPOnPlayingTimeChanged(int time)
         {
@@ -123,6 +127,7 @@ namespace RealTimePPDisplayer
                 m_nmiss = 0;
             }
 
+            m_pp_calculator.Beatmap = m_beatmap_reader;
             m_pp_calculator.Time = m_time;
             m_pp_calculator.MaxCombo = m_max_combo;
             m_pp_calculator.Count300 = m_n300;

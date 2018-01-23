@@ -11,7 +11,7 @@ namespace RealTimePPDisplayer.Calculator
 {
     abstract class PPCalculatorBase
     {
-        public BeatmapReader Beatmap;
+        public BeatmapReader Beatmap { get; set; }
         public int Count300 { get; set; }
         public int Count100 { get; set; }
         public int Count50 { get; set; }

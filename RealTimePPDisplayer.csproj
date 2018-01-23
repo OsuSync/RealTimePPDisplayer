@@ -51,6 +51,7 @@
     <Compile Include="Calculator\ManiaPPCalculator.cs" />
     <Compile Include="Calculator\OsuPPCalculator.cs" />
     <Compile Include="Calculator\PPCalculatorBase.cs" />
+    <Compile Include="Calculator\TaikoPPCalculator.cs" />
     <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Displayer\DisplayerBase.cs" />
     <Compile Include="Displayer\MmfDisplayer.cs" />
