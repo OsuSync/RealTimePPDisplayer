@@ -57,12 +57,12 @@ namespace RealTimePPDisplayer
                 {
                     case OsuPlayMode.Osu:
                         m_pp_calculator = new StdPPCalculator(); break;
-                    case OsuPlayMode.OsuMania:
-                        m_pp_calculator = new ManiaPPCalculator(); break;
                     case OsuPlayMode.Taiko:
                         m_pp_calculator = new TaikoPPCalculator(); break;
+                    //case OsuPlayMode.Mania:
+                    //    m_pp_calculator = new ManiaPPCalculator(); break;
                     default:
-                        Sync.Tools.IO.CurrentIO.WriteColor("Unsupported Mode",ConsoleColor.Red);
+                        Sync.Tools.IO.CurrentIO.WriteColor("[RealTimePPDisplayer]Unsupported Mode", ConsoleColor.Red);
                         m_pp_calculator = null; break;
                 }
             };

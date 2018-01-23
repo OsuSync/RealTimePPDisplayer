@@ -126,6 +126,8 @@ namespace RealTimePPDisplayer.Displayer
                 {
                     case "n300":
                         formatter.Fill(arg, tuple.Count300); break;
+                    case "n150":
+                        formatter.Fill(arg, tuple.Count100); break;
                     case "n100":
                         formatter.Fill(arg, tuple.Count100); break;
                     case "n50":
