@@ -1,4 +1,5 @@
-﻿using OsuRTDataProvider.Mods;
+﻿using OsuRTDataProvider.Listen;
+using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.PP;
 using System;
 using System.Collections.Generic;
@@ -26,13 +27,14 @@ namespace RealTimePPDisplayer.Beatmap
 
         private Oppai.pp_params m_cache=new Oppai.pp_params();
         public int FullCombo => m_cache.max_combo;
+        public int ObjectCount => m_cache.nobjects;
 
-        public BeatmapReader(string file)
+        public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
         {
             m_beatmap_header.Offset = 0;
             m_beatmap_header.Length = 0;
 
-            using (var fs = File.OpenRead(file))
+            using (var fs = File.OpenRead(beatmap.FilenameFull))
             {
                 using (var reader = new StreamReader(fs))
                 {
@@ -76,13 +78,15 @@ namespace RealTimePPDisplayer.Beatmap
             }
         }
 
-        private int GetPosition(int end_time)
+        private int GetPosition(int end_time,out int nline)
         {
             int pos = m_beatmap_header.Length;
+            nline = 0;
             foreach(var obj in m_object_list)
             {
                 if (obj.Time > end_time) break;
                 pos+=(obj.Length);
+                nline++;
             }
 
             return pos;
@@ -91,7 +95,7 @@ namespace RealTimePPDisplayer.Beatmap
         private ModsInfo _max_mods = ModsInfo.Empty;
         private Oppai.pp_calc _max_result;
 
-        public Oppai.pp_calc GetMaxPP(ModsInfo mods)
+        public Oppai.pp_calc GetMaxPP(ModsInfo mods,OsuPlayMode mode)
         {
             bool need_update = false;
             need_update = need_update || mods != _max_mods;
@@ -106,6 +110,7 @@ namespace RealTimePPDisplayer.Beatmap
                 args.n100 = 0;
                 args.n50 = 0;
                 args.nmiss = 0;
+                args.mode = (uint)mode;
 
                 //Cache Beatmap
                 Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length,ref args, false,m_cache,ref _max_result);
@@ -117,11 +122,8 @@ namespace RealTimePPDisplayer.Beatmap
         private int _fc_n50 = -1;
         private Oppai.pp_calc _fc_result;
 
-        public Oppai.pp_calc GetIfFcPP(ModsInfo mods,int n300,int n100,int n50,int nmiss)
+        public Oppai.pp_calc GetIfFcPP(ModsInfo mods,int n300,int n100,int n50, OsuPlayMode mode)
         {
-            double acc=Oppai.acc_calc(n300, n100, n50, nmiss)*100.0;
-            Oppai.acc_round(acc, m_cache.nobjects, nmiss, out n300, out n100, out n50);
-
             bool need_update = false;
             need_update = need_update || _fc_n100 != n100;
             need_update = need_update || _fc_n50 != n50;
@@ -138,6 +140,7 @@ namespace RealTimePPDisplayer.Beatmap
                 args.n100 = n100;
                 args.n50 = n50;
                 args.nmiss = 0;
+                args.mode = (uint)mode;
 
                 Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length,ref args,true,m_cache,ref _fc_result);
             }
@@ -152,9 +155,9 @@ namespace RealTimePPDisplayer.Beatmap
         private int _max_combo = -1;
         private Oppai.pp_calc _rtpp_result;
 
-        public Oppai.pp_calc GetRealTimePP(int end_time,ModsInfo mods,int n100,int n50,int nmiss,int max_combo)
+        public Oppai.pp_calc GetRealTimePP(int end_time,ModsInfo mods,int n100,int n50,int nmiss,int max_combo, OsuPlayMode mode)
         {
-            int pos = GetPosition(end_time);
+            int pos = GetPosition(end_time,out int nobject);
 
             bool need_update = false;
             need_update = need_update || _pos != pos;
@@ -177,8 +180,9 @@ namespace RealTimePPDisplayer.Beatmap
                 args.n100 = n100;
                 args.n50 = n50;
                 args.nmiss = nmiss;
+                args.mode = (uint)mode;
 
-                if(!Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,null, ref _rtpp_result))
+                if (!Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,null, ref _rtpp_result))
                 {
                     return Oppai.pp_calc.Empty;
                 }

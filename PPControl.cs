@@ -13,14 +13,16 @@ using System.IO;
 using System.Windows.Media;
 using System.Windows;
 using RealTimePPDisplayer.Displayer;
+using RealTimePPDisplayer.Calculator;
 
 namespace RealTimePPDisplayer
 {
     class PPControl
     {
         private OsuListenerManager m_listener_manager;
-
         private BeatmapReader m_beatmap_reader;
+
+        private PPCalculatorBase m_pp_calculator=new StdPPCalculator();
         private ModsInfo m_cur_mods = ModsInfo.Empty;
 
         private OsuStatus m_status;
@@ -31,6 +33,8 @@ namespace RealTimePPDisplayer
         private int m_n300 = 0;
         private int m_n100 = 0;
         private int m_n50 = 0;
+        private int m_ngeki = 0;
+        private int m_nkatu = 0;
         private int m_nmiss = 0;
         private int m_time = 0;
 
@@ -41,10 +45,28 @@ namespace RealTimePPDisplayer
             m_listener_manager = mamger;
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
-            m_listener_manager.On300HitChanged += c => m_n300 = c;
-            m_listener_manager.On100HitChanged += c => m_n100 = c;
-            m_listener_manager.On50HitChanged += c => m_n50 = c;
-            m_listener_manager.OnMissHitChanged += c => m_nmiss = c;
+            m_listener_manager.On300CountChanged += c => m_n300 = c;
+            m_listener_manager.OnGekiCountChanged += c => m_ngeki = c;
+            m_listener_manager.OnKatuCountChanged += c => m_nkatu = c;
+            m_listener_manager.On100CountChanged += c => m_n100 = c;
+            m_listener_manager.On50CountChanged += c => m_n50 = c;
+            m_listener_manager.OnMissCountChanged += c => m_nmiss = c;
+            m_listener_manager.OnPlayModeChanged += (last, mode) =>
+            {
+                switch (mode)
+                {
+                    case OsuPlayMode.Osu:
+                        m_pp_calculator = new StdPPCalculator(); break;
+                    case OsuPlayMode.Taiko:
+                        m_pp_calculator = new TaikoPPCalculator(); break;
+                    //case OsuPlayMode.Mania:
+                    //    m_pp_calculator = new ManiaPPCalculator(); break;
+                    default:
+                        Sync.Tools.IO.CurrentIO.WriteColor("[RealTimePPDisplayer]Unsupported Mode", ConsoleColor.Red);
+                        m_pp_calculator = null; break;
+                }
+            };
+
             m_listener_manager.OnStatusChanged += (last, cur) =>
             {
                 m_status = cur;
@@ -64,7 +86,7 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnComboChanged += (combo) =>
             {
                 if (m_status != OsuStatus.Playing) return;
-                if(combo<=m_beatmap_reader?.FullCombo)
+                if(combo<= m_pp_calculator?.Beatmap?.FullCombo)
                 {
                     m_combo = combo;
                     m_max_combo = Math.Max(m_max_combo, m_combo);
@@ -77,12 +99,6 @@ namespace RealTimePPDisplayer
 
         private void RTPPOnBeatmapChanged(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
         {
-            if (string.IsNullOrWhiteSpace(beatmap.Difficulty))
-            {
-                m_beatmap_reader = null;
-                return;
-            }
-
             string file = beatmap.FilenameFull;
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -93,12 +109,12 @@ namespace RealTimePPDisplayer
 
             if (Setting.DebugMode)
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}", ConsoleColor.Blue);
-            m_beatmap_reader = new BeatmapReader(file);
+            m_beatmap_reader = new BeatmapReader(beatmap);
         }
         private void RTPPOnPlayingTimeChanged(int time)
         {
+            if (m_pp_calculator == null) return;
             if (time < 0) return;
-            if (m_beatmap_reader == null) return;
             if (m_status != OsuStatus.Playing) return;
             if (m_cur_mods == ModsInfo.Mods.Unknown) return;
 
@@ -110,29 +126,21 @@ namespace RealTimePPDisplayer
                 m_n50 = 0;
                 m_nmiss = 0;
             }
-            
-            PPTuple pp_tuple;
-            var result=m_beatmap_reader.GetMaxPP(m_cur_mods);
-            pp_tuple.MaxPP = result.total;
-            pp_tuple.MaxAimPP = result.aim;
-            pp_tuple.MaxSpeedPP = result.speed;
-            pp_tuple.MaxAccuracyPP = result.acc;
 
-            result = m_beatmap_reader.GetIfFcPP(m_cur_mods, m_n300, m_n100, m_n50, m_nmiss);
-            pp_tuple.FullComboPP = result.total;
-            pp_tuple.FullComboAimPP = result.aim;
-            pp_tuple.FullComboSpeedPP = result.speed;
-            pp_tuple.FullComboAccuracyPP = result.acc;
+            m_pp_calculator.Beatmap = m_beatmap_reader;
+            m_pp_calculator.Time = m_time;
+            m_pp_calculator.MaxCombo = m_max_combo;
+            m_pp_calculator.Count300 = m_n300;
+            m_pp_calculator.Count100 = m_n100;
+            m_pp_calculator.Count50 = m_n50;
+            m_pp_calculator.CountGeki = m_ngeki;
+            m_pp_calculator.CountKatu= m_nkatu;
 
-            result = m_beatmap_reader.GetRealTimePP(time, m_cur_mods, m_n100, m_n50, m_nmiss, m_max_combo);
-            pp_tuple.RealTimePP = result.total;
-            pp_tuple.RealTimeAimPP = result.aim;
-            pp_tuple.RealTimeSpeedPP = result.speed;
-            pp_tuple.RealTimeAccuracyPP = result.acc;
+            var pp_tuple = m_pp_calculator.GetPP(m_cur_mods);
 
             if (double.IsNaN(pp_tuple.RealTimePP)) pp_tuple.RealTimePP = 0.0;
             if (Math.Abs(pp_tuple.RealTimePP) > pp_tuple.MaxPP) pp_tuple.RealTimePP = 0.0;
-            if (m_max_combo > m_beatmap_reader.FullCombo) m_max_combo = 0;
+            if (m_max_combo > m_pp_calculator.Beatmap.FullCombo) m_max_combo = 0;
 
             foreach(var p in m_displayers)
             {
@@ -145,8 +153,10 @@ namespace RealTimePPDisplayer
                     hit_tuple.Count50 = m_n50;
                     hit_tuple.CountMiss = m_nmiss;
                     hit_tuple.Combo = m_combo;
-                    hit_tuple.FullCombo = m_beatmap_reader.FullCombo;
+                    hit_tuple.FullCombo = m_pp_calculator.Beatmap.FullCombo;
                     hit_tuple.MaxCombo = m_max_combo;
+                    hit_tuple.CountGeki = m_ngeki;
+                    hit_tuple.CountKatu = m_nkatu;
                     p.Value.OnUpdateHitCount(hit_tuple);
                 }
                 p.Value.Display();

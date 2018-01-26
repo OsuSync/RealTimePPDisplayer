@@ -44,6 +44,7 @@ namespace RealTimePPDisplayer.PP
             public UInt32 mods;
             public int n50,n100,nmiss;
             public int combo;
+            public UInt32 mode;
         }
 
         public const Int32 FullCombo = -1; 
@@ -103,6 +104,38 @@ namespace RealTimePPDisplayer.PP
             }
 
             n300 = nobjects - n100 - n50 - misses;
+        }
+
+        public static double taiko_acc_calc(int n300, int n150, int nmiss)
+        {
+            int total_hits = n300 + n150 + nmiss;
+            double acc = 0;
+
+            if (total_hits > 0)
+            {
+                acc = (n150 * 150.0 + n300 * 300.0) / (total_hits * 300.0);
+            }
+
+            return acc;
+        }
+
+        public static void taiko_acc_round(double acc_percent, int nobjects, int nmisses, out int n300, out int n150)
+        {
+            int max300;
+            double maxacc;
+
+            nmisses = Math.Min(nobjects, nmisses);
+            max300 = nobjects - nmisses;
+            maxacc = acc_calc(max300, 0, 0, nmisses) * 100.0;
+            acc_percent = Math.Max(0.0, Math.Min(maxacc, acc_percent));
+
+            /* just some black magic maths from wolfram alpha */
+            n150 = (int)
+                round_oppai(-2.0 * ((acc_percent * 0.01 - 1.0) *
+                    nobjects + nmisses));
+
+            n150 = Math.Min(max300, n150);
+            n300 = nobjects - n150 - nmisses;
         }
 
         #endregion

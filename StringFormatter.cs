@@ -71,7 +71,6 @@ namespace RealTimePPDisplayer
 
         public void Fill(string name, double n)
         {
- 
             Fill(name, string.Format($"{{0:F{Setting.RoundDigits}}}",n));
         }
 
