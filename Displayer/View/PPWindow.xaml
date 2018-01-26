@@ -10,9 +10,9 @@
              Title="PPShow" Closed="Window_Closed">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="20" />
+            <RowDefinition Height="4*" />
             <RowDefinition Height="2*" />
-            <RowDefinition Height="4*" />
-            <RowDefinition Height="4*" />
         </Grid.RowDefinitions>
         <Grid.ContextMenu>
             <ContextMenu Name="cm" StaysOpen="true">
@@ -21,11 +21,11 @@
         </Grid.ContextMenu>
         <Label Grid.Row="0" Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White"/>
         <Label Grid.Row="1" Name="pp_label" Content="{Binding PPContext}" HorizontalContentAlignment="Center"
-                   VerticalContentAlignment="Center"  FontSize="48" Foreground="White" Margin="5"
+                   VerticalContentAlignment="Top"  FontSize="48" Foreground="White"
                    TextOptions.TextHintingMode="Animated"/>
         <Label Grid.Row="2" Name="hit_label" Content="{Binding HitCountContext}" 
-                   FontSize="24" Foreground="White" Margin="5"
-                   VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
+                   FontSize="24" Foreground="White" 
+                   VerticalContentAlignment="Top" HorizontalContentAlignment="Center" 
                    TextOptions.TextHintingMode="Animated"/>
     </Grid>
 </Window>
