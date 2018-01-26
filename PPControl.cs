@@ -45,12 +45,12 @@ namespace RealTimePPDisplayer
             m_listener_manager = mamger;
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
-            m_listener_manager.On300HitChanged += c => m_n300 = c;
-            m_listener_manager.OnGekiChanged += c => m_ngeki = c;
-            m_listener_manager.OnKatuChanged += c => m_nkatu = c;
-            m_listener_manager.On100HitChanged += c => m_n100 = c;
-            m_listener_manager.On50HitChanged += c => m_n50 = c;
-            m_listener_manager.OnMissHitChanged += c => m_nmiss = c;
+            m_listener_manager.On300CountChanged += c => m_n300 = c;
+            m_listener_manager.OnGekiCountChanged += c => m_ngeki = c;
+            m_listener_manager.OnKatuCountChanged += c => m_nkatu = c;
+            m_listener_manager.On100CountChanged += c => m_n100 = c;
+            m_listener_manager.On50CountChanged += c => m_n50 = c;
+            m_listener_manager.OnMissCountChanged += c => m_nmiss = c;
             m_listener_manager.OnPlayModeChanged += (last, mode) =>
             {
                 switch (mode)
