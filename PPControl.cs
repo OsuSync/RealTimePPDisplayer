@@ -119,12 +119,6 @@ namespace RealTimePPDisplayer
             if (m_status != OsuStatus.Playing) return;
             if (m_cur_mods == ModsInfo.Mods.Unknown) return;
 
-            if(Setting.DebugMode&&m_pp_calculator.Beatmap==null)
-            {
-                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]Can't get beatmap information!",ConsoleColor.Yellow);
-                return;
-            }
-
             if (m_time > time)//Reset
             {
                 m_combo = 0;
@@ -132,6 +126,12 @@ namespace RealTimePPDisplayer
                 m_n100 = 0;
                 m_n50 = 0;
                 m_nmiss = 0;
+            }
+
+            if (Setting.DebugMode && m_beatmap_reader == null)
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]Can't get beatmap information!", ConsoleColor.Yellow);
+                return;
             }
 
             m_pp_calculator.Beatmap = m_beatmap_reader;
