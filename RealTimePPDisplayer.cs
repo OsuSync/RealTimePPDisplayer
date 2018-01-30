@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer
 {
-    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.2.1", Require = true)]
+    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.2.2", Require = true)]
     [SyncPluginID("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", VERSION)]
     public class RealTimePPDisplayerPlugin : Plugin
     {
