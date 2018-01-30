@@ -45,12 +45,12 @@ namespace RealTimePPDisplayer
             m_listener_manager = mamger;
 
             m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
-            m_listener_manager.On300CountChanged += c => m_n300 = c;
-            m_listener_manager.OnGekiCountChanged += c => m_ngeki = c;
-            m_listener_manager.OnKatuCountChanged += c => m_nkatu = c;
-            m_listener_manager.On100CountChanged += c => m_n100 = c;
-            m_listener_manager.On50CountChanged += c => m_n50 = c;
-            m_listener_manager.OnMissCountChanged += c => m_nmiss = c;
+            m_listener_manager.OnCount300Changed += c => m_n300 = c;
+            m_listener_manager.OnCountGekiChanged += c => m_ngeki = c;
+            m_listener_manager.OnCountKatuChanged += c => m_nkatu = c;
+            m_listener_manager.OnCount100Changed += c => m_n100 = c;
+            m_listener_manager.OnCount50Changed += c => m_n50 = c;
+            m_listener_manager.OnCountMissChanged += c => m_nmiss = c;
             m_listener_manager.OnPlayModeChanged += (last, mode) =>
             {
                 switch (mode)
@@ -111,12 +111,19 @@ namespace RealTimePPDisplayer
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}", ConsoleColor.Blue);
             m_beatmap_reader = new BeatmapReader(beatmap);
         }
+
         private void RTPPOnPlayingTimeChanged(int time)
         {
             if (m_pp_calculator == null) return;
             if (time < 0) return;
             if (m_status != OsuStatus.Playing) return;
             if (m_cur_mods == ModsInfo.Mods.Unknown) return;
+
+            if(Setting.DebugMode&&m_pp_calculator.Beatmap==null)
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]Can't get beatmap information!",ConsoleColor.Yellow);
+                return;
+            }
 
             if (m_time > time)//Reset
             {
