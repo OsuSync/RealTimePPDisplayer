@@ -140,6 +140,7 @@ namespace RealTimePPDisplayer
             m_pp_calculator.Count300 = m_n300;
             m_pp_calculator.Count100 = m_n100;
             m_pp_calculator.Count50 = m_n50;
+            m_pp_calculator.CountMiss = m_nmiss;
             m_pp_calculator.CountGeki = m_ngeki;
             m_pp_calculator.CountKatu= m_nkatu;
 
