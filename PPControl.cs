@@ -146,8 +146,16 @@ namespace RealTimePPDisplayer
 
             var pp_tuple = m_pp_calculator.GetPP(m_cur_mods);
 
-            if (double.IsNaN(pp_tuple.RealTimePP)) pp_tuple.RealTimePP = 0.0;
-            if (Math.Abs(pp_tuple.RealTimePP) > pp_tuple.MaxPP) pp_tuple.RealTimePP = 0.0;
+            pp_tuple.RealTimePP=F(pp_tuple.RealTimePP, pp_tuple.MaxPP, 0.0);
+            pp_tuple.RealTimeSpeedPP = F(pp_tuple.RealTimeSpeedPP, pp_tuple.MaxPP, 0.0);
+            pp_tuple.RealTimeAimPP = F(pp_tuple.RealTimeAimPP, pp_tuple.MaxPP, 0.0);
+            pp_tuple.RealTimeAccuracyPP = F(pp_tuple.RealTimeAccuracyPP, pp_tuple.MaxPP, 0.0);
+
+            pp_tuple.RealTimePP = F(pp_tuple.RealTimePP,double.NaN, 0.0);
+            pp_tuple.RealTimeSpeedPP = F(pp_tuple.RealTimeSpeedPP, double.NaN, 0.0);
+            pp_tuple.RealTimeAimPP = F(pp_tuple.RealTimeAimPP, double.NaN, 0.0);
+            pp_tuple.RealTimeAccuracyPP = F(pp_tuple.RealTimeAccuracyPP, double.NaN, 0.0);
+
             if (m_max_combo > m_pp_calculator.Beatmap.FullCombo) m_max_combo = 0;
 
             foreach(var p in m_displayers)
@@ -194,8 +202,15 @@ namespace RealTimePPDisplayer
                 m_displayers.Remove(name);
             }
         }
+
+        #region helper function
+        private double F(double val, double max, double default_val)
+        {
+            return Math.Abs(val) > max ? 0.0 : val;
+        }
+        #endregion
     }
 
 
-    
+
 }

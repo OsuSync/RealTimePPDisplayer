@@ -12,10 +12,10 @@ namespace RealTimePPDisplayer
         //From: http://devblog.aliasinggames.com/inertialdamp-unity-smoothdamp-alternative/
         public static double SmoothDamp(double previousValue, double targetValue, ref double speed, double smoothTime, double dt)
         {
-            double T1 = 0.36f * smoothTime;
-            double T2 = 0.64f * smoothTime;
+            double T1 = 0.36 * smoothTime;
+            double T2 = 0.64 * smoothTime;
             double x = previousValue - targetValue;
-            double newSpeed = speed + dt * (-1f / (T1 * T2) * x - (T1 + T2) / (T1 * T2) * speed);
+            double newSpeed = speed + dt * (-1.0 / (T1 * T2) * x - (T1 + T2) / (T1 * T2) * speed);
             double newValue = x + dt * speed;
             speed = newSpeed;
             return targetValue + newValue;
