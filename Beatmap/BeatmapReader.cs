@@ -25,7 +25,10 @@ namespace RealTimePPDisplayer.Beatmap
 
         private List<BeatmapObject> m_object_list = new List<BeatmapObject>();
 
+        private Oppai.pp_params m_real_time_data = new Oppai.pp_params();
         private Oppai.pp_params m_cache=new Oppai.pp_params();
+
+        public int RealTimeMaxCombo => m_real_time_data.max_combo;
         public int FullCombo => m_cache.max_combo;
         public int ObjectCount => m_cache.nobjects;
 
@@ -182,7 +185,7 @@ namespace RealTimePPDisplayer.Beatmap
                 args.nmiss = nmiss;
                 args.mode = (uint)mode;
 
-                if (!Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,null, ref _rtpp_result))
+                if (!Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,m_real_time_data, ref _rtpp_result))
                 {
                     return Oppai.pp_calc.Empty;
                 }

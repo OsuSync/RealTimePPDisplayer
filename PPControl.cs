@@ -170,7 +170,8 @@ namespace RealTimePPDisplayer
                     hit_tuple.CountMiss = m_nmiss;
                     hit_tuple.Combo = m_combo;
                     hit_tuple.FullCombo = m_pp_calculator.Beatmap.FullCombo;
-                    hit_tuple.MaxCombo = m_max_combo;
+                    hit_tuple.PlayerMaxCombo = m_max_combo;
+                    hit_tuple.RealTimeMaxCombo = m_pp_calculator.Beatmap.RealTimeMaxCombo;
                     hit_tuple.CountGeki = m_ngeki;
                     hit_tuple.CountKatu = m_nkatu;
                     p.Value.OnUpdateHitCount(hit_tuple);

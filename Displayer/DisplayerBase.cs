@@ -34,9 +34,11 @@ namespace RealTimePPDisplayer.Displayer
         public int CountGeki;
         public int CountKatu;
         public int CountMiss;
+
         public int Combo;
-        public int MaxCombo;
+        public int PlayerMaxCombo;
         public int FullCombo;
+        public int RealTimeMaxCombo;
     }
 
     public abstract class DisplayerBase
@@ -139,8 +141,9 @@ namespace RealTimePPDisplayer.Displayer
             m_hit_count_expr_data["ngeki"] = tuple.CountGeki;
             m_hit_count_expr_data["nkatu"] = tuple.CountKatu;
 
+            m_hit_count_expr_data["rtmaxcombo"] = tuple.RealTimeMaxCombo;
             m_hit_count_expr_data["fullcombo"] = tuple.FullCombo;
-            m_hit_count_expr_data["maxcombo"] = tuple.MaxCombo;
+            m_hit_count_expr_data["maxcombo"] = tuple.PlayerMaxCombo;
             m_hit_count_expr_data["combo"] = tuple.Combo;
 
 
