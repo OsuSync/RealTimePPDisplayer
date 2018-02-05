@@ -20,24 +20,32 @@ namespace RealTimePPDisplayer.Displayer
             m_expr = expr;
         }
 
-        private object Eval()
+        private decimal Eval()
         {
-            var builder = new StringBuilder(m_expr);
-            foreach (var pair in Data)
-                builder.Replace(pair.Key, $"{pair.Value:F8}");
+            try
+            {
+                var builder = new StringBuilder(m_expr);
+                foreach (var pair in Data)
+                    builder.Replace(pair.Key, $"{pair.Value:F6}");
 
-            return m_eval.Compute(builder.ToString(), null);
+                return (decimal)m_eval.Compute(builder.ToString(), null);
+            }
+            catch(Exception e)
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::Expression]{e}",ConsoleColor.Yellow);
+                return default(decimal);
+            }
         }
 
         public int EvalInt()
         {
-            return (int)(decimal)Eval();
+            return (int)Eval();
         }
 
 
         public double EvalDouble()
         {
-            return (double)(decimal)Eval();
+            return (double)Eval();
         }
     }
 }
