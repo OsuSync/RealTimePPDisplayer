@@ -78,73 +78,87 @@ namespace RealTimePPDisplayer.Displayer
 
         public virtual void OnDestroy() { }
 
+        private Dictionary<string, double> m_pp_expr_data = new Dictionary<string, double>();
+        private Dictionary<string, Expression<double>> m_pp_expression_dict=new Dictionary<string, Expression<double>>();
+
         protected StringFormatter GetFormattedPP(PPTuple tuple)
         {
             var formatter = StringFormatter.GetPPFormatter();
 
+            m_pp_expr_data["rtpp_speed"] = tuple.RealTimeSpeedPP;
+            m_pp_expr_data["rtpp_aim"] = tuple.RealTimeAimPP;
+            m_pp_expr_data["rtpp_acc"] = tuple.RealTimeAccuracyPP;
+            m_pp_expr_data["rtpp"] = tuple.RealTimePP;
+
+            m_pp_expr_data["fcpp_speed"] = tuple.FullComboSpeedPP;
+            m_pp_expr_data["fcpp_aim"] = tuple.FullComboAimPP;
+            m_pp_expr_data["fcpp_acc"] = tuple.FullComboAccuracyPP;
+            m_pp_expr_data["fcpp"] = tuple.FullComboPP;
+
+            m_pp_expr_data["maxpp_speed"] = tuple.MaxSpeedPP;
+            m_pp_expr_data["maxpp_aim"] = tuple.MaxAimPP;
+            m_pp_expr_data["maxpp_acc"] = tuple.MaxAccuracyPP;
+            m_pp_expr_data["maxpp"] = tuple.MaxPP;
+
+
             foreach (var arg in formatter)
             {
-                switch (arg)
+                Expression<double> expr;
+                if (!m_pp_expression_dict.ContainsKey(arg))
                 {
-                    case "rtpp":
-                        formatter.Fill(arg, tuple.RealTimePP); break;
-                    case "rtpp_aim":
-                        formatter.Fill(arg, tuple.RealTimeAimPP); break;
-                    case "rtpp_speed":
-                        formatter.Fill(arg, tuple.RealTimeSpeedPP); break;
-                    case "rtpp_acc":
-                        formatter.Fill(arg, tuple.RealTimeAccuracyPP); break;
-
-                    case "fcpp":
-                        formatter.Fill(arg, tuple.FullComboPP); break;
-                    case "fcpp_aim":
-                        formatter.Fill(arg, tuple.FullComboAimPP); break;
-                    case "fcpp_speed":
-                        formatter.Fill(arg, tuple.FullComboSpeedPP); break;
-                    case "fcpp_acc":
-                        formatter.Fill(arg, tuple.FullComboAccuracyPP); break;
-
-                    case "maxpp":
-                        formatter.Fill(arg, tuple.MaxPP); break;
-                    case "maxpp_aim":
-                        formatter.Fill(arg, tuple.MaxAimPP); break;
-                    case "maxpp_speed":
-                        formatter.Fill(arg, tuple.MaxSpeedPP); break;
-                    case "maxpp_acc":
-                        formatter.Fill(arg, tuple.MaxAccuracyPP); break;
+                    expr = new Expression<double>(arg);
+                    expr.Data = m_pp_expr_data;
+                    m_pp_expression_dict[arg]=expr;
                 }
+                else
+                {
+                    expr = m_pp_expression_dict[arg];
+                }
+
+                formatter.Fill(arg, expr.EvalDouble());
             }
 
             return formatter;
         }
+
+
+        private Dictionary<string, int> m_hit_count_expr_data = new Dictionary<string, int>();
+        private Dictionary<string, Expression<int>> m_hit_count_expression_dict = new Dictionary<string, Expression<int>>();
+
         protected StringFormatter GetFormattedHitCount(HitCountTuple tuple)
         {
             var formatter = StringFormatter.GetHitCountFormatter();
+
+            m_hit_count_expr_data["n300g"] = tuple.CountGeki;
+            m_hit_count_expr_data["n300"] = tuple.Count300;
+            m_hit_count_expr_data["n200"] = tuple.CountKatu;
+            m_hit_count_expr_data["n100"] = tuple.Count100;
+            m_hit_count_expr_data["n150"] = tuple.Count100;
+            m_hit_count_expr_data["n50"] = tuple.Count50;
+            m_hit_count_expr_data["nmiss"] = tuple.CountMiss;
+            m_hit_count_expr_data["ngeki"] = tuple.CountGeki;
+            m_hit_count_expr_data["nkatu"] = tuple.CountKatu;
+
+            m_hit_count_expr_data["fullcombo"] = tuple.FullCombo;
+            m_hit_count_expr_data["maxcombo"] = tuple.MaxCombo;
+            m_hit_count_expr_data["combo"] = tuple.Combo;
+
+
             foreach (var arg in formatter)
             {
-                switch (arg)
+                Expression<int> expr;
+                if (!m_hit_count_expression_dict.ContainsKey(arg))
                 {
-                    case "n300":
-                        formatter.Fill(arg, tuple.Count300); break;
-                    case "n150":
-                        formatter.Fill(arg, tuple.Count100); break;
-                    case "n100":
-                        formatter.Fill(arg, tuple.Count100); break;
-                    case "n50":
-                        formatter.Fill(arg, tuple.Count50); break;
-                    case "nmiss":
-                        formatter.Fill(arg, tuple.CountMiss); break;
-                    case "ngeki":
-                        formatter.Fill(arg, tuple.CountGeki); break;
-                    case "nkatu":
-                        formatter.Fill(arg, tuple.CountKatu); break;
-                    case "combo":
-                        formatter.Fill(arg, tuple.Combo); break;
-                    case "maxcombo":
-                        formatter.Fill(arg, tuple.MaxCombo); break;
-                    case "fullcombo":
-                        formatter.Fill(arg, tuple.FullCombo); break;
+                    expr = new Expression<int>(arg);
+                    expr.Data = m_hit_count_expr_data;
+                    m_hit_count_expression_dict[arg]=expr;
                 }
+                else
+                {
+                    expr = m_hit_count_expression_dict[arg];
+                }
+
+                formatter.Fill(arg, expr.EvalInt());
             }
 
             return formatter;
