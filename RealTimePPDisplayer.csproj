@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="Beatmap\BeatmapObject.cs" />
     <Compile Include="Beatmap\BeatmapReader.cs" />
+    <Compile Include="Beatmap\ManiaDifficultyCalculator.cs" />
     <Compile Include="Calculator\ManiaPPCalculator.cs" />
     <Compile Include="Calculator\OsuPPCalculator.cs" />
     <Compile Include="Calculator\PPCalculatorBase.cs" />

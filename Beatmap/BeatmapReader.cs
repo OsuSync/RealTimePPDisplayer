@@ -18,19 +18,22 @@ namespace RealTimePPDisplayer.Beatmap
             public int Length;
         }
 
-        private BeatmapHeader m_beatmap_header;
-
-        private byte[] m_beatmap_raw;
-        public byte[] BeatmapRaw => m_beatmap_raw;
-
-        private List<BeatmapObject> m_object_list = new List<BeatmapObject>();
-
-        private Oppai.pp_params m_real_time_data = new Oppai.pp_params();
-        private Oppai.pp_params m_cache=new Oppai.pp_params();
+        public byte[] BeatmapRaw { get; private set; }
+        public List<BeatmapObject> ObjectList { get; private set; } = new List<BeatmapObject>();
 
         public int RealTimeMaxCombo => m_real_time_data.max_combo;
         public int FullCombo => m_cache.max_combo;
-        public int ObjectCount => m_cache.nobjects;
+        public int ObjectCount => ObjectList.Count;
+
+        public OsuPlayMode Mode { get; set; }
+        public double OverallDifficulty { get; private set; }
+        public double HPDrainRate { get; private set; }
+        public double CircleSize { get; private set; }
+        public int KeyMode { get; private set; }
+
+        private BeatmapHeader m_beatmap_header;
+        private Oppai.pp_params m_real_time_data = new Oppai.pp_params();
+        private Oppai.pp_params m_cache=new Oppai.pp_params();
 
         public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
         {
@@ -39,55 +42,100 @@ namespace RealTimePPDisplayer.Beatmap
 
             using (var fs = File.OpenRead(beatmap.FilenameFull))
             {
-                using (var reader = new StreamReader(fs))
+                BeatmapRaw = new byte[fs.Length];
+                fs.Read(BeatmapRaw, 0, (int)fs.Length);
+            }
+            Parse();
+        }
+
+        public void Parse()
+        {
+            int bias = 2;
+
+            int pos = Array.IndexOf(BeatmapRaw, (byte)'\n');
+            if (BeatmapRaw[pos - 1] != '\r')
+                bias = 1;
+
+            pos = 0;
+
+            using (var ms = new MemoryStream(BeatmapRaw))
+            {
+                using (var sr = new StreamReader(ms))
                 {
-                    m_beatmap_raw=Encoding.UTF8.GetBytes(reader.ReadToEnd());
+                    string block_name = "";
+                    while (!sr.EndOfStream)
+                    {
+                        string raw_line = sr.ReadLine();
+                        int raw_line_len = Encoding.UTF8.GetByteCount(raw_line) + bias;
+
+                        string line = raw_line.Trim();
+
+                        if (line.StartsWith("["))
+                        {
+                            block_name = line.Substring(1, line.Length - 2).Trim();
+                            if (block_name == "HitObjects")
+                                m_beatmap_header.Length = pos + raw_line_len;
+                        }
+                        else if (!string.IsNullOrEmpty(line) && (block_name == "General" || block_name == "Difficulty"))
+                        {
+                            GetPropertyString(line, out var prop, out var val);
+
+                            switch (prop)
+                            {
+                                case "Mode":
+                                    Mode = (OsuPlayMode)int.Parse(val);
+                                    break;
+                                case "OverallDifficulty":
+                                    OverallDifficulty = double.Parse(val);
+                                    break;
+                                case "HPDrainRate":
+                                    HPDrainRate = double.Parse(val);
+                                    break;
+                                case "CircleSize":
+                                    CircleSize = double.Parse(val);
+                                    if (Mode == OsuPlayMode.Mania)
+                                        KeyMode = int.Parse(val);
+                                    break;
+                            }
+
+                        }
+                        else if (!string.IsNullOrEmpty(line) && block_name == "HitObjects")
+                        {
+                            BeatmapObject obj;
+                            if (Mode != OsuPlayMode.Mania)
+                                obj = new BeatmapObject(line, pos, raw_line_len, this);
+                            else
+                                obj = new ManiaBeatmapObject(line, pos, raw_line_len, this);
+
+                            ObjectList.Add(obj);
+                        }
+
+                        pos += raw_line_len;
+                    }
                 }
             }
-            Parser();
+
+            if (Mode == OsuPlayMode.Mania)
+                ObjectList.Sort();
         }
 
-        void ReadLine(out int offset,out int length,ref int position)
+        #region Tool Function
+        private void GetPropertyString(string str,out string prop,out string val)
         {
-            int count = 0;
-            while((position+count)<m_beatmap_raw.Length)
-            {
-                if (m_beatmap_raw[position + count] == '\n')
-                {
-                    count++;
-                    break;
-                };
-                count++;
-            }
-            length = count;
-            offset = position;
-            position = offset + count;
+            var strs=str.Split(':');
+            prop = strs[0].Trim();
+            val = strs[1].Trim();
         }
+        #endregion
 
-        public void Parser()
-        {
-            int position = 0;
-            int len=Array.LastIndexOf(m_beatmap_raw,(byte)']');
-            m_beatmap_header.Length=(m_beatmap_raw[len + 1] == '\n') ? len+2 : len+3;
-
-            position = m_beatmap_header.Length;
-
-            while(position<m_beatmap_raw.Length)
-            {
-                ReadLine(out int offset, out int length,ref position);
-                string line = Encoding.UTF8.GetString(m_beatmap_raw, offset, length);
-                var obj = new BeatmapObject(line, offset, length);
-                m_object_list.Add(obj);
-            }
-        }
-
+        #region Oppai PP calculate
         private int GetPosition(int end_time,out int nline)
         {
             int pos = m_beatmap_header.Length;
             nline = 0;
-            foreach(var obj in m_object_list)
+            foreach(var obj in ObjectList)
             {
-                if (obj.Time > end_time) break;
+                if (obj.StartTime > end_time) break;
                 pos+=(obj.Length);
                 nline++;
             }
@@ -116,7 +164,7 @@ namespace RealTimePPDisplayer.Beatmap
                 args.mode = (uint)mode;
 
                 //Cache Beatmap
-                Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length,ref args, false,m_cache,ref _max_result);
+                Oppai.get_ppv2(BeatmapRaw, (uint)BeatmapRaw.Length,ref args, false,m_cache,ref _max_result);
             }
             return _max_result;
         }
@@ -145,7 +193,7 @@ namespace RealTimePPDisplayer.Beatmap
                 args.nmiss = 0;
                 args.mode = (uint)mode;
 
-                Oppai.get_ppv2(m_beatmap_raw, (uint)m_beatmap_raw.Length,ref args,true,m_cache,ref _fc_result);
+                Oppai.get_ppv2(BeatmapRaw, (uint)BeatmapRaw.Length,ref args,true,m_cache,ref _fc_result);
             }
 
             return _fc_result;
@@ -185,7 +233,7 @@ namespace RealTimePPDisplayer.Beatmap
                 args.nmiss = nmiss;
                 args.mode = (uint)mode;
 
-                if (!Oppai.get_ppv2(m_beatmap_raw, (uint)pos, ref args, false,m_real_time_data, ref _rtpp_result))
+                if (!Oppai.get_ppv2(BeatmapRaw, (uint)pos, ref args, false,m_real_time_data, ref _rtpp_result))
                 {
                     return Oppai.pp_calc.Empty;
                 }
@@ -211,4 +259,5 @@ namespace RealTimePPDisplayer.Beatmap
             _max_result = Oppai.pp_calc.Empty;
         }
     }
+    #endregion
 }
