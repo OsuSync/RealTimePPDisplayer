@@ -31,8 +31,8 @@ namespace RealTimePPDisplayer.Beatmap
             X = int.Parse(breaked[0]);
             Y = int.Parse(breaked[1]);
             StartTime = int.Parse(breaked[2]);
-            Type = int.Parse(breaked[3]);
             EndTime = StartTime;
+            Type = int.Parse(breaked[3]);
         }
 
     }
@@ -42,61 +42,75 @@ namespace RealTimePPDisplayer.Beatmap
         public int Key { get; private set; }
         public double OverallStrain { get; private set; } = 1;
 
-        public double[] IndividuaStrains { get; private set; } = new double[18];
-        public int[] HeldUntil { get; private set; } = new int[18];
+        public double IndividualStrain
+        {
+            get => IndividualStrains[Key];
+            set => IndividualStrains[Key] = value;
+        }
+
+        public double[] IndividualStrains { get; private set; }
+        public int[] HeldUntil { get; private set; }
 
         public ManiaBeatmapObject(string line, int offset, int len, BeatmapReader beatmap) : base(line, offset, len, beatmap)
         {
+            IndividualStrains = new double[Beatmap.KeyCount];
+            HeldUntil = new int[Beatmap.KeyCount];
+
             string[] breaked = line.Split(',');
             ManiaParse(breaked);
         }
 
-        private const double INDIVIDUAL_DECAY_BASE = 0.125;
-        private const double OVERALL_DECAY_BASE = 0.30;
+        public void ClearStrainsValue()
+        {
+            for(int i=0;i<Beatmap.KeyCount;++i)
+            {
+                IndividualStrains[i] = 0;
+                HeldUntil[i] = 0;
+            }
+        }
+
+        internal static readonly double INDIVIDUAL_DECAY_BASE = 0.125;
+        internal static readonly double OVERALL_DECAY_BASE = 0.30;
 
 
         private void ManiaParse(string[] breaked)
         {
-            string[] addition = breaked[6].Split();
+            string[] addition = breaked[5].Split(':');
 
             if (Type == 128)
                 EndTime = int.Parse(addition[0]);
 
-            double interval = 512.0 / Beatmap.KeyMode;
-
-            for (int i = 1; i <= Beatmap.KeyMode; i++)
-            {
-                if (X > interval * (i - 1) && X < i * interval)
-                    Key = i;
-            }
+            int column_width = 512 / Beatmap.KeyCount;
+            Key = X / column_width;
         }
 
-        private void ManiaCalculateStrains(ManiaBeatmapObject prev, double time_rate)
+        public void ManiaCalculateStrains(ManiaBeatmapObject prev, double time_rate)
         {
             double addition = 1;
-            double time_elapsed = (StartTime - prev.StartTime) / time_rate / 1000.0;
-            double individual_decay = Math.Pow(INDIVIDUAL_DECAY_BASE, time_elapsed);
-            double overall_decay = Math.Pow(OVERALL_DECAY_BASE, time_elapsed);
+            double time_elapsed = (StartTime - prev.StartTime) / time_rate;
+            double individual_decay = Math.Pow(INDIVIDUAL_DECAY_BASE, time_elapsed / 1000);
+            double overall_decay = Math.Pow(OVERALL_DECAY_BASE, time_elapsed / 1000);
 
             double hold_factor = 1;
             double hold_addition = 0;
 
-            for (int i = 0; i < Beatmap.KeyMode; i++)
+            for (int i = 0; i < Beatmap.KeyCount; i++)
             {
                 HeldUntil[i] = prev.HeldUntil[i];
 
                 if (StartTime < HeldUntil[i] && EndTime > HeldUntil[i])
                     hold_addition = 1;
+
                 if (EndTime == HeldUntil[i])
                     hold_addition = 0;
+
                 if (HeldUntil[i] > EndTime)
                     hold_factor = 1.25;
 
-                IndividuaStrains[i] = prev.IndividuaStrains[i] * individual_decay;
+                IndividualStrains[i] = prev.IndividualStrains[i] * individual_decay;
             }
-
             HeldUntil[Key] = EndTime;
-            IndividuaStrains[Key] = IndividuaStrains[Key] + 2 * hold_factor;
+            IndividualStrain += 2.0 * hold_factor;
 
             OverallStrain = prev.OverallStrain * overall_decay + (addition + hold_addition) * hold_factor;
         }

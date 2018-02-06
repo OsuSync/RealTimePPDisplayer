@@ -22,7 +22,7 @@ namespace RealTimePPDisplayer
         private OsuListenerManager m_listener_manager;
         private BeatmapReader m_beatmap_reader;
 
-        private PPCalculatorBase m_pp_calculator=new StdPPCalculator();
+        private PerformanceCalculatorBase m_pp_calculator=new StdPPCalculator();
         private ModsInfo m_cur_mods = ModsInfo.Empty;
 
         private OsuStatus m_status;
@@ -44,7 +44,7 @@ namespace RealTimePPDisplayer
         {
             m_listener_manager = mamger;
 
-            m_listener_manager.OnModsChanged += (mods) => m_cur_mods = mods;
+            m_listener_manager.OnModsChanged += (mods) => { m_cur_mods = mods; m_pp_calculator.ClearCache(); };
             m_listener_manager.OnCount300Changed += c => m_n300 = c;
             m_listener_manager.OnCountGekiChanged += c => m_ngeki = c;
             m_listener_manager.OnCountKatuChanged += c => m_nkatu = c;
@@ -58,9 +58,9 @@ namespace RealTimePPDisplayer
                     case OsuPlayMode.Osu:
                         m_pp_calculator = new StdPPCalculator(); break;
                     case OsuPlayMode.Taiko:
-                        m_pp_calculator = new TaikoPPCalculator(); break;
-                    //case OsuPlayMode.Mania:
-                    //    m_pp_calculator = new ManiaPPCalculator(); break;
+                        m_pp_calculator = new TaikoPerformanceCalculator(); break;
+                    case OsuPlayMode.Mania:
+                        m_pp_calculator = new ManiaPerformanceCalculator(); break;
                     default:
                         Sync.Tools.IO.CurrentIO.WriteColor("[RealTimePPDisplayer]Unsupported Mode", ConsoleColor.Red);
                         m_pp_calculator = null; break;
@@ -79,14 +79,13 @@ namespace RealTimePPDisplayer
                     m_nmiss = 0;
                     foreach (var p in m_displayers)
                         p.Value.Clear();
-                    m_beatmap_reader?.Clear();
                 }
             };
 
             m_listener_manager.OnComboChanged += (combo) =>
             {
                 if (m_status != OsuStatus.Playing) return;
-                if(combo<= m_pp_calculator?.Beatmap?.FullCombo)
+                if(combo<= ((m_pp_calculator as OppaiPerformanceCalculator)?.Oppai.FullCombo??20000))
                 {
                     m_combo = combo;
                     m_max_combo = Math.Max(m_max_combo, m_combo);
@@ -110,6 +109,7 @@ namespace RealTimePPDisplayer
             if (Setting.DebugMode)
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}", ConsoleColor.Blue);
             m_beatmap_reader = new BeatmapReader(beatmap);
+            m_pp_calculator.ClearCache();
         }
 
         private void RTPPOnPlayingTimeChanged(int time)
@@ -156,7 +156,7 @@ namespace RealTimePPDisplayer
             pp_tuple.RealTimeAimPP = F(pp_tuple.RealTimeAimPP, double.NaN, 0.0);
             pp_tuple.RealTimeAccuracyPP = F(pp_tuple.RealTimeAccuracyPP, double.NaN, 0.0);
 
-            if (m_max_combo > m_pp_calculator.Beatmap.FullCombo) m_max_combo = 0;
+            if (m_max_combo > ((m_pp_calculator as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 20000)) m_max_combo = 0;
 
             foreach(var p in m_displayers)
             {
@@ -169,9 +169,9 @@ namespace RealTimePPDisplayer
                     hit_tuple.Count50 = m_n50;
                     hit_tuple.CountMiss = m_nmiss;
                     hit_tuple.Combo = m_combo;
-                    hit_tuple.FullCombo = m_pp_calculator.Beatmap.FullCombo;
+                    hit_tuple.FullCombo = (m_pp_calculator as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 0;
                     hit_tuple.PlayerMaxCombo = m_max_combo;
-                    hit_tuple.RealTimeMaxCombo = m_pp_calculator.Beatmap.RealTimeMaxCombo;
+                    hit_tuple.RealTimeMaxCombo = (m_pp_calculator as OppaiPerformanceCalculator)?.Oppai.RealTimeMaxCombo??0;
                     hit_tuple.CountGeki = m_ngeki;
                     hit_tuple.CountKatu = m_nkatu;
                     p.Value.OnUpdateHitCount(hit_tuple);

@@ -50,11 +50,11 @@
   <ItemGroup>
     <Compile Include="Beatmap\BeatmapObject.cs" />
     <Compile Include="Beatmap\BeatmapReader.cs" />
-    <Compile Include="Beatmap\ManiaDifficultyCalculator.cs" />
-    <Compile Include="Calculator\ManiaPPCalculator.cs" />
-    <Compile Include="Calculator\OsuPPCalculator.cs" />
-    <Compile Include="Calculator\PPCalculatorBase.cs" />
-    <Compile Include="Calculator\TaikoPPCalculator.cs" />
+    <Compile Include="Calculator\ManiaPerformanceCalculator.cs" />
+    <Compile Include="Calculator\OppaiPerformanceCalculator.cs" />
+    <Compile Include="Calculator\OsuPerformanceCalculator.cs" />
+    <Compile Include="Calculator\PerformanceCalculatorBase.cs" />
+    <Compile Include="Calculator\TaikoPerformanceCalculator.cs" />
     <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Displayer\DisplayerBase.cs" />
     <Compile Include="Displayer\Expression.cs" />
@@ -64,7 +64,7 @@
     <Compile Include="StringFormatter.cs" />
     <Compile Include="SmoothMath.cs" />
     <Compile Include="PPControl.cs" />
-    <Compile Include="PP\Oppai.cs" />
+    <Compile Include="PerformancePoint\Oppai.cs" />
     <Compile Include="RealTimePPDisplayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Setting.cs" />
