@@ -23,9 +23,9 @@ namespace RealTimePPDisplayer.Beatmap
         public BeatmapHeader BeatmapHeaderSpan => m_beatmap_header_span;
 
         public byte[] RawData { get; private set; }
-        public List<BeatmapObject> ObjectList { get; private set; } = new List<BeatmapObject>();
+        public List<BeatmapObject> Objects { get; private set; } = new List<BeatmapObject>();
 
-        public int ObjectCount => ObjectList.Count;
+        public int ObjectCount => Objects.Count;
 
         public OsuPlayMode Mode { get; set; }
         public double OverallDifficulty { get; private set; }
@@ -104,7 +104,7 @@ namespace RealTimePPDisplayer.Beatmap
                             else
                                 obj = new ManiaBeatmapObject(line, pos, raw_line_len, this);
 
-                            ObjectList.Add(obj);
+                            Objects.Add(obj);
                         }
 
                         pos += raw_line_len;
@@ -113,7 +113,7 @@ namespace RealTimePPDisplayer.Beatmap
             }
 
             if (Mode == OsuPlayMode.Mania)
-                ObjectList.Sort((a,b)=>a.StartTime-b.StartTime);
+                Objects.Sort((a,b)=>a.StartTime-b.StartTime);
         }
 
         #region Tool Function

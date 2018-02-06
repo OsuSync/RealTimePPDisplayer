@@ -24,7 +24,7 @@ namespace RealTimePPDisplayer.PerformancePoint
         {
             int pos = Beatmap.BeatmapHeaderSpan.Length;
             nline = 0;
-            foreach (var obj in Beatmap.ObjectList)
+            foreach (var obj in Beatmap.Objects)
             {
                 if (obj.StartTime > end_time) break;
                 pos += (obj.Length);

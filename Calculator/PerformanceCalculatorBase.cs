@@ -22,6 +22,7 @@ namespace RealTimePPDisplayer.Calculator
         public int CountMiss { get; set; }
         public int Time { get; set; }
         public int MaxCombo { get; set; }
+        public int Score { get; set; }
 
         public abstract PPTuple GetPP(ModsInfo mods);
         public virtual void ClearCache() { }

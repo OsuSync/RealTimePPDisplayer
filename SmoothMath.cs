@@ -18,7 +18,8 @@ namespace RealTimePPDisplayer
             double newSpeed = speed + dt * (-1.0 / (T1 * T2) * x - (T1 + T2) / (T1 * T2) * speed);
             double newValue = x + dt * speed;
             speed = newSpeed;
-            return targetValue + newValue;
+            double result = targetValue + newValue;
+            return double.IsNaN(result)?0:result;
         }
 
         public static PPTuple SmoothDampPPTuple(PPTuple previousValue, PPTuple targetValue, ref PPTuple speed, double dt)

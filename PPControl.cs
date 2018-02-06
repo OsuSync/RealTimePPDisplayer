@@ -37,6 +37,7 @@ namespace RealTimePPDisplayer
         private int m_nkatu = 0;
         private int m_nmiss = 0;
         private int m_time = 0;
+        private int m_score = 0;
 
         private Dictionary<string,DisplayerBase> m_displayers = new Dictionary<string,DisplayerBase>();
 
@@ -51,6 +52,7 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnCount100Changed += c => m_n100 = c;
             m_listener_manager.OnCount50Changed += c => m_n50 = c;
             m_listener_manager.OnCountMissChanged += c => m_nmiss = c;
+            m_listener_manager.OnScoreChanged += s => m_score = s;
             m_listener_manager.OnPlayModeChanged += (last, mode) =>
             {
                 switch (mode)
@@ -143,6 +145,7 @@ namespace RealTimePPDisplayer
             m_pp_calculator.CountMiss = m_nmiss;
             m_pp_calculator.CountGeki = m_ngeki;
             m_pp_calculator.CountKatu= m_nkatu;
+            m_pp_calculator.Score = m_score;
 
             var pp_tuple = m_pp_calculator.GetPP(m_cur_mods);
 
