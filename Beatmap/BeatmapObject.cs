@@ -62,6 +62,7 @@ namespace RealTimePPDisplayer.Beatmap
 
         public void ClearStrainsValue()
         {
+            OverallStrain = 1;
             for(int i=0;i<Beatmap.KeyCount;++i)
             {
                 IndividualStrains[i] = 0;

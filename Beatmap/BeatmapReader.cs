@@ -25,7 +25,7 @@ namespace RealTimePPDisplayer.Beatmap
         public byte[] RawData { get; private set; }
         public List<BeatmapObject> Objects { get; private set; } = new List<BeatmapObject>();
 
-        public int ObjectCount => Objects.Count;
+        public int ObjectsCount => Objects.Count;
 
         public OsuPlayMode Mode { get; set; }
         public double OverallDifficulty { get; private set; }
