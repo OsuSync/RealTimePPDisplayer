@@ -22,6 +22,7 @@ namespace RealTimePPDisplayer
         private OsuListenerManager m_listener_manager;
         private BeatmapReader m_beatmap_reader;
 
+        private OsuPlayMode m_mode = OsuPlayMode.Osu;
         private PerformanceCalculatorBase m_pp_calculator=new StdPPCalculator();
         private ModsInfo m_cur_mods = ModsInfo.Empty;
 
@@ -38,6 +39,7 @@ namespace RealTimePPDisplayer
         private int m_nmiss = 0;
         private int m_time = 0;
         private int m_score = 0;
+
 
         private Dictionary<string,DisplayerBase> m_displayers = new Dictionary<string,DisplayerBase>();
 
@@ -67,6 +69,7 @@ namespace RealTimePPDisplayer
                         Sync.Tools.IO.CurrentIO.WriteColor("[RealTimePPDisplayer]Unsupported Mode", ConsoleColor.Red);
                         m_pp_calculator = null; break;
                 }
+                m_mode = mode;
             };
 
             m_listener_manager.OnStatusChanged += (last, cur) =>
@@ -110,7 +113,7 @@ namespace RealTimePPDisplayer
 
             if (Setting.DebugMode)
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}", ConsoleColor.Blue);
-            m_beatmap_reader = new BeatmapReader(beatmap);
+            m_beatmap_reader = new BeatmapReader(beatmap,m_mode);
             m_pp_calculator.ClearCache();
         }
 

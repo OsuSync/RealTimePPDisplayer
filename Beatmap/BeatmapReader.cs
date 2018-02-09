@@ -33,10 +33,11 @@ namespace RealTimePPDisplayer.Beatmap
         public double CircleSize { get; private set; }
         public int KeyCount { get; private set; }
 
-        public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
+        public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap,OsuPlayMode mode=OsuPlayMode.Unknown)
         {
             m_beatmap_header_span.Offset = 0;
             m_beatmap_header_span.Length = 0;
+            Mode = mode;
 
             using (var fs = File.OpenRead(beatmap.FilenameFull))
             {
@@ -81,7 +82,12 @@ namespace RealTimePPDisplayer.Beatmap
                             switch (prop)
                             {
                                 case "Mode":
-                                    Mode = (OsuPlayMode)int.Parse(val);
+                                    OsuPlayMode mode = (OsuPlayMode)int.Parse(val);
+                                    if (mode != OsuPlayMode.Mania && Mode == OsuPlayMode.Mania)
+                                    {
+                                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::Beatmap]Only support mania beatmap.", ConsoleColor.Yellow);
+                                        Mode = mode;
+                                    }
                                     break;
                                 case "OverallDifficulty":
                                     OverallDifficulty = double.Parse(val);

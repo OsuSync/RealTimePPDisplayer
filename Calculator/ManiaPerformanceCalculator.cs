@@ -92,7 +92,7 @@ namespace RealTimePPDisplayer.Calculator
         public override PPTuple GetPP(ModsInfo mods)
         {
             if (Beatmap == null) return PPTuple.Empty;
-
+            if (Beatmap.Mode != s_mode) return PPTuple.Empty;
 
             if (!_init||m_mods!=mods)
             {
@@ -114,12 +114,28 @@ namespace RealTimePPDisplayer.Calculator
 
                 double acc = ManiaCalculateAccuracy(Count300, CountGeki, CountKatu, Count100, Count50, CountMiss) * 100.0;
 
-                CalculatePerformance(stars, Score, acc, nobjects, out tuple.RealTimePP, out tuple.RealTimeSpeedPP, out tuple.RealTimeAccuracyPP);
+                CalculatePerformance(stars, RealScore, acc, nobjects, out tuple.RealTimePP, out tuple.RealTimeSpeedPP, out tuple.RealTimeAccuracyPP);
                 _nobjects = nobjects;
             }
             //No Fc pp
 
             return tuple;
+        }
+
+        private bool _init = false;
+        public override void ClearCache()
+        {
+            if (Beatmap == null) return;
+            _nobjects = 0;
+            _init = false;
+            ReinitializeObjects();
+        }
+
+        private void ReinitializeObjects()
+        {
+            if (Beatmap.Mode != s_mode) return;
+            foreach (ManiaBeatmapObject obj in Beatmap.Objects)
+                obj.ClearStrainsValue();
         }
 
         private void CalculatePerformance(double stars,int score,double accuracy,int objects,out double total,out double strain,out double acc)
@@ -131,7 +147,7 @@ namespace RealTimePPDisplayer.Calculator
 
         private double CalculateAccuracyValue(double acc,int objects)
         {
-            return Math.Pow((150.0 / (64 - 3 * Beatmap.OverallDifficulty)) * Math.Pow(acc / 100.0, 16), 1.8) * 2.5 * Math.Min(1.15, Math.Pow(objects / 1500.0, 0.3));
+            return Math.Pow((150.0 / (64 - 3 * RealOverallDifficulty)) * Math.Pow(acc / 100.0, 16), 1.8) * 2.5 * Math.Min(1.15, Math.Pow(objects / 1500.0, 0.3));
         }
 
         private double CalculateStrainValue(double stars,int score,int objects)
@@ -166,19 +182,19 @@ namespace RealTimePPDisplayer.Calculator
             return Beatmap.ObjectsCount;
         }
 
-        private bool _init = false;
-        public override void ClearCache()
+        private int RealScore
         {
-            if (Beatmap == null) return;
-            _nobjects = 0;
-            _init = false;
-            ReinitializeObjects();
+            get
+            {
+                double score_multiplier = 1.0;
+                if (m_mods.HasMod(Mods.Easy)) score_multiplier *= 0.5;
+                if (m_mods.HasMod(Mods.NoFail)) score_multiplier *= 0.5;
+                if (m_mods.HasMod(Mods.HalfTime)) score_multiplier *= 0.5;
+                return (int)(Score / score_multiplier);
+            }
         }
 
-        private void ReinitializeObjects()
-        {
-            foreach (var obj in Beatmap.Objects)
-                (obj as ManiaBeatmapObject).ClearStrainsValue();
-        }
+        private double RealOverallDifficulty=>Beatmap.OverallDifficulty*(m_mods.HasMod(Mods.Easy)?0.5:1.0);
+
     }
 }
