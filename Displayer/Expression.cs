@@ -26,7 +26,11 @@ namespace RealTimePPDisplayer.Displayer
             {
                 var builder = new StringBuilder(m_expr);
                 foreach (var pair in Data)
-                    builder.Replace(pair.Key, $"{pair.Value:F6}");
+                {
+                    var t = $"{pair.Value:F6}";
+                    if (t == "NaN") t = "0.00";
+                    builder.Replace(pair.Key, t);
+                }
 
                 return (decimal)m_eval.Compute(builder.ToString(), null);
             }
