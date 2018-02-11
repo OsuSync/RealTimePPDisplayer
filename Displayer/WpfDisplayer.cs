@@ -62,10 +62,6 @@ namespace RealTimePPDisplayer.Displayer
         public override void FixedDisplay(double time)
         {
             if (!m_output)return;
-            if (double.IsNaN(m_current_pp.RealTimePP)) m_current_pp.RealTimePP = 0;
-            if (double.IsNaN(m_current_pp.FullComboPP)) m_current_pp.FullComboPP = 0;
-            if (double.IsNaN(m_speed.RealTimePP)) m_speed.RealTimePP = 0;
-            if (double.IsNaN(m_speed.FullComboPP)) m_speed.FullComboPP = 0;
 
             m_current_pp=SmoothMath.SmoothDampPPTuple(m_current_pp, m_target_pp, ref m_speed, time);
 

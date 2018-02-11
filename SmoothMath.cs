@@ -19,6 +19,7 @@ namespace RealTimePPDisplayer
             double newValue = x + dt * speed;
             speed = newSpeed;
             double result = targetValue + newValue;
+            speed = double.IsNaN(speed) ? 0.0 : speed;
             return double.IsNaN(result)?0:result;
         }
 
