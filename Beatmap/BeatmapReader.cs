@@ -88,6 +88,10 @@ namespace RealTimePPDisplayer.Beatmap
                                         Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::Beatmap]Only support mania beatmap.", ConsoleColor.Yellow);
                                         Mode = mode;
                                     }
+                                    else if (mode == OsuPlayMode.Mania && Mode != OsuPlayMode.Mania)
+                                    {
+                                        Mode = mode;
+                                    }
                                     break;
                                 case "OverallDifficulty":
                                     OverallDifficulty = double.Parse(val);
