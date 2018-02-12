@@ -17,7 +17,7 @@ namespace RealTimePPDisplayer
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.3.1";
+        public const string VERSION= "1.3.2";
 
         private OsuRTDataProviderPlugin m_memory_reader;
         private PPControl[] m_osu_pp_controls = new PPControl[16];
@@ -39,8 +39,6 @@ namespace RealTimePPDisplayer
 
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
-            CultureInfo.CurrentCulture = new CultureInfo("en-US");
-
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace RealTimePPDisplayer.Displayer
                 var builder = new StringBuilder(m_expr);
                 foreach (var pair in Data)
                 {
-                    var t = $"{pair.Value:F6}";
+                    var t = string.Format(CultureInfo.InvariantCulture, "{0:F6}", pair.Value);
                     if (t == "NaN") t = "0.00";
                     builder.Replace(pair.Key, t);
                 }

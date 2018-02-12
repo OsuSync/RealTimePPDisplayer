@@ -4,6 +4,7 @@ using RealTimePPDisplayer.Calculator;
 using RealTimePPDisplayer.PerformancePoint;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -94,13 +95,13 @@ namespace RealTimePPDisplayer.Beatmap
                                     }
                                     break;
                                 case "OverallDifficulty":
-                                    OverallDifficulty = double.Parse(val);
+                                    OverallDifficulty = double.Parse(val, CultureInfo.InvariantCulture);
                                     break;
                                 case "HPDrainRate":
-                                    HPDrainRate = double.Parse(val);
+                                    HPDrainRate = double.Parse(val, CultureInfo.InvariantCulture);
                                     break;
                                 case "CircleSize":
-                                    CircleSize = double.Parse(val);
+                                    CircleSize = double.Parse(val,CultureInfo.InvariantCulture);
                                     if (Mode == OsuPlayMode.Mania)
                                         KeyCount = int.Parse(val);
                                     break;
