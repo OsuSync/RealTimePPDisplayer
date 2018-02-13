@@ -15,7 +15,7 @@ namespace RealTimePPDisplayer
         private static ThreadLocal<StringFormatter> s_pp_format_local = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
         private static ThreadLocal<StringFormatter> s_hit_count_format_local = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
 
-        private string m_format;
+        public string Format { get; private set; }
         private StringBuilder m_builder=new StringBuilder(1024);
 
         public List<string> m_args = new List<string>(16);
@@ -30,7 +30,7 @@ namespace RealTimePPDisplayer
         protected void ReplaceFormat(string format)
         {
             m_args.Clear();
-            m_format = new_line_pattern.Replace(format, Environment.NewLine);
+            Format = new_line_pattern.Replace(format, Environment.NewLine);
 
             var result = pattern.Match(format);
 
@@ -45,7 +45,7 @@ namespace RealTimePPDisplayer
         public void Clear()
         {
             m_builder.Clear();
-            m_builder.Append(m_format);
+            m_builder.Append(Format);
         }
 
         public int CopyTo(int src_index,char[] dst,int dst_index)
