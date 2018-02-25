@@ -119,6 +119,10 @@ namespace RealTimePPDisplayer.Displayer.View
                 hit_label.Effect = new DropShadowEffect() { BlurRadius = 4 };
                 client_id.Effect = new DropShadowEffect() { BlurRadius = 3 };
             }
+            else
+            {
+                pp_label.Effect = hit_label.Effect = client_id.Effect = null;
+            }
 
             topmost_item.IsChecked = Setting.Topmost;
             topmost_item.Header = (string)DefaultLanguage.UI_MENU_TOPMOST;
