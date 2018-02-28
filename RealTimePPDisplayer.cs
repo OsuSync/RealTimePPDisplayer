@@ -218,7 +218,7 @@ namespace RealTimePPDisplayer
 
         public override void OnExit()
         {
-            RemoveAllDisplayer();
+            OnDisable();
         }
     }
 }

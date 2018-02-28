@@ -218,14 +218,22 @@ namespace RealTimePPDisplayer
         public ConfigurationElement PPFormat
         {
             get => Setting.PPFormat;
-            set => Setting.PPFormat = value;
+            set
+            {
+                Setting.PPFormat = value;
+                Setting.SettingChanged();
+            }
         }
 
         [ConfigString]
         public ConfigurationElement HitCountFormat
         {
             get => Setting.HitCountFormat;
-            set => Setting.HitCountFormat = value;
+            set
+            {
+                Setting.HitCountFormat = value;
+                Setting.SettingChanged();
+            }
         }
 
         [ConfigInteger(MinValue = 0,MaxValue = 15)]
