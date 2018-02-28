@@ -14,10 +14,20 @@ namespace RealTimePPDisplayer
         public static Color StringToColor(string color_str)
         {
             var color = new Color();
-            color.R = Convert.ToByte(color_str.Substring(1, 2), 16);
-            color.G = Convert.ToByte(color_str.Substring(3, 2), 16);
-            color.B = Convert.ToByte(color_str.Substring(5, 2), 16);
-            color.A = Convert.ToByte(color_str.Substring(7, 2), 16);
+            if (color_str[0] == '#')
+            {
+                color.R = Convert.ToByte(color_str.Substring(1, 2), 16);
+                color.G = Convert.ToByte(color_str.Substring(3, 2), 16);
+                color.B = Convert.ToByte(color_str.Substring(5, 2), 16);
+                color.A = Convert.ToByte(color_str.Substring(7, 2), 16);
+            }
+            else
+            {
+                color.A = Convert.ToByte(color_str.Substring(0, 2), 16);
+                color.R = Convert.ToByte(color_str.Substring(2, 2), 16);
+                color.G = Convert.ToByte(color_str.Substring(4, 2), 16);
+                color.B = Convert.ToByte(color_str.Substring(6, 2), 16);
+            }
             return color;
         }
 
