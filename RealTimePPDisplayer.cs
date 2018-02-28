@@ -2,6 +2,7 @@
 using RealTimePPDisplayer.Displayer;
 using Sync.Plugins;
 using Sync.Tools;
+using Sync.Tools.ConfigGUI;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -28,6 +29,9 @@ namespace RealTimePPDisplayer
         public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
 
         #region FixedDisplay Field
+        public static RealTimePPDisplayerPlugin Instance;
+        public static string[] DisplayerCreatorNames => Instance.m_displayer_creators.Keys.ToArray();
+
         private bool m_stop_fixed_update = false;
         private Dictionary<string, Func<int?, DisplayerBase>> m_displayer_creators = new Dictionary<string,Func<int?, DisplayerBase>>();
         private object m_all_displayer_mtx = new object();
@@ -41,6 +45,8 @@ namespace RealTimePPDisplayer
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
+
+            Instance = this;
         }
 
         /// <summary>
@@ -109,6 +115,7 @@ namespace RealTimePPDisplayer
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
                 return false;
             }
+
             m_displayer_creators[name]=creator;
 
             if (Setting.OutputMethods.Contains(name))

@@ -181,8 +181,17 @@ namespace RealTimePPDisplayer
             get => Setting.WindowTextShadow.ToString();
         }
 
-        [ConfigString]
-        public ConfigurationElement OutputMethods { get; set; }
+        [ConfigReflectList(Type =typeof(RealTimePPDisplayerPlugin),ValueListName = "DisplayerCreatorNames", 
+            SplitSeparator = ',', AllowMultiSelect = true)]
+        public ConfigurationElement OutputMethods
+        {
+            get => string.Join(",", Setting.OutputMethods);
+            set
+            {
+                Setting.OutputMethods = value.ToString().Split(',').Select(s=>s.Trim());
+                Setting.SettingChanged();
+            }
+        }
 
         [ConfigBool(NeedRestart = true)]
         public ConfigurationElement DebugMode
@@ -237,7 +246,6 @@ namespace RealTimePPDisplayer
     internal static class Setting
     {
         public static IEnumerable<string> OutputMethods = new[]{ "wpf" };
-        public static bool UseText = false;
         public static string TextOutputPath = @"rtpp{0}.txt";
         public static bool DisplayHitObject = true;
         public static string FontName = "Segoe UI";
