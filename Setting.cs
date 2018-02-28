@@ -49,7 +49,7 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [ConfigString]
+        [ConfigFont]
         public ConfigurationElement FontName
         {
             get=>Setting.FontName;
