@@ -48,17 +48,6 @@ namespace RealTimePPDisplayer
             set => Setting.TextOutputPath = value;
         }
 
-        [ConfigBool]
-        public ConfigurationElement DisplayHitObject
-        {
-            get=>Setting.DisplayHitObject.ToString();
-            set
-            {
-                Setting.DisplayHitObject = bool.Parse(value);
-                Setting.SettingChanged();
-            }
-        }
-
         [ConfigFont]
         public ConfigurationElement FontName
         {
@@ -81,16 +70,6 @@ namespace RealTimePPDisplayer
             get => Setting.PPFontSize.ToString();
         }
 
-        [ConfigColor]
-        public ConfigurationElement PPFontColor
-        {
-            set
-            {
-                Setting.PPFontColor=ColorConverter.StringToColor(value);
-                Setting.SettingChanged();
-            }
-            get=>ColorConverter.ColorToString(Setting.PPFontColor);
-        }
 
         [ConfigInteger(MinValue = 10, MaxValue = 150)]
         public ConfigurationElement HitCountFontSize
@@ -101,6 +80,17 @@ namespace RealTimePPDisplayer
                 Setting.SettingChanged();
             }
             get => Setting.HitCountFontSize.ToString();
+        }
+
+        [ConfigColor]
+        public ConfigurationElement PPFontColor
+        {
+            set
+            {
+                Setting.PPFontColor = ColorConverter.StringToColor(value);
+                Setting.SettingChanged();
+            }
+            get => ColorConverter.ColorToString(Setting.PPFontColor);
         }
 
         [ConfigColor]
@@ -169,28 +159,6 @@ namespace RealTimePPDisplayer
             get => Setting.FPS.ToString();
         }
 
-        [ConfigBool]
-        public ConfigurationElement Topmost
-        {
-            set
-            {
-                Setting.Topmost = bool.Parse(value);
-                Setting.SettingChanged();
-            }
-            get => Setting.Topmost.ToString();
-        }
-
-        [ConfigBool]
-        public ConfigurationElement WindowTextShadow
-        {
-            set
-            {
-                Setting.WindowTextShadow = bool.Parse(value);
-                Setting.SettingChanged();
-            }
-            get => Setting.WindowTextShadow.ToString();
-        }
-
         [ConfigReflectList(Type =typeof(RealTimePPDisplayerPlugin),ValueListName = "DisplayerCreatorNames", 
             SplitSeparator = ',', AllowMultiSelect = true)]
         public ConfigurationElement OutputMethods
@@ -200,17 +168,6 @@ namespace RealTimePPDisplayer
             {
                 Setting.OutputMethods = value.ToString().Split(',').Select(s=>s.Trim());
             }
-        }
-
-        [ConfigBool(NeedRestart = true)]
-        public ConfigurationElement DebugMode
-        {
-            set
-            {
-                Setting.DebugMode = bool.Parse(value);
-                Setting.SettingChanged();
-            }
-            get => Setting.DebugMode.ToString();
         }
 
         [ConfigString]
@@ -240,6 +197,50 @@ namespace RealTimePPDisplayer
         {
             set=>Setting.RoundDigits = int.Parse(value);
             get => Setting.RoundDigits.ToString();
+        }
+
+        [ConfigBool(NeedRestart = true)]
+        public ConfigurationElement DebugMode
+        {
+            set
+            {
+                Setting.DebugMode = bool.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.DebugMode.ToString();
+        }
+
+        [ConfigBool]
+        public ConfigurationElement DisplayHitObject
+        {
+            get => Setting.DisplayHitObject.ToString();
+            set
+            {
+                Setting.DisplayHitObject = bool.Parse(value);
+                Setting.SettingChanged();
+            }
+        }
+
+        [ConfigBool]
+        public ConfigurationElement Topmost
+        {
+            set
+            {
+                Setting.Topmost = bool.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.Topmost.ToString();
+        }
+
+        [ConfigBool]
+        public ConfigurationElement WindowTextShadow
+        {
+            set
+            {
+                Setting.WindowTextShadow = bool.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.WindowTextShadow.ToString();
         }
 
         [ConfigBool]
