@@ -70,5 +70,8 @@ namespace RealTimePPDisplayer
 
         [ConfigI18n]
         public static LanguageElement RoundDigits = "Digits";
+
+        [ConfigI18n]
+        public static LanguageElement IgnoreTouchScreenDecrease = "Ignore touch screen decrease";
     }
 }

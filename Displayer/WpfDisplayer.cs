@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace RealTimePPDisplayer.Displayer
@@ -12,19 +13,29 @@ namespace RealTimePPDisplayer.Displayer
     class WpfDisplayer : DisplayerBase
     {
         private PPWindow m_win;
-        private Thread m_win_thread;
-
+        private static Thread m_win_thread;
         private bool m_output = false;
 
         PPTuple m_current_pp;
         PPTuple m_target_pp;
         PPTuple m_speed;
 
-        public WpfDisplayer(int? id)
+        static WpfDisplayer()
         {
-            m_win_thread = new Thread(() => ShowPPWindow(id));
+            m_win_thread = new Thread(() =>
+            {
+                if (Application.Current == null)
+                    new Application().Run();
+            });
+            m_win_thread.Name = "STA WPF Application Thread";
             m_win_thread.SetApartmentState(ApartmentState.STA);
             m_win_thread.Start();
+        }
+
+
+        public WpfDisplayer(int? id)
+        {
+            Application.Current.Dispatcher.Invoke(() => ShowPPWindow(id));
         }
 
         public override void Clear()
@@ -74,14 +85,14 @@ namespace RealTimePPDisplayer.Displayer
 
         private void ShowPPWindow(int? id)
         {
-            m_win = new PPWindow(Setting.SmoothTime, Setting.FPS);
+            m_win = new PPWindow();
 
             if (id != null)
                 m_win.Title += $"{id}";
 
             m_win.client_id.Content = id?.ToString() ?? "";
 
-            m_win.ShowDialog();
+            m_win.Show();
         }
 
         public override void OnDestroy()

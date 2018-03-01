@@ -199,7 +199,6 @@ namespace RealTimePPDisplayer
             set
             {
                 Setting.OutputMethods = value.ToString().Split(',').Select(s=>s.Trim());
-                Setting.SettingChanged();
             }
         }
 
@@ -239,12 +238,15 @@ namespace RealTimePPDisplayer
         [ConfigInteger(MinValue = 0,MaxValue = 15)]
         public ConfigurationElement RoundDigits
         {
-            set
-            {
-                Setting.RoundDigits = int.Parse(value);
-                Setting.SettingChanged();
-            }
+            set=>Setting.RoundDigits = int.Parse(value);
             get => Setting.RoundDigits.ToString();
+        }
+
+        [ConfigBool]
+        public ConfigurationElement IgnoreTouchScreenDecrease
+        {
+            set => Setting.IgnoreTouchScreenDecrease = bool.Parse(value);
+            get => Setting.IgnoreTouchScreenDecrease.ToString();
         }
 
         public void onConfigurationLoad()
@@ -284,7 +286,7 @@ namespace RealTimePPDisplayer
         public static string PPFormat = "${rtpp}pp";
         //combo maxcombo fullcombo n300 n100 n50 nmiss
         public static string HitCountFormat = "${n100}x100 ${n50}x50 ${nmiss}xMiss";
-
+        public static bool IgnoreTouchScreenDecrease = false;
 
         public static event Action OnSettingChanged;
 

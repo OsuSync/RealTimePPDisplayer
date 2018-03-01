@@ -47,7 +47,14 @@ namespace RealTimePPDisplayer
         {
             m_listener_manager = mamger;
 
-            m_listener_manager.OnModsChanged += (mods) => { m_cur_mods = mods; m_pp_calculator.ClearCache(); };
+            m_listener_manager.OnModsChanged += (mods) => 
+            {
+                if (Setting.IgnoreTouchScreenDecrease)
+                    mods.Mod = mods.Mod & ModsInfo.Mods.TouchScreen;
+                m_cur_mods = mods;
+                m_pp_calculator.ClearCache();
+            };
+
             m_listener_manager.OnCount300Changed += c => m_n300 = c;
             m_listener_manager.OnCountGekiChanged += c => m_ngeki = c;
             m_listener_manager.OnCountKatuChanged += c => m_nkatu = c;

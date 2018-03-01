@@ -16,7 +16,7 @@ namespace RealTimePPDisplayer.Displayer.View
     public partial class PPWindow : Window, INotifyPropertyChanged
     { 
         #region construct
-        public PPWindow(int st,int fps)
+        public PPWindow()
         {
             InitializeComponent();
             DataContext = this;
