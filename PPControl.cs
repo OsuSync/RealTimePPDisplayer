@@ -50,7 +50,7 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnModsChanged += (mods) => 
             {
                 if (Setting.IgnoreTouchScreenDecrease)
-                    mods.Mod = mods.Mod & ModsInfo.Mods.TouchScreen;
+                    mods.Mod = (mods.Mod & ~ModsInfo.Mods.TouchScreen);
                 m_cur_mods = mods;
                 m_pp_calculator.ClearCache();
             };
