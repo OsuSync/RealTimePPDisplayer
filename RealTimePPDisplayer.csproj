@@ -92,6 +92,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y $(TargetPath) $(SolutionDir)\Sync\bin\$(ConfigurationName)\Plugins
-copy /y $(ProjectDir)oppai.dll $(SolutionDir)\Sync\bin\$(ConfigurationName)</PostBuildEvent>
+copy /y $(ProjectDir)oppai.dll $(SolutionDir)\Sync\bin\$(ConfigurationName)
+xcopy $(ProjectDir)\Language $(ProjectDir)\$(OutDir)\Language\ /s/e/y</PostBuildEvent>
   </PropertyGroup>
 </Project>
