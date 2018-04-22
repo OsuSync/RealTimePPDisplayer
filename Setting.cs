@@ -41,14 +41,14 @@ namespace RealTimePPDisplayer
 
     internal class SettingIni : IConfigurable
     {
-        [ConfigPath(IsFilePath = true,NeedRestart = true)]
+        [Path(IsDirectory = false,RequireRestart = true)]
         public ConfigurationElement TextOutputPath
         {
             get => Setting.TextOutputPath;
             set => Setting.TextOutputPath = value;
         }
 
-        [ConfigFont]
+        [Font]
         public ConfigurationElement FontName
         {
             get=>Setting.FontName;
@@ -59,7 +59,7 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [ConfigInteger(MinValue = 10,MaxValue = 150)]
+        [Integer(MinValue = 10,MaxValue = 150)]
         public ConfigurationElement PPFontSize
         {
             set
@@ -71,7 +71,7 @@ namespace RealTimePPDisplayer
         }
 
 
-        [ConfigInteger(MinValue = 10, MaxValue = 150)]
+        [Integer(MinValue = 10, MaxValue = 150)]
         public ConfigurationElement HitCountFontSize
         {
             set
@@ -82,7 +82,7 @@ namespace RealTimePPDisplayer
             get => Setting.HitCountFontSize.ToString();
         }
 
-        [ConfigColor]
+        [Color]
         public ConfigurationElement PPFontColor
         {
             set
@@ -93,7 +93,7 @@ namespace RealTimePPDisplayer
             get => ColorConverter.ColorToString(Setting.PPFontColor);
         }
 
-        [ConfigColor]
+        [Color]
         public ConfigurationElement HitCountFontColor
         {
             set
@@ -104,7 +104,7 @@ namespace RealTimePPDisplayer
             get => ColorConverter.ColorToString(Setting.HitCountFontColor);
         }
 
-        [ConfigColor]
+        [Color]
         public ConfigurationElement BackgroundColor
         {
             set
@@ -115,7 +115,7 @@ namespace RealTimePPDisplayer
             get => ColorConverter.ColorToString(Setting.BackgroundColor);
         }
 
-        [ConfigInteger(MinValue =100,MaxValue =1080)]
+        [Integer(MinValue =100,MaxValue =1080)]
         public ConfigurationElement WindowHeight
         {
             set
@@ -126,7 +126,7 @@ namespace RealTimePPDisplayer
             get => Setting.WindowHeight.ToString();
         }
 
-        [ConfigInteger(MinValue = 100, MaxValue = 1920)]
+        [Integer(MinValue = 100, MaxValue = 1920)]
         public ConfigurationElement WindowWidth
         {
             set
@@ -137,7 +137,7 @@ namespace RealTimePPDisplayer
             get => Setting.WindowWidth.ToString();
         }
 
-        [ConfigInteger(MinValue = 30, MaxValue = 10000)]
+        [Integer(MinValue = 30, MaxValue = 10000)]
         public ConfigurationElement SmoothTime
         {
             set
@@ -148,7 +148,7 @@ namespace RealTimePPDisplayer
             get => Setting.SmoothTime.ToString();
         }
 
-        [ConfigInteger(MinValue = 1, MaxValue = 60)]
+        [Integer(MinValue = 1, MaxValue = 60)]
         public ConfigurationElement FPS
         {
             set
@@ -159,7 +159,7 @@ namespace RealTimePPDisplayer
             get => Setting.FPS.ToString();
         }
 
-        [ConfigReflectList(Type =typeof(RealTimePPDisplayerPlugin),ValueListName = "DisplayerCreatorNames", 
+        [ReflectList(Type =typeof(RealTimePPDisplayerPlugin),ValueListName = "DisplayerCreatorNames", 
             SplitSeparator = ',', AllowMultiSelect = true)]
         public ConfigurationElement OutputMethods
         {
@@ -170,7 +170,7 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [ConfigString]
+        [String]
         public ConfigurationElement PPFormat
         {
             get => Setting.PPFormat;
@@ -181,7 +181,7 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [ConfigString]
+        [String]
         public ConfigurationElement HitCountFormat
         {
             get => Setting.HitCountFormat;
@@ -192,14 +192,14 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [ConfigInteger(MinValue = 0,MaxValue = 15)]
+        [Integer(MinValue = 0,MaxValue = 15)]
         public ConfigurationElement RoundDigits
         {
             set=>Setting.RoundDigits = int.Parse(value);
             get => Setting.RoundDigits.ToString();
         }
 
-        [ConfigBool(NeedRestart = true)]
+        [Bool(RequireRestart = true)]
         public ConfigurationElement DebugMode
         {
             set
@@ -210,7 +210,7 @@ namespace RealTimePPDisplayer
             get => Setting.DebugMode.ToString();
         }
 
-        [ConfigBool]
+        [Bool]
         public ConfigurationElement DisplayHitObject
         {
             get => Setting.DisplayHitObject.ToString();
@@ -221,7 +221,7 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [ConfigBool]
+        [Bool]
         public ConfigurationElement Topmost
         {
             set
@@ -232,7 +232,7 @@ namespace RealTimePPDisplayer
             get => Setting.Topmost.ToString();
         }
 
-        [ConfigBool]
+        [Bool]
         public ConfigurationElement WindowTextShadow
         {
             set
@@ -243,7 +243,7 @@ namespace RealTimePPDisplayer
             get => Setting.WindowTextShadow.ToString();
         }
 
-        [ConfigBool]
+        [Bool]
         public ConfigurationElement IgnoreTouchScreenDecrease
         {
             set => Setting.IgnoreTouchScreenDecrease = bool.Parse(value);

@@ -14,64 +14,25 @@ namespace RealTimePPDisplayer
         public static LanguageElement TEXT_MODE_OUTPUT_PATH_FORMAT = "[RealTimePPDisplayer]PP File: {0}";
         public static LanguageElement MMF_MODE_OUTPUT_PATH_FORMAT = "[RealTimePPDisplayer]Memory Mapping File: {0}";
 
-        [ConfigI18n]
-        public static LanguageElement FPS = "FPS";
-
-        [ConfigI18n]
-        public static LanguageElement TextOutputPath = "Text output path";
-
-        [ConfigI18n]
-        public static LanguageElement DisplayHitObject = "Display hit object";
-
-        [ConfigI18n]
-        public static LanguageElement FontName = "Font";
-
-        [ConfigI18n]
-        public static LanguageElement PPFontSize = "PP font size";
-
-        [ConfigI18n]
-        public static LanguageElement PPFontColor = "PP font color";
-
-        [ConfigI18n]
-        public static LanguageElement HitCountFontSize = "Hit count font size";
-
-        [ConfigI18n]
-        public static LanguageElement HitCountFontColor = "Hit count font color";
-
-        [ConfigI18n]
-        public static LanguageElement BackgroundColor = "Background color";
-
-        [ConfigI18n]
-        public static LanguageElement WindowHeight = "Window height";
-
-        [ConfigI18n]
-        public static LanguageElement WindowWidth = "Window width";
-
-        [ConfigI18n]
-        public static LanguageElement SmoothTime = "Smooth time";
-
-        [ConfigI18n]
-        public static LanguageElement Topmost = "Topmost";
-
-        [ConfigI18n]
-        public static LanguageElement WindowTextShadow = "Window text shadow";
-
-        [ConfigI18n]
-        public static LanguageElement OutputMethods = "Output methods";
-
-        [ConfigI18n]
-        public static LanguageElement DebugMode = "Debug mode";
-
-        [ConfigI18n]
-        public static LanguageElement PPFormat = "PP format";
-
-        [ConfigI18n]
-        public static LanguageElement HitCountFormat = "Hit count format";
-
-        [ConfigI18n]
-        public static LanguageElement RoundDigits = "Digits";
-
-        [ConfigI18n]
-        public static LanguageElement IgnoreTouchScreenDecrease = "Ignore touch screen decrease";
+        public static GuiLanguageElement FPS = "FPS";
+        public static GuiLanguageElement TextOutputPath = "Text output path";
+        public static GuiLanguageElement DisplayHitObject = "Display hit object";
+        public static GuiLanguageElement FontName = "Font";
+        public static GuiLanguageElement PPFontSize = "PP font size";
+        public static GuiLanguageElement PPFontColor = "PP font color";
+        public static GuiLanguageElement HitCountFontSize = "Hit count font size";
+        public static GuiLanguageElement HitCountFontColor = "Hit count font color";
+        public static GuiLanguageElement BackgroundColor = "Background color";
+        public static GuiLanguageElement WindowHeight = "Window height";
+        public static GuiLanguageElement WindowWidth = "Window width";
+        public static GuiLanguageElement SmoothTime = "Smooth time";
+        public static GuiLanguageElement Topmost = "Topmost";
+        public static GuiLanguageElement WindowTextShadow = "Window text shadow";
+        public static GuiLanguageElement OutputMethods = "Output methods";
+        public static GuiLanguageElement DebugMode = "Debug mode";
+        public static GuiLanguageElement PPFormat = "PP format";
+        public static GuiLanguageElement HitCountFormat = "Hit count format";
+        public static GuiLanguageElement RoundDigits = "Digits";
+        public static GuiLanguageElement IgnoreTouchScreenDecrease = "Ignore touch screen decrease";
     }
 }
