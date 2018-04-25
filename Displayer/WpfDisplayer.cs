@@ -20,21 +20,16 @@ namespace RealTimePPDisplayer.Displayer
         PPTuple m_target_pp;
         PPTuple m_speed;
 
-        static WpfDisplayer()
-        {
-            m_win_thread = new Thread(() =>
-            {
-                if (Application.Current == null)
-                    new Application().Run();
-            });
-            m_win_thread.Name = "STA WPF Application Thread";
-            m_win_thread.SetApartmentState(ApartmentState.STA);
-            m_win_thread.Start();
-        }
-
-
         public WpfDisplayer(int? id)
         {
+            if (Application.Current == null)
+            {
+                m_win_thread = new Thread(() => new Application().Run());
+                m_win_thread.Name = "STA WPF Application Thread";
+                m_win_thread.SetApartmentState(ApartmentState.STA);
+                m_win_thread.Start();
+            }
+
             Application.Current.Dispatcher.Invoke(() => ShowPPWindow(id));
         }
 
