@@ -92,6 +92,12 @@ namespace RealTimePPDisplayer
                     foreach (var p in m_displayers)
                         p.Value.Clear();
                 }
+
+                if (cur == OsuStatus.Rank && last == OsuStatus.Playing)
+                {
+                    var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
+                    Sync.Tools.IO.CurrentIO.Write($"[RTPPD]{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]({m_pp_calculator.Accuracy*100:F2}%){(m_pp_calculator.Mods != ModsInfo.Mods.None ? "+" + m_pp_calculator.Mods.ShortName:"")} -> {m_pp_calculator.GetPP().RealTimePP:F2}pp");
+                }
             };
 
             m_listener_manager.OnComboChanged += (combo) =>
@@ -156,8 +162,9 @@ namespace RealTimePPDisplayer
             m_pp_calculator.CountGeki = m_ngeki;
             m_pp_calculator.CountKatu= m_nkatu;
             m_pp_calculator.Score = m_score;
+            m_pp_calculator.Mods = m_cur_mods;
 
-            var pp_tuple = m_pp_calculator.GetPP(m_cur_mods);
+            var pp_tuple = m_pp_calculator.GetPP();
 
             pp_tuple.RealTimePP=F(pp_tuple.RealTimePP, pp_tuple.MaxPP, 0.0);
             pp_tuple.RealTimeSpeedPP = F(pp_tuple.RealTimeSpeedPP, pp_tuple.MaxPP, 0.0);

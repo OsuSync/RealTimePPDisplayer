@@ -89,14 +89,14 @@ namespace RealTimePPDisplayer.Calculator
 
         private int _nobjects = 0;
 
-        public override PPTuple GetPP(ModsInfo mods)
+        public override PPTuple GetPP()
         {
             if (Beatmap == null) return PPTuple.Empty;
             if (Beatmap.Mode != s_mode) return PPTuple.Empty;
 
-            if (!_init||m_mods!=mods)
+            if (!_init||m_mods!=Mods)
             {
-                m_mods = mods;
+                m_mods = Mods;
                 CalculateStrainValues(Beatmap.ObjectsCount);
                 m_beatmap_stars = CalculateDifficulty(Beatmap.ObjectsCount) * STAR_SCALING_FACTOR;
                 CalculatePerformance(m_beatmap_stars,1000000, 100.0, Beatmap.ObjectsCount, out tuple.MaxPP, out tuple.MaxSpeedPP, out tuple.MaxAccuracyPP);
@@ -112,7 +112,7 @@ namespace RealTimePPDisplayer.Calculator
                 CalculateStrainValues(nobjects);
                 double stars = CalculateDifficulty(nobjects) * STAR_SCALING_FACTOR;
 
-                double acc = ManiaCalculateAccuracy(Count300, CountGeki, CountKatu, Count100, Count50, CountMiss) * 100.0;
+                double acc = Accuracy * 100;
 
                 CalculatePerformance(stars, RealScore, acc, nobjects, out tuple.RealTimePP, out tuple.RealTimeSpeedPP, out tuple.RealTimeAccuracyPP);
                 _nobjects = nobjects;
@@ -169,11 +169,6 @@ namespace RealTimePPDisplayer.Calculator
             return (Math.Pow(5 * Math.Max(1, stars / 0.0825) - 4, 3) / 110000) * (1 + 0.1 * Math.Min(1, objects / 1500.0)) * strain_multipler;
         }
 
-        private static double ManiaCalculateAccuracy(int n300,int n300g,int n200,int n100,int n50,int nmiss)
-        {
-            return ((n300 + n300g) * 300.0 + n200 * 200.0 + n100 * 100.0 + n50 * 50) / ((n300+n300g+n200+n100+n50+nmiss)*300.0);
-        }
-
         private int GetCurrentObjectCount(int time)
         {
             for (int i = 0; i < Beatmap.ObjectsCount; i++)
@@ -182,19 +177,23 @@ namespace RealTimePPDisplayer.Calculator
             return Beatmap.ObjectsCount;
         }
 
+        public override double Accuracy=>
+            ((Count300 + CountGeki) * 300.0 + CountKatu * 200.0 + Count100 * 100.0 + Count50 * 50) /
+            ((Count300 + CountGeki + CountKatu + Count100 + Count50 + CountMiss) * 300.0);
+
         private int RealScore
         {
             get
             {
                 double score_multiplier = 1.0;
-                if (m_mods.HasMod(Mods.Easy)) score_multiplier *= 0.5;
-                if (m_mods.HasMod(Mods.NoFail)) score_multiplier *= 0.5;
-                if (m_mods.HasMod(Mods.HalfTime)) score_multiplier *= 0.5;
+                if (m_mods.HasMod(ModsInfo.Mods.Easy)) score_multiplier *= 0.5;
+                if (m_mods.HasMod(ModsInfo.Mods.NoFail)) score_multiplier *= 0.5;
+                if (m_mods.HasMod(ModsInfo.Mods.HalfTime)) score_multiplier *= 0.5;
                 return (int)(Score / score_multiplier);
             }
         }
 
-        private double RealOverallDifficulty=>Beatmap.OverallDifficulty*(m_mods.HasMod(Mods.Easy)?0.5:1.0);
+        private double RealOverallDifficulty=>Beatmap.OverallDifficulty*(m_mods.HasMod(ModsInfo.Mods.Easy)?0.5:1.0);
 
     }
 }

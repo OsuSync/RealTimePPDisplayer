@@ -160,7 +160,7 @@ namespace RealTimePPDisplayer
         }
 
         [ReflectList(Type =typeof(RealTimePPDisplayerPlugin),ValueListName = "DisplayerCreatorNames", 
-            SplitSeparator = ',', AllowMultiSelect = true)]
+            SplitSeparator = ',', AllowMultiSelect = true,RequireRestart = true)]
         public ConfigurationElement OutputMethods
         {
             get => string.Join(",", Setting.OutputMethods);

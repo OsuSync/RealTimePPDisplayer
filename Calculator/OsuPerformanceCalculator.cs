@@ -15,17 +15,14 @@ namespace RealTimePPDisplayer.Calculator
     {
         private const OsuPlayMode s_mode = OsuPlayMode.Osu;
 
-        public override PPTuple GetPP(ModsInfo mods)
+        public override PPTuple GetPP()
         {
-            return GetPPFromOppai(mods, s_mode);
+            return GetPPFromOppai(Mods, s_mode);
         }
 
-        protected override double AccuracyCalculate(int n300, int n100, int n50, int ngeki, int nkatu, int nmiss)
-        {
-            return Oppai.acc_calc(n300, n100, n50, nmiss);
-        }
+        public override double Accuracy=>Oppai.acc_calc(Count300, Count100, Count50, CountMiss);
 
-        protected override void AccuracyRound(double acc, int object_count, int nmiss, out int n300, out int n100, out int n50)
+        public override void AccuracyRound(double acc, int object_count, int nmiss, out int n300, out int n100, out int n50)
         {
             Oppai.acc_round(acc, object_count, nmiss, out n300, out n100, out n50);
         }

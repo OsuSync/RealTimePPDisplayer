@@ -20,6 +20,8 @@ namespace RealTimePPDisplayer.Beatmap
             public int Length;
         }
 
+        public OsuRTDataProvider.BeatmapInfo.Beatmap OrtdpBeatmap { get; private set; }
+
         private BeatmapHeader m_beatmap_header_span;
         public BeatmapHeader BeatmapHeaderSpan => m_beatmap_header_span;
 
@@ -36,6 +38,7 @@ namespace RealTimePPDisplayer.Beatmap
 
         public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap,OsuPlayMode mode=OsuPlayMode.Unknown)
         {
+            OrtdpBeatmap = beatmap;
             m_beatmap_header_span.Offset = 0;
             m_beatmap_header_span.Length = 0;
             Mode = mode;

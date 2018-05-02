@@ -23,8 +23,16 @@ namespace RealTimePPDisplayer.Calculator
         public int Time { get; set; }
         public int MaxCombo { get; set; }
         public int Score { get; set; }
+        public ModsInfo Mods { get; set; }
 
-        public abstract PPTuple GetPP(ModsInfo mods);
+        public abstract PPTuple GetPP();
         public virtual void ClearCache() { }
+
+        public abstract double Accuracy { get; }
+
+        public virtual void AccuracyRound(double acc, int object_count, int nmiss, out int n300, out int n100, out int n50)
+        {
+            n300 = n100 = n50 = 0;
+        }
     }
 }

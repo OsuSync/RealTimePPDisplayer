@@ -19,9 +19,6 @@ namespace RealTimePPDisplayer.Calculator
             Oppai.Clear();
         }
 
-        protected abstract double AccuracyCalculate(int n300, int n100, int n50,int ngeki,int nkatu, int nmiss);
-        protected abstract void AccuracyRound(double acc, int object_count, int nmiss, out int n300, out int n100, out int n50);
-
         protected PPTuple GetPPFromOppai(ModsInfo mods,OsuPlayMode mode)
         {
             if (Beatmap == null) return PPTuple.Empty;
@@ -35,7 +32,7 @@ namespace RealTimePPDisplayer.Calculator
             pp_tuple.MaxSpeedPP = result.speed;
             pp_tuple.MaxAccuracyPP = result.acc;
 
-            double acc = AccuracyCalculate(Count300, Count100, Count50,CountGeki,CountKatu,CountMiss) * 100.0;
+            double acc = Accuracy * 100.0;
             AccuracyRound(acc, Beatmap.ObjectsCount, CountMiss, out int n300, out int n100, out int n50);
 
             result = Oppai.GetIfFcPP(mods, n300, n100, n50, mode);
