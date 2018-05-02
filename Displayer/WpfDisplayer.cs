@@ -63,6 +63,7 @@ namespace RealTimePPDisplayer.Displayer
 
             if (m_win != null)
                 m_win.HitCountContext = formatter.ToString();
+            m_win.Refresh();
         }
 
         public override void FixedDisplay(double time)
@@ -76,6 +77,7 @@ namespace RealTimePPDisplayer.Displayer
 
             if (m_win != null)
                 m_win.PPContext = formatter.ToString();
+            m_win.Refresh();
         }
 
         private void ShowPPWindow(int? id)
