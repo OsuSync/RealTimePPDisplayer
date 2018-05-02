@@ -14,6 +14,8 @@ using System.Windows.Media;
 using System.Windows;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Calculator;
+using Sync.Tools;
+using static OsuRTDataProvider.Mods.ModsInfo;
 
 namespace RealTimePPDisplayer
 {
@@ -96,7 +98,12 @@ namespace RealTimePPDisplayer
                 if (cur == OsuStatus.Rank && last == OsuStatus.Playing)
                 {
                     var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
-                    Sync.Tools.IO.CurrentIO.Write($"[RTPPD]{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]({m_pp_calculator.Accuracy*100:F2}%){(m_pp_calculator.Mods != ModsInfo.Mods.None ? "+" + m_pp_calculator.Mods.ShortName:"")} -> {m_pp_calculator.GetPP().RealTimePP:F2}pp");
+                    var mods = m_pp_calculator.Mods;
+                    string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
+                    string acc= $"({ m_pp_calculator.Accuracy * 100:F2}%)";
+                    string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
+                    string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
+                    IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
                 }
             };
 
