@@ -34,5 +34,6 @@ namespace RealTimePPDisplayer
         public static GuiLanguageElement HitCountFormat = "Hit count format";
         public static GuiLanguageElement RoundDigits = "Digits";
         public static GuiLanguageElement IgnoreTouchScreenDecrease = "Ignore touch screen decrease";
+        public static GuiLanguageElement RankingSendPerformanceToChat = "Send pp to Chat on Ranking";
     }
 }

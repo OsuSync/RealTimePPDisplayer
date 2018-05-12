@@ -16,6 +16,8 @@ using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Calculator;
 using Sync.Tools;
 using static OsuRTDataProvider.Mods.ModsInfo;
+using Sync.MessageFilter;
+using Sync;
 
 namespace RealTimePPDisplayer
 {
@@ -84,6 +86,19 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnStatusChanged += (last, cur) =>
             {
                 m_status = cur;
+                if (cur == OsuStatus.Rank && last == OsuStatus.Playing)
+                {
+                    var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
+                    var mods = m_pp_calculator.Mods;
+                    string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
+                    string acc = $"({ m_pp_calculator.Accuracy * 100:F2}%)";
+                    string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
+                    string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
+                    IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
+                    if (Setting.RankingSendPerformanceToChat)
+                        SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD]{songs}{acc}{mods_str} -> {pp}"));
+                }
+
                 if (cur == OsuStatus.Listening || cur == OsuStatus.Editing)//Clear Output
                 {
                     m_combo = 0;
@@ -93,17 +108,6 @@ namespace RealTimePPDisplayer
                     m_nmiss = 0;
                     foreach (var p in m_displayers)
                         p.Value.Clear();
-                }
-
-                if (cur == OsuStatus.Rank && last == OsuStatus.Playing)
-                {
-                    var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
-                    var mods = m_pp_calculator.Mods;
-                    string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
-                    string acc= $"({ m_pp_calculator.Accuracy * 100:F2}%)";
-                    string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
-                    string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
-                    IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
                 }
             };
 

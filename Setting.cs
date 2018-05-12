@@ -250,6 +250,13 @@ namespace RealTimePPDisplayer
             get => Setting.IgnoreTouchScreenDecrease.ToString();
         }
 
+        [Bool]
+        public ConfigurationElement RankingSendPerformanceToChat
+        {
+            set => Setting.RankingSendPerformanceToChat = bool.Parse(value);
+            get => Setting.RankingSendPerformanceToChat.ToString();
+        }
+
         public void onConfigurationLoad()
         {
         }
@@ -288,6 +295,7 @@ namespace RealTimePPDisplayer
         //combo maxcombo fullcombo n300 n100 n50 nmiss
         public static string HitCountFormat = "${n100}x100 ${n50}x50 ${nmiss}xMiss";
         public static bool IgnoreTouchScreenDecrease = false;
+        public static bool RankingSendPerformanceToChat = false;
 
         public static event Action OnSettingChanged;
 
