@@ -26,7 +26,7 @@ namespace RealTimePPDisplayer
 
         private PluginConfigurationManager m_config_manager;
 
-        public int TourneyWindowSize => m_memory_reader.TourneyListenerManagersCount;
+        public int TourneyWindowCount => m_memory_reader.TourneyListenerManagersCount;
         public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
 
         #region FixedDisplay Field
