@@ -159,8 +159,14 @@ namespace RealTimePPDisplayer.Calculator
 
         private double CalculateAccuracyValue(double acc, int score, double strain, int objects)
         {
-            return Math.Max(0.0, 0.2 - ((HitWindow300 - 34) * 0.006667)) * strain
+            if (HitWindow300 <= 0)
+            {
+                return 0;
+            }
+
+            double acc_value = Math.Max(0.0, 0.2 - ((HitWindow300 - 34) * 0.006667)) * strain
                 * Math.Pow((Math.Max(0.0, score - 960000) / 40000.0), 1.1);
+            return acc_value;
         }
 
         private double CalculateStrainValue(double stars, int score, int objects)
