@@ -100,7 +100,7 @@ namespace RealTimePPDisplayer.Calculator
                 CalculateStrainValues(Beatmap.ObjectsCount);
                 m_beatmap_stars = CalculateDifficulty(Beatmap.ObjectsCount) * STAR_SCALING_FACTOR;
                 CalculatePerformance(m_beatmap_stars, 1000000, 100.0, Beatmap.ObjectsCount, out tuple.MaxPP, out tuple.MaxSpeedPP, out tuple.MaxAccuracyPP);
-                Sync.Tools.IO.CurrentIO.Write($"[RTPPD::Mania]Difficulty:{m_beatmap_stars}*");
+                Sync.Tools.IO.CurrentIO.Write($"[RTPPD::Mania]Difficulty:{m_beatmap_stars:F2}*");
                 _init = true;
             }
 

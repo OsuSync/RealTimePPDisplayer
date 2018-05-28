@@ -28,6 +28,7 @@ namespace RealTimePPDisplayer.Displayer
                 m_win_thread.Name = "STA WPF Application Thread";
                 m_win_thread.SetApartmentState(ApartmentState.STA);
                 m_win_thread.Start();
+                Thread.Sleep(100);
             }
 
             Application.Current.Dispatcher.Invoke(() => ShowPPWindow(id));

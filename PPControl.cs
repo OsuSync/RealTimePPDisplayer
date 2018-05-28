@@ -18,6 +18,7 @@ using Sync.Tools;
 using static OsuRTDataProvider.Mods.ModsInfo;
 using Sync.MessageFilter;
 using Sync;
+using Sync.Source;
 
 namespace RealTimePPDisplayer
 {
@@ -86,26 +87,34 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnStatusChanged += (last, cur) =>
             {
                 m_status = cur;
-                if (cur == OsuStatus.Rank && last == OsuStatus.Playing)
+                if ((cur == OsuStatus.Rank && last == OsuStatus.Playing)||
+                    (cur==OsuStatus.Listening && last==OsuStatus.Playing))
                 {
-                    var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
-                    var mods = m_pp_calculator.Mods;
-                    string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
-                    string acc = $"{ m_pp_calculator.Accuracy * 100:F2}%";
-                    string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
-                    string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
-                    string msg = $"[RTPPD]{songs} {mods_str} | {acc} => {pp}";
-                    IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
-                    if (Setting.RankingSendPerformanceToChat)
+                    bool isComplete = m_pp_calculator.Beatmap.Objects.LastOrDefault().StartTime < m_time;
+
+                    if(isComplete)
                     {
-                        if (beatmap.BeatmapID != 0)
+                        var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
+                        var mods = m_pp_calculator.Mods;
+                        string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
+                        string acc = $"{ m_pp_calculator.Accuracy * 100:F2}%";
+                        string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
+                        string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
+                        string msg = $"[RTPPD]{songs} {mods_str} | {acc} => {pp}";
+
+                        IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
+                        if (SyncHost.Instance.ClientWrapper.Client.CurrentStatus == SourceStatus.CONNECTED_WORKING &&
+                            Setting.RankingSendPerformanceToChat)
                         {
-                            string dlUrl = beatmap.DownloadLink;
-                            SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD][{dlUrl} {songs}] {mods_str} | {acc} => {pp}"));
-                        }
-                        else
-                        {
-                            SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, msg));
+                            if (beatmap.BeatmapID != 0)
+                            {
+                                string dlUrl = beatmap.DownloadLink;
+                                SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD][{dlUrl} {songs}] {mods_str} | {acc} => {pp}"));
+                            }
+                            else
+                            {
+                                SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, msg));
+                            }
                         }
                     }
                 }
