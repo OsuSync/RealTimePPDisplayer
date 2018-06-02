@@ -90,7 +90,7 @@ namespace RealTimePPDisplayer
                 if ((cur == OsuStatus.Rank && last == OsuStatus.Playing)||
                     (cur==OsuStatus.Listening && last==OsuStatus.Playing))
                 {
-                    bool isComplete = m_pp_calculator.Beatmap.Objects.LastOrDefault().StartTime < m_time;
+                    bool isComplete = m_pp_calculator.Beatmap?.Objects.LastOrDefault().StartTime < m_time;
 
                     if(isComplete)
                     {
