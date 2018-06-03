@@ -94,6 +94,7 @@ namespace RealTimePPDisplayer.Calculator
             if (Beatmap == null) return PPTuple.Empty;
             if (Beatmap.Mode != s_mode) return PPTuple.Empty;
 
+            //Calculate Max PP
             if (!_init || m_mods != Mods)
             {
                 m_mods = Mods;
@@ -104,6 +105,7 @@ namespace RealTimePPDisplayer.Calculator
                 _init = true;
             }
 
+            //Calculate RTPP
             int nobjects = GetCurrentObjectCount(Time);
             if (nobjects != _nobjects)
             {
