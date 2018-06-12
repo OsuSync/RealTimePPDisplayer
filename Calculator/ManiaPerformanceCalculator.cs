@@ -127,6 +127,7 @@ namespace RealTimePPDisplayer.Calculator
         private bool _init = false;
         public override void ClearCache()
         {
+            base.ClearCache();
             if (Beatmap == null) return;
             _nobjects = 0;
             _init = false;

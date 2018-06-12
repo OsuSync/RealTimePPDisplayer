@@ -31,7 +31,7 @@ namespace RealTimePPDisplayer
 
         #region FixedDisplay Field
         public static RealTimePPDisplayerPlugin Instance;
-        public static string[] DisplayerCreatorNames => Instance.m_displayer_creators.Keys.ToArray();
+        public IEnumerable<string> DisplayerNames => m_displayer_creators.Select(d=>d.Key);
 
         private bool m_stop_fixed_update = false;
         private Dictionary<string, Func<int?, DisplayerBase>> m_displayer_creators = new Dictionary<string,Func<int?, DisplayerBase>>();
@@ -178,6 +178,7 @@ namespace RealTimePPDisplayer
         {
             foreach (var p in m_all_displayers)
             {
+                p.Value.Clear();
                 p.Value.OnDestroy();
             }
             m_all_displayers.Clear();

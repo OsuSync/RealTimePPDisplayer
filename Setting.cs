@@ -159,8 +159,7 @@ namespace RealTimePPDisplayer
             get => Setting.FPS.ToString();
         }
 
-        [ReflectList(Type =typeof(RealTimePPDisplayerPlugin),ValueListName = "DisplayerCreatorNames", 
-            SplitSeparator = ',', AllowMultiSelect = true,RequireRestart = true)]
+        [DisplayListAttribute(SplitSeparator = ',', AllowMultiSelect = true,RequireRestart = true)]
         public ConfigurationElement OutputMethods
         {
             get => string.Join(",", Setting.OutputMethods);

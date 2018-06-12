@@ -16,6 +16,7 @@ namespace RealTimePPDisplayer.Calculator
 
         public override void ClearCache()
         {
+            base.ClearCache();
             Oppai.Clear();
         }
 

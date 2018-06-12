@@ -33,6 +33,8 @@ namespace RealTimePPDisplayer
 
         private OsuStatus m_status;
 
+        private Dictionary<string,DisplayerBase> m_displayers = new Dictionary<string,DisplayerBase>();
+
         private int m_combo = 0;
         private int m_max_combo = 0;
 
@@ -46,19 +48,9 @@ namespace RealTimePPDisplayer
         private int m_score = 0;
 
 
-        private Dictionary<string,DisplayerBase> m_displayers = new Dictionary<string,DisplayerBase>();
-
         public PPControl(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
-
-            m_listener_manager.OnModsChanged += (mods) => 
-            {
-                if (Setting.IgnoreTouchScreenDecrease)
-                    mods.Mod = (mods.Mod & ~ModsInfo.Mods.TouchScreen);
-                m_cur_mods = mods;
-                m_pp_calculator.ClearCache();
-            };
 
             m_listener_manager.OnCount300Changed += c => m_n300 = c;
             m_listener_manager.OnCountGekiChanged += c => m_ngeki = c;
@@ -67,70 +59,6 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnCount50Changed += c => m_n50 = c;
             m_listener_manager.OnCountMissChanged += c => m_nmiss = c;
             m_listener_manager.OnScoreChanged += s => m_score = s;
-            m_listener_manager.OnPlayModeChanged += (last, mode) =>
-            {
-                switch (mode)
-                {
-                    case OsuPlayMode.Osu:
-                        m_pp_calculator = new StdPPCalculator(); break;
-                    case OsuPlayMode.Taiko:
-                        m_pp_calculator = new TaikoPerformanceCalculator(); break;
-                    case OsuPlayMode.Mania:
-                        m_pp_calculator = new ManiaPerformanceCalculator(); break;
-                    default:
-                        Sync.Tools.IO.CurrentIO.WriteColor("[RealTimePPDisplayer]Unsupported Mode", ConsoleColor.Red);
-                        m_pp_calculator = null; break;
-                }
-                m_mode = mode;
-            };
-
-            m_listener_manager.OnStatusChanged += (last, cur) =>
-            {
-                m_status = cur;
-                if ((cur == OsuStatus.Rank && last == OsuStatus.Playing)||
-                    (cur==OsuStatus.Listening && last==OsuStatus.Playing))
-                {
-                    bool isComplete = m_pp_calculator.Beatmap?.Objects.LastOrDefault().StartTime < m_time;
-
-                    if(isComplete)
-                    {
-                        var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
-                        var mods = m_pp_calculator.Mods;
-                        string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
-                        string acc = $"{ m_pp_calculator.Accuracy * 100:F2}%";
-                        string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
-                        string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
-                        string msg = $"[RTPPD]{songs} {mods_str} | {acc} => {pp}";
-
-                        IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
-                        if (SyncHost.Instance.ClientWrapper.Client.CurrentStatus == SourceStatus.CONNECTED_WORKING &&
-                            Setting.RankingSendPerformanceToChat)
-                        {
-                            if (beatmap.BeatmapID != 0)
-                            {
-                                string dlUrl = beatmap.DownloadLink;
-                                SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD][{dlUrl} {songs}] {mods_str} | {acc} => {pp}"));
-                            }
-                            else
-                            {
-                                SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, msg));
-                            }
-                        }
-                    }
-                }
-
-                if (cur == OsuStatus.Listening || cur == OsuStatus.Editing)//Clear Output
-                {
-                    m_combo = 0;
-                    m_max_combo = 0;
-                    m_n100 = 0;
-                    m_n50 = 0;
-                    m_nmiss = 0;
-                    foreach (var p in m_displayers)
-                        p.Value.Clear();
-                }
-            };
-
             m_listener_manager.OnComboChanged += (combo) =>
             {
                 if (m_status != OsuStatus.Playing) return;
@@ -141,8 +69,83 @@ namespace RealTimePPDisplayer
                 }
             };
 
+            m_listener_manager.OnModsChanged += (mods) =>
+            {
+                if (Setting.IgnoreTouchScreenDecrease)
+                    mods.Mod = (mods.Mod & ~ModsInfo.Mods.TouchScreen);
+                m_cur_mods = mods;
+                m_pp_calculator.ClearCache();
+            };
+
+            m_listener_manager.OnPlayModeChanged += RTPPOnPlayModeChanged;
+            m_listener_manager.OnStatusChanged += RTPPOnStatusChanged;
             m_listener_manager.OnBeatmapChanged += RTPPOnBeatmapChanged;
             m_listener_manager.OnPlayingTimeChanged += RTPPOnPlayingTimeChanged;
+        }
+
+        #region RTPP Listener
+        private void RTPPOnStatusChanged(OsuStatus last,OsuStatus cur)
+        {
+            m_status = cur;
+            if ((cur == OsuStatus.Rank && last == OsuStatus.Playing) ||
+                (cur == OsuStatus.Listening && last == OsuStatus.Playing))
+            {
+                bool isComplete = m_pp_calculator.Beatmap?.Objects.LastOrDefault().StartTime < m_time;
+
+                if (isComplete)
+                {
+                    var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
+                    var mods = m_pp_calculator.Mods;
+                    string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
+                    string acc = $"{ m_pp_calculator.Accuracy * 100:F2}%";
+                    string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
+                    string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
+                    string msg = $"[RTPPD]{songs} {mods_str} | {acc} => {pp}";
+
+                    IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
+                    if (SyncHost.Instance.ClientWrapper.Client.CurrentStatus == SourceStatus.CONNECTED_WORKING &&
+                        Setting.RankingSendPerformanceToChat)
+                    {
+                        if (beatmap.BeatmapID != 0)
+                        {
+                            string dlUrl = beatmap.DownloadLink;
+                            SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD][{dlUrl} {songs}] {mods_str} | {acc} => {pp}"));
+                        }
+                        else
+                        {
+                            SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, msg));
+                        }
+                    }
+                }
+            }
+
+            if (cur == OsuStatus.Listening || cur == OsuStatus.Editing)//Clear Output and reset
+            {
+                m_combo = 0;
+                m_max_combo = 0;
+                m_n100 = 0;
+                m_n50 = 0;
+                m_nmiss = 0;
+                foreach (var p in m_displayers)
+                    p.Value.Clear();
+            }
+        }
+
+        private void RTPPOnPlayModeChanged(OsuPlayMode last,OsuPlayMode mode)
+        {
+            switch (mode)
+            {
+                case OsuPlayMode.Osu:
+                    m_pp_calculator = new StdPPCalculator(); break;
+                case OsuPlayMode.Taiko:
+                    m_pp_calculator = new TaikoPerformanceCalculator(); break;
+                case OsuPlayMode.Mania:
+                    m_pp_calculator = new ManiaPerformanceCalculator(); break;
+                default:
+                    Sync.Tools.IO.CurrentIO.WriteColor("[RealTimePPDisplayer]Unsupported Mode", ConsoleColor.Red);
+                    m_pp_calculator = null; break;
+            }
+            m_mode = mode;
         }
 
         private void RTPPOnBeatmapChanged(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
@@ -164,7 +167,6 @@ namespace RealTimePPDisplayer
         private void RTPPOnPlayingTimeChanged(int time)
         {
             if (m_pp_calculator == null) return;
-            if (time < 0) return;
             if (m_status != OsuStatus.Playing) return;
             if (m_cur_mods == ModsInfo.Mods.Unknown) return;
 
@@ -175,6 +177,8 @@ namespace RealTimePPDisplayer
                 m_n100 = 0;
                 m_n50 = 0;
                 m_nmiss = 0;
+                foreach (var p in m_displayers)
+                    p.Value.Clear();
             }
 
             if (Setting.DebugMode && m_beatmap_reader == null)
@@ -184,7 +188,7 @@ namespace RealTimePPDisplayer
             }
 
             m_pp_calculator.Beatmap = m_beatmap_reader;
-            m_pp_calculator.Time = m_time;
+            m_pp_calculator.Time = time;
             m_pp_calculator.MaxCombo = m_max_combo;
             m_pp_calculator.Count300 = m_n300;
             m_pp_calculator.Count100 = m_n100;
@@ -197,12 +201,12 @@ namespace RealTimePPDisplayer
 
             var pp_tuple = m_pp_calculator.GetPP();
 
-            pp_tuple.RealTimePP=F(pp_tuple.RealTimePP, pp_tuple.MaxPP, 0.0);
+            pp_tuple.RealTimePP = F(pp_tuple.RealTimePP, pp_tuple.MaxPP, 0.0);
             pp_tuple.RealTimeSpeedPP = F(pp_tuple.RealTimeSpeedPP, pp_tuple.MaxPP, 0.0);
             pp_tuple.RealTimeAimPP = F(pp_tuple.RealTimeAimPP, pp_tuple.MaxPP, 0.0);
             pp_tuple.RealTimeAccuracyPP = F(pp_tuple.RealTimeAccuracyPP, pp_tuple.MaxPP, 0.0);
 
-            pp_tuple.RealTimePP = F(pp_tuple.RealTimePP,double.NaN, 0.0);
+            pp_tuple.RealTimePP = F(pp_tuple.RealTimePP, double.NaN, 0.0);
             pp_tuple.RealTimeSpeedPP = F(pp_tuple.RealTimeSpeedPP, double.NaN, 0.0);
             pp_tuple.RealTimeAimPP = F(pp_tuple.RealTimeAimPP, double.NaN, 0.0);
             pp_tuple.RealTimeAccuracyPP = F(pp_tuple.RealTimeAccuracyPP, double.NaN, 0.0);
@@ -232,6 +236,7 @@ namespace RealTimePPDisplayer
 
             m_time = time;
         }
+        #endregion
 
         /// <summary>
         /// Add a displayer to update list

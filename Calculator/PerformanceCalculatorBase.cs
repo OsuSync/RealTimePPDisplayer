@@ -26,7 +26,11 @@ namespace RealTimePPDisplayer.Calculator
         public ModsInfo Mods { get; set; }
 
         public abstract PPTuple GetPP();
-        public virtual void ClearCache() { }
+        public virtual void ClearCache()
+        {
+            Count300 = Count100 = Count50 = CountGeki = CountKatu = CountMiss = 0;
+            Time = MaxCombo = Score = 0;
+        }
 
         public abstract double Accuracy { get; }
 
