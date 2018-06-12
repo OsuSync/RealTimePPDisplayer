@@ -18,6 +18,7 @@ namespace RealTimePPDisplayer
         public string Format { get; private set; }
         private StringBuilder m_builder=new StringBuilder(1024);
 
+        private object _mtx = new object();
         public List<string> m_args = new List<string>(16);
         static Regex pattern = new Regex(@"\$\{(.+?)\}");
         static Regex new_line_pattern = new Regex(@"(?<=[^\\])\\n");
@@ -29,16 +30,19 @@ namespace RealTimePPDisplayer
 
         protected void ReplaceFormat(string format)
         {
-            m_args.Clear();
-            Format = new_line_pattern.Replace(format, Environment.NewLine);
-
-            var result = pattern.Match(format);
-
-            while (result.Success)
+            lock (_mtx)
             {
-                var key = result.Groups[1].Value.Trim();
-                m_args.Add(key);
-                result = result.NextMatch();
+                m_args.Clear();
+                Format = new_line_pattern.Replace(format, Environment.NewLine);
+
+                var result = pattern.Match(format);
+
+                while (result.Success)
+                {
+                    var key = result.Groups[1].Value.Trim();
+                    m_args.Add(key);
+                    result = result.NextMatch();
+                }
             }
         }
 
@@ -76,8 +80,11 @@ namespace RealTimePPDisplayer
 
         public IEnumerator<string> GetEnumerator()
         {
-            foreach (var p in m_args)
-                yield return p;
+            lock (_mtx)
+            {
+                foreach (var p in m_args)
+                    yield return p;
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()

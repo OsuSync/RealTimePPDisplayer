@@ -25,6 +25,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <LangVersion>7</LangVersion>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -62,6 +63,7 @@
     <Compile Include="Displayer\MmfDisplayer.cs" />
     <Compile Include="Displayer\TextDisplayer.cs" />
     <Compile Include="Displayer\WpfDisplayer.cs" />
+    <Compile Include="DisplayListAttribute.cs" />
     <Compile Include="StringFormatter.cs" />
     <Compile Include="SmoothMath.cs" />
     <Compile Include="PPControl.cs" />
@@ -92,6 +94,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y $(TargetPath) $(SolutionDir)\Sync\bin\$(ConfigurationName)\Plugins
-copy /y $(ProjectDir)oppai.dll $(SolutionDir)\Sync\bin\$(ConfigurationName)</PostBuildEvent>
+copy /y $(ProjectDir)oppai.dll $(SolutionDir)\Sync\bin\$(ConfigurationName)
+xcopy $(ProjectDir)\Language $(ProjectDir)\$(OutDir)\Language\ /s/e/y</PostBuildEvent>
   </PropertyGroup>
 </Project>

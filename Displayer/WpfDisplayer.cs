@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace RealTimePPDisplayer.Displayer
@@ -12,8 +13,7 @@ namespace RealTimePPDisplayer.Displayer
     class WpfDisplayer : DisplayerBase
     {
         private PPWindow m_win;
-        private Thread m_win_thread;
-
+        private static Thread m_win_thread;
         private bool m_output = false;
 
         PPTuple m_current_pp;
@@ -22,9 +22,16 @@ namespace RealTimePPDisplayer.Displayer
 
         public WpfDisplayer(int? id)
         {
-            m_win_thread = new Thread(() => ShowPPWindow(id));
-            m_win_thread.SetApartmentState(ApartmentState.STA);
-            m_win_thread.Start();
+            if (Application.Current == null)
+            {
+                m_win_thread = new Thread(() => new Application().Run());
+                m_win_thread.Name = "STA WPF Application Thread";
+                m_win_thread.SetApartmentState(ApartmentState.STA);
+                m_win_thread.Start();
+                Thread.Sleep(100);
+            }
+
+            Application.Current.Dispatcher.Invoke(() => ShowPPWindow(id));
         }
 
         public override void Clear()
@@ -57,6 +64,7 @@ namespace RealTimePPDisplayer.Displayer
 
             if (m_win != null)
                 m_win.HitCountContext = formatter.ToString();
+            m_win.Refresh();
         }
 
         public override void FixedDisplay(double time)
@@ -70,18 +78,19 @@ namespace RealTimePPDisplayer.Displayer
 
             if (m_win != null)
                 m_win.PPContext = formatter.ToString();
+            m_win.Refresh();
         }
 
         private void ShowPPWindow(int? id)
         {
-            m_win = new PPWindow(Setting.SmoothTime, Setting.FPS);
+            m_win = new PPWindow();
 
             if (id != null)
                 m_win.Title += $"{id}";
 
             m_win.client_id.Content = id?.ToString() ?? "";
 
-            m_win.ShowDialog();
+            m_win.Show();
         }
 
         public override void OnDestroy()

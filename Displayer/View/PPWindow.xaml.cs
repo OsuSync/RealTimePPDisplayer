@@ -16,7 +16,7 @@ namespace RealTimePPDisplayer.Displayer.View
     public partial class PPWindow : Window, INotifyPropertyChanged
     { 
         #region construct
-        public PPWindow(int st,int fps)
+        public PPWindow()
         {
             InitializeComponent();
             DataContext = this;
@@ -137,6 +137,15 @@ namespace RealTimePPDisplayer.Displayer.View
         private void Window_Closed(object sender, EventArgs e)
         {
             Setting.OnSettingChanged -= ReloadSetting;
+        }
+    }
+
+    static class ExtensionMethods
+    {
+        private static Action EmptyDelegate = delegate () { };
+        public static void Refresh(this UIElement uiElement)
+        {
+            uiElement.Dispatcher.Invoke(DispatcherPriority.Render, EmptyDelegate);
         }
     }
 }

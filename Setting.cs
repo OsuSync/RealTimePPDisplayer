@@ -1,4 +1,5 @@
 ﻿using Sync.Tools;
+using Sync.Tools.ConfigGUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,16 +14,26 @@ namespace RealTimePPDisplayer
         public static Color StringToColor(string color_str)
         {
             var color = new Color();
-            color.A = Convert.ToByte(color_str.Substring(0, 2), 16);
-            color.R = Convert.ToByte(color_str.Substring(2, 2), 16);
-            color.G = Convert.ToByte(color_str.Substring(4, 2), 16);
-            color.B = Convert.ToByte(color_str.Substring(6, 2), 16);
+            if (color_str[0] == '#')
+            {
+                color.R = Convert.ToByte(color_str.Substring(1, 2), 16);
+                color.G = Convert.ToByte(color_str.Substring(3, 2), 16);
+                color.B = Convert.ToByte(color_str.Substring(5, 2), 16);
+                color.A = Convert.ToByte(color_str.Substring(7, 2), 16);
+            }
+            else
+            {
+                color.A = Convert.ToByte(color_str.Substring(0, 2), 16);
+                color.R = Convert.ToByte(color_str.Substring(2, 2), 16);
+                color.G = Convert.ToByte(color_str.Substring(4, 2), 16);
+                color.B = Convert.ToByte(color_str.Substring(6, 2), 16);
+            }
             return color;
         }
 
         public static string ColorToString(Color c)
         {
-            return $"{c.A:X2}{c.R:X2}{c.G:X2}{c.B:X2}";
+            return $"#{c.R:X2}{c.G:X2}{c.B:X2}{c.A:X2}";
         }
     }
 
@@ -30,93 +41,238 @@ namespace RealTimePPDisplayer
 
     internal class SettingIni : IConfigurable
     {
-        public ConfigurationElement UseText { get; set; }
-        public ConfigurationElement TextOutputPath { get; set; }
-        public ConfigurationElement DisplayHitObject { set; get; }
-        public ConfigurationElement FontName { set; get; }
-        public ConfigurationElement PPFontSize { set; get; }
-        public ConfigurationElement PPFontColor { set; get; }
-        public ConfigurationElement HitCountFontSize { set; get; }
-        public ConfigurationElement HitCountFontColor { set; get; }
-        public ConfigurationElement BackgroundColor { set; get; }
-        public ConfigurationElement WindowHeight { set; get; }
-        public ConfigurationElement WindowWidth { set; get; }
-        public ConfigurationElement SmoothTime { get; set; }
-        public ConfigurationElement FPS { get; set; }
-        public ConfigurationElement Topmost { get; set; }
-        public ConfigurationElement WindowTextShadow { get; set; }
-        public ConfigurationElement OutputMethods { get; set; }
-        public ConfigurationElement DebugMode { get; set; }
-        public ConfigurationElement PPFormat { get; set; }
-        public ConfigurationElement HitCountFormat { get; set; }
-        public ConfigurationElement RoundDigits { get; set; }
+        [Path(IsDirectory = false,RequireRestart = true)]
+        public ConfigurationElement TextOutputPath
+        {
+            get => Setting.TextOutputPath;
+            set => Setting.TextOutputPath = value;
+        }
+
+        [Font]
+        public ConfigurationElement FontName
+        {
+            get=>Setting.FontName;
+            set
+            {
+                Setting.FontName = value;
+                Setting.SettingChanged();
+            }
+        }
+
+        [Integer(MinValue = 10,MaxValue = 150)]
+        public ConfigurationElement PPFontSize
+        {
+            set
+            {
+                Setting.PPFontSize = int.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.PPFontSize.ToString();
+        }
+
+
+        [Integer(MinValue = 10, MaxValue = 150)]
+        public ConfigurationElement HitCountFontSize
+        {
+            set
+            {
+                Setting.HitCountFontSize = int.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.HitCountFontSize.ToString();
+        }
+
+        [Color]
+        public ConfigurationElement PPFontColor
+        {
+            set
+            {
+                Setting.PPFontColor = ColorConverter.StringToColor(value);
+                Setting.SettingChanged();
+            }
+            get => ColorConverter.ColorToString(Setting.PPFontColor);
+        }
+
+        [Color]
+        public ConfigurationElement HitCountFontColor
+        {
+            set
+            {
+                Setting.HitCountFontColor = ColorConverter.StringToColor(value);
+                Setting.SettingChanged();
+            }
+            get => ColorConverter.ColorToString(Setting.HitCountFontColor);
+        }
+
+        [Color]
+        public ConfigurationElement BackgroundColor
+        {
+            set
+            {
+                Setting.BackgroundColor = ColorConverter.StringToColor(value);
+                Setting.SettingChanged();
+            }
+            get => ColorConverter.ColorToString(Setting.BackgroundColor);
+        }
+
+        [Integer(MinValue =100,MaxValue =1080)]
+        public ConfigurationElement WindowHeight
+        {
+            set
+            {
+                Setting.WindowHeight = int.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.WindowHeight.ToString();
+        }
+
+        [Integer(MinValue = 100, MaxValue = 1920)]
+        public ConfigurationElement WindowWidth
+        {
+            set
+            {
+                Setting.WindowWidth = int.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.WindowWidth.ToString();
+        }
+
+        [Integer(MinValue = 30, MaxValue = 10000)]
+        public ConfigurationElement SmoothTime
+        {
+            set
+            {
+                Setting.SmoothTime = int.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.SmoothTime.ToString();
+        }
+
+        [Integer(MinValue = 1, MaxValue = 60)]
+        public ConfigurationElement FPS
+        {
+            set
+            {
+                Setting.FPS = int.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.FPS.ToString();
+        }
+
+        [DisplayListAttribute(SplitSeparator = ',', AllowMultiSelect = true,RequireRestart = true)]
+        public ConfigurationElement OutputMethods
+        {
+            get => string.Join(",", Setting.OutputMethods);
+            set
+            {
+                Setting.OutputMethods = value.ToString().Split(',').Select(s=>s.Trim());
+            }
+        }
+
+        [String]
+        public ConfigurationElement PPFormat
+        {
+            get => Setting.PPFormat;
+            set
+            {
+                Setting.PPFormat = value;
+                Setting.SettingChanged();
+            }
+        }
+
+        [String]
+        public ConfigurationElement HitCountFormat
+        {
+            get => Setting.HitCountFormat;
+            set
+            {
+                Setting.HitCountFormat = value;
+                Setting.SettingChanged();
+            }
+        }
+
+        [Integer(MinValue = 0,MaxValue = 15)]
+        public ConfigurationElement RoundDigits
+        {
+            set=>Setting.RoundDigits = int.Parse(value);
+            get => Setting.RoundDigits.ToString();
+        }
+
+        [Bool(RequireRestart = true)]
+        public ConfigurationElement DebugMode
+        {
+            set
+            {
+                Setting.DebugMode = bool.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.DebugMode.ToString();
+        }
+
+        [Bool]
+        public ConfigurationElement DisplayHitObject
+        {
+            get => Setting.DisplayHitObject.ToString();
+            set
+            {
+                Setting.DisplayHitObject = bool.Parse(value);
+                Setting.SettingChanged();
+            }
+        }
+
+        [Bool]
+        public ConfigurationElement Topmost
+        {
+            set
+            {
+                Setting.Topmost = bool.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.Topmost.ToString();
+        }
+
+        [Bool]
+        public ConfigurationElement WindowTextShadow
+        {
+            set
+            {
+                Setting.WindowTextShadow = bool.Parse(value);
+                Setting.SettingChanged();
+            }
+            get => Setting.WindowTextShadow.ToString();
+        }
+
+        [Bool]
+        public ConfigurationElement IgnoreTouchScreenDecrease
+        {
+            set => Setting.IgnoreTouchScreenDecrease = bool.Parse(value);
+            get => Setting.IgnoreTouchScreenDecrease.ToString();
+        }
+
+        [Bool]
+        public ConfigurationElement RankingSendPerformanceToChat
+        {
+            set => Setting.RankingSendPerformanceToChat = bool.Parse(value);
+            get => Setting.RankingSendPerformanceToChat.ToString();
+        }
 
         public void onConfigurationLoad()
         {
-            try
-            {
-                Setting.UseText = bool.Parse(UseText);
-                Setting.TextOutputPath = TextOutputPath;
-                Setting.DisplayHitObject = bool.Parse(DisplayHitObject);
-                Setting.FontName = FontName;
-                Setting.PPFontColor = ColorConverter.StringToColor(PPFontColor);
-                Setting.PPFontSize = int.Parse(PPFontSize);
-                Setting.HitCountFontSize = int.Parse(HitCountFontSize);
-                Setting.HitCountFontColor = ColorConverter.StringToColor(HitCountFontColor);
-                Setting.BackgroundColor = ColorConverter.StringToColor(BackgroundColor);
-                Setting.WindowHeight = int.Parse(WindowHeight);
-                Setting.WindowWidth = int.Parse(WindowWidth);
-                Setting.SmoothTime = int.Parse(SmoothTime);
-                Setting.FPS = int.Parse(FPS);
-                Setting.Topmost = bool.Parse(Topmost);
-                Setting.DebugMode = bool.Parse(DebugMode);
-                Setting.WindowTextShadow = bool.Parse(WindowTextShadow);
-                Setting.OutputMethods = ((string)OutputMethods).Split(',').Select(s => s.Trim().ToLower());
-                Setting.HitCountFormat = HitCountFormat;
-                Setting.PPFormat = PPFormat;
-                Setting.RoundDigits = int.Parse(RoundDigits);
-            }
-            catch (Exception e)
-            {
-                onConfigurationSave();
-            }
         }
 
         public void onConfigurationReload()
         {
-            onConfigurationLoad();
             Setting.SettingChanged();
         }
 
         public void onConfigurationSave()
         {
-            UseText = Setting.UseText.ToString();
-            TextOutputPath = Setting.TextOutputPath;
-            DisplayHitObject = Setting.DisplayHitObject.ToString();
-            FontName = Setting.FontName;
-            PPFontColor = ColorConverter.ColorToString(Setting.PPFontColor);
-            PPFontSize = Setting.PPFontSize.ToString();
-            HitCountFontSize = Setting.HitCountFontSize.ToString();
-            HitCountFontColor = ColorConverter.ColorToString(Setting.HitCountFontColor);
-            BackgroundColor = ColorConverter.ColorToString(Setting.BackgroundColor);
-            WindowHeight = Setting.WindowHeight.ToString();
-            WindowWidth = Setting.WindowWidth.ToString();
-            SmoothTime = Setting.SmoothTime.ToString();
-            FPS = Setting.FPS.ToString();
-            Topmost = Setting.Topmost.ToString();
-            WindowTextShadow = Setting.WindowTextShadow.ToString();
-            OutputMethods = string.Join(",", Setting.OutputMethods);
-            DebugMode = Setting.DebugMode.ToString();
-            PPFormat = Setting.PPFormat;
-            HitCountFormat = Setting.HitCountFormat;
-            RoundDigits = Setting.RoundDigits.ToString();
         }
     }
 
     internal static class Setting
     {
         public static IEnumerable<string> OutputMethods = new[]{ "wpf" };
-        public static bool UseText = false;
         public static string TextOutputPath = @"rtpp{0}.txt";
         public static bool DisplayHitObject = true;
         public static string FontName = "Segoe UI";
@@ -124,7 +280,7 @@ namespace RealTimePPDisplayer
         public static Color PPFontColor = Colors.White;
         public static int HitCountFontSize = 24;
         public static Color HitCountFontColor = Colors.White;
-        public static Color BackgroundColor = ColorConverter.StringToColor("FF00FF00");
+        public static Color BackgroundColor = ColorConverter.StringToColor("#00FF00FF");
         public static int WindowWidth = 280;
         public static int WindowHeight = 172;
         public static int SmoothTime = 200;
@@ -137,7 +293,8 @@ namespace RealTimePPDisplayer
         public static string PPFormat = "${rtpp}pp";
         //combo maxcombo fullcombo n300 n100 n50 nmiss
         public static string HitCountFormat = "${n100}x100 ${n50}x50 ${nmiss}xMiss";
-
+        public static bool IgnoreTouchScreenDecrease = false;
+        public static bool RankingSendPerformanceToChat = false;
 
         public static event Action OnSettingChanged;
 

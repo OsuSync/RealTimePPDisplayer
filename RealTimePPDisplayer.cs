@@ -1,7 +1,9 @@
 ﻿using OsuRTDataProvider;
 using RealTimePPDisplayer.Displayer;
+using Sync;
 using Sync.Plugins;
 using Sync.Tools;
+using Sync.Tools.ConfigGUI;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,17 +19,20 @@ namespace RealTimePPDisplayer
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.3.3";
+        public const string VERSION= "1.4.0";
 
         private OsuRTDataProviderPlugin m_memory_reader;
         private PPControl[] m_osu_pp_controls = new PPControl[16];
 
         private PluginConfigurationManager m_config_manager;
 
-        public int TourneyWindowSize => m_memory_reader.TourneyListenerManagersCount;
+        public int TourneyWindowCount => m_memory_reader.TourneyListenerManagersCount;
         public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
 
         #region FixedDisplay Field
+        public static RealTimePPDisplayerPlugin Instance;
+        public IEnumerable<string> DisplayerNames => m_displayer_creators.Select(d=>d.Key);
+
         private bool m_stop_fixed_update = false;
         private Dictionary<string, Func<int?, DisplayerBase>> m_displayer_creators = new Dictionary<string,Func<int?, DisplayerBase>>();
         private object m_all_displayer_mtx = new object();
@@ -41,6 +46,8 @@ namespace RealTimePPDisplayer
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
+
+            Instance = this;
         }
 
         /// <summary>
@@ -52,6 +59,7 @@ namespace RealTimePPDisplayer
             m_config_manager.AddItem(new SettingIni());
 
             m_memory_reader = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
+
 
             if (m_memory_reader == null)
             {
@@ -90,7 +98,9 @@ namespace RealTimePPDisplayer
 
             RegisterDisplayer("wpf", (id) => new WpfDisplayer(id));
             RegisterDisplayer("mmf", (id) => new MmfDisplayer(id));
+            RegisterDisplayer("mmf-split", (id) => new MmfDisplayer(id,true));
             RegisterDisplayer("text", (id) => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
+            RegisterDisplayer("text-split", (id) => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
 
             Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
         }
@@ -109,6 +119,7 @@ namespace RealTimePPDisplayer
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
                 return false;
             }
+
             m_displayer_creators[name]=creator;
 
             if (Setting.OutputMethods.Contains(name))
@@ -167,6 +178,7 @@ namespace RealTimePPDisplayer
         {
             foreach (var p in m_all_displayers)
             {
+                p.Value.Clear();
                 p.Value.OnDestroy();
             }
             m_all_displayers.Clear();
@@ -211,7 +223,7 @@ namespace RealTimePPDisplayer
 
         public override void OnExit()
         {
-            RemoveAllDisplayer();
+            OnDisable();
         }
     }
 }
