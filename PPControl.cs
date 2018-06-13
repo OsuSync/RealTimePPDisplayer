@@ -90,7 +90,7 @@ namespace RealTimePPDisplayer
             if ((cur == OsuStatus.Rank && last == OsuStatus.Playing) ||
                 (cur == OsuStatus.Listening && last == OsuStatus.Playing))
             {
-                bool isComplete = m_pp_calculator.Beatmap?.Objects.LastOrDefault().StartTime < m_time;
+                bool isComplete = m_pp_calculator.Beatmap?.BeatmapDuration < m_time;
 
                 if (isComplete)
                 {
@@ -169,6 +169,9 @@ namespace RealTimePPDisplayer
             if (m_pp_calculator == null) return;
             if (m_status != OsuStatus.Playing) return;
             if (m_cur_mods == ModsInfo.Mods.Unknown) return;
+            int totalhit = m_n300 + m_n100 + m_n50 + m_n50 + m_nkatu + m_ngeki + m_nmiss;
+            if (time> m_pp_calculator.Beatmap?.BeatmapDuration &&
+                totalhit == 0) return;
 
             if (m_time > time)//Reset
             {
