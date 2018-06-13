@@ -201,9 +201,16 @@ namespace RealTimePPDisplayer.Calculator
             return Beatmap.ObjectsCount;
         }
 
-        public override double Accuracy =>
-            ((Count300 + CountGeki) * 300.0 + CountKatu * 200.0 + Count100 * 100.0 + Count50 * 50) /
-            ((Count300 + CountGeki + CountKatu + Count100 + Count50 + CountMiss) * 300.0);
+        public override double Accuracy{
+            get
+            {
+                int total = (Count300 + CountGeki + CountKatu + Count100 + Count50 + CountMiss);
+                double acc = 1.0;
+                if(total > 0)
+                 acc = ((Count300 + CountGeki) * 300.0 + CountKatu * 200.0 + Count100 * 100.0 + Count50 * 50) / (total * 300.0);
+                return acc;
+            }
+        }
 
         private double HitWindow300
         {

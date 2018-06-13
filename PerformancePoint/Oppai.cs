@@ -207,7 +207,7 @@ namespace RealTimePPDisplayer.PerformancePoint
         public static double acc_calc(int n300, int n100, int n50,int misses)
         {
             int total_hits = n300 + n100 + n50 + misses;
-            double acc = 100.0;
+            double acc = 1.0;
 
             if (total_hits > 0)
             {
