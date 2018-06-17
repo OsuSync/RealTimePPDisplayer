@@ -64,6 +64,13 @@
     <Compile Include="Displayer\TextDisplayer.cs" />
     <Compile Include="Displayer\WpfDisplayer.cs" />
     <Compile Include="DisplayListAttribute.cs" />
+    <Compile Include="Gui\FormatEditor.xaml.cs">
+      <DependentUpon>FormatEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Gui\GuiRegisterHelper.cs" />
+    <Compile Include="Gui\HitCountFormatAttribute.cs" />
+    <Compile Include="Gui\OpenFormatEditorCreator.cs" />
+    <Compile Include="Gui\PerformanceFormatAttribute.cs" />
     <Compile Include="StringFormatter.cs" />
     <Compile Include="SmoothMath.cs" />
     <Compile Include="PPControl.cs" />
@@ -76,6 +83,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\osuSync\OfficalPlugins\ConfigGUI\ConfigGUI.csproj">
+      <Project>{0f922afa-bbc0-44a0-8ca7-d408d5dd8298}</Project>
+      <Name>ConfigGUI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\osuSync\Sync\Sync.csproj">
       <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
       <Name>Sync</Name>
@@ -87,6 +98,10 @@
   </ItemGroup>
   <ItemGroup>
     <Page Include="Displayer\View\PPWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Gui\FormatEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

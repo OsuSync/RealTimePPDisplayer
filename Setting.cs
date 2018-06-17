@@ -1,4 +1,5 @@
-﻿using Sync.Tools;
+﻿using RealTimePPDisplayer.Gui;
+using Sync.Tools;
 using Sync.Tools.ConfigGUI;
 using System;
 using System.Collections.Generic;
@@ -169,7 +170,7 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [String]
+        [PerformanceFormat]
         public ConfigurationElement PPFormat
         {
             get => Setting.PPFormat;
@@ -180,7 +181,7 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [String]
+        [HitCountFormat]
         public ConfigurationElement HitCountFormat
         {
             get => Setting.HitCountFormat;

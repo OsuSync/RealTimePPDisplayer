@@ -1,0 +1,31 @@
+﻿<Window x:Class="RealTimePPDisplayer.Gui.FormatEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RealTimePPDisplayer.Gui"
+             mc:Ignorable="d" 
+             Width="800" Height="500"
+             ResizeMode="NoResize" Title="Format Editor">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="5*"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+        <Label Content="Format:" Margin="2" Grid.Row="0"/>
+        <TextBox Name="FormatEditBox" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Text="{Binding Format,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="2" Grid.Row="1"/>
+        <Label Content="Preview:" Margin="2" Grid.Row="2"/>
+        <Border Margin="2" BorderThickness="1" BorderBrush="#FFB4A1A1"  Grid.Row="3" >
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                <TextBlock Name="FormatPreviewBox" Margin="2"/>
+            </ScrollViewer>
+        </Border>
+
+        <WrapPanel Name="ButtonsList" Grid.Row="4">
+        </WrapPanel>
+
+    </Grid>
+</Window>

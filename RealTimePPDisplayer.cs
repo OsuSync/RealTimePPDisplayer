@@ -1,5 +1,6 @@
 ﻿using OsuRTDataProvider;
 using RealTimePPDisplayer.Displayer;
+using RealTimePPDisplayer.Gui;
 using Sync;
 using Sync.Plugins;
 using Sync.Tools;
@@ -58,8 +59,13 @@ namespace RealTimePPDisplayer
             m_config_manager = new PluginConfigurationManager(this);
             m_config_manager.AddItem(new SettingIni());
 
-            m_memory_reader = getHoster().EnumPluings().Where(p => p.Name == "OsuRTDataProvider").FirstOrDefault() as OsuRTDataProviderPlugin;
+            m_memory_reader = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "OsuRTDataProvider") as OsuRTDataProviderPlugin;
+            var gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
 
+            if (gui != null)
+            {
+                GuiRegisterHelper.RegisterFormatEditorWindow(gui);
+            }
 
             if (m_memory_reader == null)
             {

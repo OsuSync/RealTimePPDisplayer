@@ -10,10 +10,5 @@ namespace RealTimePPDisplayer
     class DisplayListAttribute:ListAttribute
     {
         public override string[] ValueList => RealTimePPDisplayerPlugin.Instance.DisplayerNames.ToArray();
-
-        public DisplayListAttribute()
-        {
-            NoCheck = true;
-        }
     }
 }
