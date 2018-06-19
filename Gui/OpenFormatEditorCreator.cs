@@ -43,10 +43,7 @@ namespace RealTimePPDisplayer.Gui
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var panel = base.CreateControl(attr, prop, configuration_instance);
-            //panel.Children.RemoveAt(1);
-
             var item = new ConfigItemProxy(prop, configuration_instance);
-            //text.SetBinding(TextBox.TextProperty, new Binding("Format") { Source = item, Mode=BindingMode.OneWay});
 
             Button btn = new Button()
             {
