@@ -1,6 +1,6 @@
 ﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using RealTimePPDisplayer.Displayer;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
