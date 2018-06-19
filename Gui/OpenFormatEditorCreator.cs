@@ -14,7 +14,7 @@ using System.Windows.Data;
 
 namespace RealTimePPDisplayer.Gui
 {
-    public class OpenFormatEditorCreator: StringConfigurationItemCreator
+    public class OpenFormatEditorCreator: BaseConfigurationItemCreator
     {
         public class ConfigItemProxy: INotifyPropertyChanged
         {
@@ -28,7 +28,7 @@ namespace RealTimePPDisplayer.Gui
                 get => GetConfigValue(m_prop, m_instance).Replace("\\n",Environment.NewLine);
                 set
                 {
-                    SetConfigValue(m_prop, m_instance, value.Replace(Environment.NewLine, "\\n"));
+                    SetConfigValue(m_prop, m_instance, value.Replace(Environment.NewLine, "\\n").Replace("\n","\\n"));
                     PropertyChanged(this, new PropertyChangedEventArgs(nameof(Format)));
                 }
             }
@@ -43,10 +43,10 @@ namespace RealTimePPDisplayer.Gui
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var panel = base.CreateControl(attr, prop, configuration_instance);
-            TextBox text = panel.Children[1] as TextBox;
+            //panel.Children.RemoveAt(1);
 
             var item = new ConfigItemProxy(prop, configuration_instance);
-            text.SetBinding(TextBox.TextProperty, new Binding("Format") { Source = item, Mode=BindingMode.OneWay});
+            //text.SetBinding(TextBox.TextProperty, new Binding("Format") { Source = item, Mode=BindingMode.OneWay});
 
             Button btn = new Button()
             {
