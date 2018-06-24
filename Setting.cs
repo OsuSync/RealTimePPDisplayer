@@ -160,7 +160,7 @@ namespace RealTimePPDisplayer
             get => Setting.FPS.ToString();
         }
 
-        [DisplayListAttribute(SplitSeparator = ',', AllowMultiSelect = true,RequireRestart = true)]
+        [DisplayList(NoCheck = true,SplitSeparator = ',', AllowMultiSelect = true,RequireRestart = true)]
         public ConfigurationElement OutputMethods
         {
             get => string.Join(",", Setting.OutputMethods);

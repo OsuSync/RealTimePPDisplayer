@@ -1,7 +1,10 @@
-﻿using RealTimePPDisplayer.Displayer;
+﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
+using RealTimePPDisplayer.Displayer;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,8 +20,32 @@ using static RealTimePPDisplayer.Gui.OpenFormatEditorCreator;
 
 namespace RealTimePPDisplayer.Gui
 {
-    public partial class FormatEditor : Window
+    partial class FormatEditor : Window
     {
+        class ConfigItemProxy : INotifyPropertyChanged
+        {
+            private PropertyInfo m_prop;
+            private object m_instance;
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public string Format
+            {
+                get => BaseConfigurationItemCreator.GetConfigValue(m_prop, m_instance).Replace("\\n", Environment.NewLine);
+                set
+                {
+                    BaseConfigurationItemCreator.SetConfigValue(m_prop, m_instance, value.Replace(Environment.NewLine, "\\n").Replace("\n", "\\n"));
+                    PropertyChanged(this, new PropertyChangedEventArgs(nameof(Format)));
+                }
+            }
+
+            public ConfigItemProxy(PropertyInfo prop, object configuration_instance)
+            {
+                m_prop = prop;
+                m_instance = configuration_instance;
+            }
+        }
+
         private static readonly PPTuple s_perview_pp_tuple = new PPTuple
         {
             RealTimeAccuracyPP = 52.25,
@@ -65,8 +92,10 @@ namespace RealTimePPDisplayer.Gui
             "rtmaxcombo","fullcombo","maxcombo","combo"
         };
 
-        public FormatEditor(ConfigItemProxy item,bool isHitCount)
+        public FormatEditor(PropertyInfo prop, object configuration_instance, bool isHitCount)
         {
+            var item = new ConfigItemProxy(prop, configuration_instance);
+
             InitializeComponent();
 
             FormatEditBox.DataContext = item;
