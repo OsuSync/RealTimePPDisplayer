@@ -10,7 +10,7 @@
              Title="PPShow" Closed="Window_Closed">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="20" />
+            <RowDefinition Height="25" />
             <RowDefinition Height="4*" />
             <RowDefinition Height="2*" />
         </Grid.RowDefinitions>
@@ -19,7 +19,7 @@
                 <MenuItem Name="topmost_item" Header="Topmost" IsCheckable="True" Click="TopmostItem_Click" />
             </ContextMenu>
         </Grid.ContextMenu>
-        <Label Grid.Row="0" Name="client_id" Height="20" Content="1" FontSize="10" Foreground="White"/>
+        <Label Grid.Row="0" Name="client_id" Content="1" FontSize="10" Foreground="White"/>
         <Label Grid.Row="1" Name="pp_label" Content="{Binding PPContext}" HorizontalContentAlignment="Center"
                    VerticalContentAlignment="Top"  FontSize="48" Foreground="White"
                    TextOptions.TextHintingMode="Animated"/>
