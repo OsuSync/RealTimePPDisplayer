@@ -87,8 +87,6 @@ namespace RealTimePPDisplayer.Calculator
         }
         #endregion
 
-        private int _nobjects = 0;
-
         public override PPTuple GetPP()
         {
             if (Beatmap == null) return PPTuple.Empty;
@@ -107,18 +105,14 @@ namespace RealTimePPDisplayer.Calculator
 
             //Calculate RTPP
             int nobjects = GetCurrentObjectCount(Time);
-            if (nobjects != _nobjects)
-            {
-                ReinitializeObjects();
+            ReinitializeObjects();
 
-                CalculateStrainValues(nobjects);
-                double stars = CalculateDifficulty(nobjects) * STAR_SCALING_FACTOR;
+            CalculateStrainValues(nobjects);
+            double stars = CalculateDifficulty(nobjects) * STAR_SCALING_FACTOR;
 
-                double acc = Accuracy * 100;
+            double acc = Accuracy * 100;
 
-                CalculatePerformance(stars, RealScore, acc, nobjects, out tuple.RealTimePP, out tuple.RealTimeSpeedPP, out tuple.RealTimeAccuracyPP);
-                _nobjects = nobjects;
-            }
+            CalculatePerformance(stars, RealScore, acc, nobjects, out tuple.RealTimePP, out tuple.RealTimeSpeedPP, out tuple.RealTimeAccuracyPP);
             //No Fc pp
 
             return tuple;
@@ -129,7 +123,6 @@ namespace RealTimePPDisplayer.Calculator
         {
             base.ClearCache();
             if (Beatmap == null) return;
-            _nobjects = 0;
             _init = false;
             ReinitializeObjects();
         }
@@ -195,10 +188,17 @@ namespace RealTimePPDisplayer.Calculator
 
         private int GetCurrentObjectCount(int time)
         {
-            for (int i = 0; i < Beatmap.ObjectsCount; i++)
-                if (Beatmap.Objects[i].StartTime > time)
-                    return i + 1;
-            return Beatmap.ObjectsCount;
+            var lastObject = Beatmap.Objects[0];
+            int count = 0;
+            foreach (var obj in Beatmap.Objects)
+            {
+                if (time <= obj.StartTime)
+                    return count;
+                lastObject = obj;
+                count++;
+            }
+
+            return count;
         }
 
         public override double Accuracy{

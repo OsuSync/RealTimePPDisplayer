@@ -74,7 +74,8 @@ namespace RealTimePPDisplayer
                 if (Setting.IgnoreTouchScreenDecrease)
                     mods.Mod = (mods.Mod & ~ModsInfo.Mods.TouchScreen);
                 m_cur_mods = mods;
-                m_pp_calculator.ClearCache();
+                if(m_status!=OsuStatus.Playing)
+                    m_pp_calculator.ClearCache();
             };
 
             m_listener_manager.OnPlayModeChanged += RTPPOnPlayModeChanged;
@@ -87,34 +88,28 @@ namespace RealTimePPDisplayer
         private void RTPPOnStatusChanged(OsuStatus last,OsuStatus cur)
         {
             m_status = cur;
-            if ((cur == OsuStatus.Rank && last == OsuStatus.Playing) ||
-                (cur == OsuStatus.Listening && last == OsuStatus.Playing))
+            if ((cur == OsuStatus.Rank && last == OsuStatus.Playing))
             {
-                bool isComplete = m_pp_calculator.Beatmap?.BeatmapDuration < m_time;
+                var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
+                var mods = m_pp_calculator.Mods;
+                string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
+                string acc = $"{ m_pp_calculator.Accuracy * 100:F2}%";
+                string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
+                string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
+                string msg = $"[RTPPD]{songs} {mods_str} | {acc} => {pp}";
 
-                if (isComplete)
+                IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
+                if (SyncHost.Instance.ClientWrapper.Client.CurrentStatus == SourceStatus.CONNECTED_WORKING &&
+                    Setting.RankingSendPerformanceToChat)
                 {
-                    var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
-                    var mods = m_pp_calculator.Mods;
-                    string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
-                    string acc = $"{ m_pp_calculator.Accuracy * 100:F2}%";
-                    string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
-                    string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
-                    string msg = $"[RTPPD]{songs} {mods_str} | {acc} => {pp}";
-
-                    IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
-                    if (SyncHost.Instance.ClientWrapper.Client.CurrentStatus == SourceStatus.CONNECTED_WORKING &&
-                        Setting.RankingSendPerformanceToChat)
+                    if (beatmap.BeatmapID != 0)
                     {
-                        if (beatmap.BeatmapID != 0)
-                        {
-                            string dlUrl = beatmap.DownloadLink;
-                            SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD][{dlUrl} {songs}] {mods_str} | {acc} => {pp}"));
-                        }
-                        else
-                        {
-                            SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, msg));
-                        }
+                        string dlUrl = beatmap.DownloadLink;
+                        SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD][{dlUrl} {songs}] {mods_str} | {acc} => {pp}"));
+                    }
+                    else
+                    {
+                        SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, msg));
                     }
                 }
             }
@@ -129,6 +124,8 @@ namespace RealTimePPDisplayer
                 foreach (var p in m_displayers)
                     p.Value.Clear();
             }
+
+            m_pp_calculator.ClearCache();
         }
 
         private void RTPPOnPlayModeChanged(OsuPlayMode last,OsuPlayMode mode)
@@ -170,7 +167,7 @@ namespace RealTimePPDisplayer
             if (m_status != OsuStatus.Playing) return;
             if (m_cur_mods == ModsInfo.Mods.Unknown) return;
             int totalhit = m_n300 + m_n100 + m_n50 + m_n50 + m_nkatu + m_ngeki + m_nmiss;
-            if (time> m_pp_calculator.Beatmap?.BeatmapDuration &&
+            if (time > m_pp_calculator.Beatmap?.BeatmapDuration &&
                 totalhit == 0) return;
 
             if (m_time > time)//Reset
