@@ -44,23 +44,21 @@ namespace RealTimePPDisplayer.Beatmap
             m_beatmap_header_span.Length = 0;
             Mode = mode;
 
-            using (var fs = File.OpenRead(beatmap.FilenameFull))
+            StringBuilder sb=new StringBuilder();
+
+            foreach (var line in File.ReadAllLines(beatmap.FilenameFull))
             {
-                RawData = new byte[fs.Length];
-                fs.Read(RawData, 0, (int)fs.Length);
+                sb.Append($"{line}\r\n");
             }
+
+            RawData = Encoding.UTF8.GetBytes(sb.ToString());
             Parse();
         }
 
         public void Parse()
         {
             int bias = 2;
-
-            int pos = Array.IndexOf(RawData, (byte)'\n');
-            if (RawData[pos - 1] != '\r')
-                bias = 1;
-
-            pos = 0;
+            int pos = 0;
 
             using (var ms = new MemoryStream(RawData))
             {
