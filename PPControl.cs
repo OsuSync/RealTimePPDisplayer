@@ -28,7 +28,7 @@ namespace RealTimePPDisplayer
         private BeatmapReader m_beatmap_reader;
 
         private OsuPlayMode m_mode = OsuPlayMode.Osu;
-        private PerformanceCalculatorBase m_last_pp_calculator = null;
+        private PerformanceCalculatorBase m_tmp_last_pp_calculator = null;
         private PerformanceCalculatorBase m_pp_calculator=new StdPPCalculator();
         private ModsInfo m_cur_mods = ModsInfo.Empty;
 
@@ -91,7 +91,7 @@ namespace RealTimePPDisplayer
             m_status = cur;
             if ((cur == OsuStatus.Rank && last == OsuStatus.Playing))
             {
-                var cal = m_last_pp_calculator??m_pp_calculator;
+                var cal = m_tmp_last_pp_calculator??m_pp_calculator;
 
                 var beatmap = cal.Beatmap.OrtdpBeatmap;
                 var mods = cal.Mods;
@@ -119,7 +119,7 @@ namespace RealTimePPDisplayer
 
             if (cur == OsuStatus.Listening)
             {
-                m_last_pp_calculator = null;
+                m_tmp_last_pp_calculator = null;
             }
 
             if (cur == OsuStatus.Listening || cur == OsuStatus.Editing)//Clear Output and reset
@@ -139,7 +139,7 @@ namespace RealTimePPDisplayer
         private void RTPPOnPlayModeChanged(OsuPlayMode last,OsuPlayMode mode)
         {
             if (m_status == OsuStatus.Playing)
-                m_last_pp_calculator = m_pp_calculator;
+                m_tmp_last_pp_calculator = m_pp_calculator;
 
             switch (mode)
             {
@@ -178,7 +178,7 @@ namespace RealTimePPDisplayer
             if (m_status != OsuStatus.Playing) return;
             if (m_cur_mods == ModsInfo.Mods.Unknown) return;
 
-            var cal = m_last_pp_calculator ?? m_pp_calculator;
+            var cal = m_tmp_last_pp_calculator ?? m_pp_calculator;
 
             int totalhit = m_n300 + m_n100 + m_n50 + m_n50 + m_nkatu + m_ngeki + m_nmiss;
             if (time > cal.Beatmap?.BeatmapDuration &&
