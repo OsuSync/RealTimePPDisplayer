@@ -117,7 +117,7 @@ namespace RealTimePPDisplayer
                 }
             }
 
-            if (cur == OsuStatus.Listening)
+            if (cur != OsuStatus.Rank)
             {
                 m_tmp_last_pp_calculator = null;
             }
