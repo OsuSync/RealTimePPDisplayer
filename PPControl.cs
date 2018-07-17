@@ -28,6 +28,7 @@ namespace RealTimePPDisplayer
         private BeatmapReader m_beatmap_reader;
 
         private OsuPlayMode m_mode = OsuPlayMode.Osu;
+        private PerformanceCalculatorBase m_last_pp_calculator = null;
         private PerformanceCalculatorBase m_pp_calculator=new StdPPCalculator();
         private ModsInfo m_cur_mods = ModsInfo.Empty;
 
@@ -90,12 +91,14 @@ namespace RealTimePPDisplayer
             m_status = cur;
             if ((cur == OsuStatus.Rank && last == OsuStatus.Playing))
             {
-                var beatmap = m_pp_calculator.Beatmap.OrtdpBeatmap;
-                var mods = m_pp_calculator.Mods;
+                var cal = m_last_pp_calculator??m_pp_calculator;
+
+                var beatmap = cal.Beatmap.OrtdpBeatmap;
+                var mods = cal.Mods;
                 string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
-                string acc = $"{ m_pp_calculator.Accuracy * 100:F2}%";
+                string acc = $"{ cal.Accuracy * 100:F2}%";
                 string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
-                string pp = $"{m_pp_calculator.GetPP().RealTimePP:F2}pp";
+                string pp = $"{cal.GetPP().RealTimePP:F2}pp";
                 string msg = $"[RTPPD]{songs} {mods_str} | {acc} => {pp}";
 
                 IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
@@ -114,6 +117,11 @@ namespace RealTimePPDisplayer
                 }
             }
 
+            if (cur == OsuStatus.Listening)
+            {
+                m_last_pp_calculator = null;
+            }
+
             if (cur == OsuStatus.Listening || cur == OsuStatus.Editing)//Clear Output and reset
             {
                 m_combo = 0;
@@ -130,6 +138,9 @@ namespace RealTimePPDisplayer
 
         private void RTPPOnPlayModeChanged(OsuPlayMode last,OsuPlayMode mode)
         {
+            if (m_status == OsuStatus.Playing)
+                m_last_pp_calculator = m_pp_calculator;
+
             switch (mode)
             {
                 case OsuPlayMode.Osu:
@@ -166,8 +177,11 @@ namespace RealTimePPDisplayer
             if (m_pp_calculator == null) return;
             if (m_status != OsuStatus.Playing) return;
             if (m_cur_mods == ModsInfo.Mods.Unknown) return;
+
+            var cal = m_last_pp_calculator ?? m_pp_calculator;
+
             int totalhit = m_n300 + m_n100 + m_n50 + m_n50 + m_nkatu + m_ngeki + m_nmiss;
-            if (time > m_pp_calculator.Beatmap?.BeatmapDuration &&
+            if (time > cal.Beatmap?.BeatmapDuration &&
                 totalhit == 0) return;
 
             if (m_time > time)//Reset
@@ -187,19 +201,19 @@ namespace RealTimePPDisplayer
                 return;
             }
 
-            m_pp_calculator.Beatmap = m_beatmap_reader;
-            m_pp_calculator.Time = time;
-            m_pp_calculator.MaxCombo = m_max_combo;
-            m_pp_calculator.Count300 = m_n300;
-            m_pp_calculator.Count100 = m_n100;
-            m_pp_calculator.Count50 = m_n50;
-            m_pp_calculator.CountMiss = m_nmiss;
-            m_pp_calculator.CountGeki = m_ngeki;
-            m_pp_calculator.CountKatu= m_nkatu;
-            m_pp_calculator.Score = m_score;
-            m_pp_calculator.Mods = m_cur_mods;
+            cal.Beatmap = m_beatmap_reader;
+            cal.Time = time;
+            cal.MaxCombo = m_max_combo;
+            cal.Count300 = m_n300;
+            cal.Count100 = m_n100;
+            cal.Count50 = m_n50;
+            cal.CountMiss = m_nmiss;
+            cal.CountGeki = m_ngeki;
+            cal.CountKatu= m_nkatu;
+            cal.Score = m_score;
+            cal.Mods = m_cur_mods;
 
-            var pp_tuple = m_pp_calculator.GetPP();
+            var pp_tuple = cal.GetPP();
 
             pp_tuple.RealTimePP = F(pp_tuple.RealTimePP, pp_tuple.MaxPP, 0.0);
             pp_tuple.RealTimeSpeedPP = F(pp_tuple.RealTimeSpeedPP, pp_tuple.MaxPP, 0.0);
@@ -211,7 +225,7 @@ namespace RealTimePPDisplayer
             pp_tuple.RealTimeAimPP = F(pp_tuple.RealTimeAimPP, double.NaN, 0.0);
             pp_tuple.RealTimeAccuracyPP = F(pp_tuple.RealTimeAccuracyPP, double.NaN, 0.0);
 
-            if (m_max_combo > ((m_pp_calculator as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 20000)) m_max_combo = 0;
+            if (m_max_combo > ((cal as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 20000)) m_max_combo = 0;
 
             foreach(var p in m_displayers)
             {
@@ -224,9 +238,9 @@ namespace RealTimePPDisplayer
                     hit_tuple.Count50 = m_n50;
                     hit_tuple.CountMiss = m_nmiss;
                     hit_tuple.Combo = m_combo;
-                    hit_tuple.FullCombo = (m_pp_calculator as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 0;
+                    hit_tuple.FullCombo = (cal as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 0;
                     hit_tuple.PlayerMaxCombo = m_max_combo;
-                    hit_tuple.RealTimeMaxCombo = (m_pp_calculator as OppaiPerformanceCalculator)?.Oppai.RealTimeMaxCombo??0;
+                    hit_tuple.RealTimeMaxCombo = (cal as OppaiPerformanceCalculator)?.Oppai.RealTimeMaxCombo??0;
                     hit_tuple.CountGeki = m_ngeki;
                     hit_tuple.CountKatu = m_nkatu;
                     p.Value.OnUpdateHitCount(hit_tuple);
