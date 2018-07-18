@@ -1,24 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using OsuRTDataProvider.Listen;
-using RealTimePPDisplayer.Displayer.View;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
-using System.Threading;
-using static OsuRTDataProvider.Listen.OsuListenerManager;
-using System.IO;
-using System.Windows.Media;
-using System.Windows;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Calculator;
 using Sync.Tools;
-using static OsuRTDataProvider.Mods.ModsInfo;
 using Sync.MessageFilter;
 using Sync;
 using Sync.Source;
+using static OsuRTDataProvider.Listen.OsuListenerManager;
+using static OsuRTDataProvider.Mods.ModsInfo;
 
 namespace RealTimePPDisplayer
 {

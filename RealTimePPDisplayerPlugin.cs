@@ -1,13 +1,10 @@
 ﻿using OsuRTDataProvider;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Gui;
-using Sync;
 using Sync.Plugins;
 using Sync.Tools;
-using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
