@@ -29,7 +29,7 @@ namespace RealTimePPDisplayer
 
         private OsuPlayMode m_mode = OsuPlayMode.Osu;
         private PerformanceCalculatorBase m_tmp_last_pp_calculator = null;
-        private PerformanceCalculatorBase m_pp_calculator=new StdPPCalculator();
+        private PerformanceCalculatorBase m_pp_calculator=new StdPerformanceCalculator();
         private ModsInfo m_cur_mods = ModsInfo.Empty;
 
         private OsuStatus m_status;
@@ -144,7 +144,7 @@ namespace RealTimePPDisplayer
             switch (mode)
             {
                 case OsuPlayMode.Osu:
-                    m_pp_calculator = new StdPPCalculator(); break;
+                    m_pp_calculator = new StdPerformanceCalculator(); break;
                 case OsuPlayMode.Taiko:
                     m_pp_calculator = new TaikoPerformanceCalculator(); break;
                 case OsuPlayMode.Mania:

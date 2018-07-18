@@ -2,7 +2,6 @@
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using RealTimePPDisplayer.Displayer;
-using RealTimePPDisplayer.PerformancePoint;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    abstract class PerformanceCalculatorBase
+    public abstract class PerformanceCalculatorBase
     {
         public BeatmapReader Beatmap { get; set; }
         public int Count300 { get; set; }

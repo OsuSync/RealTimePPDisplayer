@@ -1,7 +1,6 @@
 ﻿using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Displayer;
-using RealTimePPDisplayer.PerformancePoint;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    abstract class OppaiPerformanceCalculator:PerformanceCalculatorBase
+    public abstract class OppaiPerformanceCalculator:PerformanceCalculatorBase
     {
-        public Oppai Oppai { get;private set; } = new Oppai();
+        public Oppai Oppai { get; private set; } = new Oppai();
 
         public override void ClearCache()
         {

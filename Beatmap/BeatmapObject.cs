@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Beatmap
 {
-    class BeatmapObject
+    public class BeatmapObject
     {
         public int Offset { get; protected set; }
         public int Length { get; protected set; }

@@ -7,11 +7,10 @@ using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using RealTimePPDisplayer.Displayer;
-using RealTimePPDisplayer.PerformancePoint;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    class StdPPCalculator : OppaiPerformanceCalculator
+    public class StdPerformanceCalculator : OppaiPerformanceCalculator
     {
         private const OsuPlayMode s_mode = OsuPlayMode.Osu;
 

@@ -11,7 +11,7 @@ using static OsuRTDataProvider.Mods.ModsInfo;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    class ManiaPerformanceCalculator : PerformanceCalculatorBase
+    public class ManiaPerformanceCalculator : PerformanceCalculatorBase
     {
         private const OsuPlayMode s_mode = OsuPlayMode.Mania;
         private const double STRAIN_STEP = 400;

@@ -1,7 +1,6 @@
 ﻿using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Calculator;
-using RealTimePPDisplayer.PerformancePoint;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -12,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Beatmap
 {
-    class BeatmapReader
+    public class BeatmapReader
     {
         public struct BeatmapHeader
         {

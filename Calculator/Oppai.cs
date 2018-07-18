@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimePPDisplayer.PerformancePoint
+namespace RealTimePPDisplayer.Calculator
 {
-    class Oppai
+    public class Oppai
     {
         private pp_params m_real_time_data = new pp_params();
         private pp_params m_cache = new pp_params();
@@ -18,7 +18,7 @@ namespace RealTimePPDisplayer.PerformancePoint
         public int RealTimeMaxCombo => m_real_time_data.max_combo;
         public int FullCombo => m_cache.max_combo;
 
-        public BeatmapReader Beatmap;
+        public BeatmapReader Beatmap { get; set; }
 
         private int GetPosition(int end_time, out int nline)
         {
