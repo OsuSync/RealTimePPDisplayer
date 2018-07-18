@@ -1,4 +1,4 @@
-﻿using RealTimePPDisplayer.Gui;
+﻿using RealTimePPDisplayer.Attribute;
 using Sync.Tools;
 using Sync.Tools.ConfigurationAttribute;
 using System;

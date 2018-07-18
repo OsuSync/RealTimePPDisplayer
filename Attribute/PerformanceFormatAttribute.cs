@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimePPDisplayer.Gui
+namespace RealTimePPDisplayer.Attribute
 {
     class PerformanceFormatAttribute:StringAttribute
     {

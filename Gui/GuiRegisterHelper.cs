@@ -1,4 +1,5 @@
 ﻿using ConfigGUI;
+using RealTimePPDisplayer.Attribute;
 using Sync.Plugins;
 using System;
 using System.Collections.Generic;

@@ -22,7 +22,7 @@ using Sync.Source;
 
 namespace RealTimePPDisplayer
 {
-    class PPControl
+    class DisplayerController
     {
         private OsuListenerManager m_listener_manager;
         private BeatmapReader m_beatmap_reader;
@@ -49,7 +49,7 @@ namespace RealTimePPDisplayer
         private int m_score = 0;
 
 
-        public PPControl(OsuListenerManager mamger,int? id)
+        public DisplayerController(OsuListenerManager mamger,int? id)
         {
             m_listener_manager = mamger;
 

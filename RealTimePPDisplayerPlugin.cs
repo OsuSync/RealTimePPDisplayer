@@ -23,7 +23,7 @@ namespace RealTimePPDisplayer
         public const string VERSION= "1.4.1";
 
         private OsuRTDataProviderPlugin m_memory_reader;
-        private PPControl[] m_osu_pp_controls = new PPControl[16];
+        private DisplayerController[] m_osu_pp_controls = new DisplayerController[16];
 
         private PluginConfigurationManager m_config_manager;
 
@@ -84,7 +84,7 @@ namespace RealTimePPDisplayer
                     id = i;
                     manager = m_memory_reader.TourneyListenerManagers[i];
                 }
-                m_osu_pp_controls[i] = new PPControl(manager,id);
+                m_osu_pp_controls[i] = new DisplayerController(manager,id);
             }
 
             m_fixed_interval = TimeSpan.FromSeconds(1.0 / Setting.FPS);

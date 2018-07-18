@@ -1,4 +1,5 @@
 ﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
+using RealTimePPDisplayer.Attribute;
 using Sync.Tools.ConfigurationAttribute;
 using System.Reflection;
 using System.Windows;
