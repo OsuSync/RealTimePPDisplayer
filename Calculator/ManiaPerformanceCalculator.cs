@@ -87,7 +87,7 @@ namespace RealTimePPDisplayer.Calculator
         }
         #endregion
 
-        public override PPTuple GetPP()
+        public override PPTuple GetPerformance()
         {
             if (Beatmap == null) return PPTuple.Empty;
             if (Beatmap.Mode != s_mode) return PPTuple.Empty;
@@ -110,9 +110,7 @@ namespace RealTimePPDisplayer.Calculator
             CalculateStrainValues(nobjects);
             double stars = CalculateDifficulty(nobjects) * STAR_SCALING_FACTOR;
 
-            double acc = Accuracy * 100;
-
-            CalculatePerformance(stars, RealScore, acc, nobjects, out tuple.RealTimePP, out tuple.RealTimeSpeedPP, out tuple.RealTimeAccuracyPP);
+            CalculatePerformance(stars, RealScore, Accuracy, nobjects, out tuple.RealTimePP, out tuple.RealTimeSpeedPP, out tuple.RealTimeAccuracyPP);
             //No Fc pp
 
             return tuple;
@@ -201,14 +199,15 @@ namespace RealTimePPDisplayer.Calculator
             return count;
         }
 
-        public override double Accuracy{
+        public override double Accuracy
+        {
             get
             {
                 int total = (Count300 + CountGeki + CountKatu + Count100 + Count50 + CountMiss);
-                double acc = 1.0;
+                double acc = 100.0;
                 if(total > 0)
                  acc = ((Count300 + CountGeki) * 300.0 + CountKatu * 200.0 + Count100 * 100.0 + Count50 * 50) / (total * 300.0);
-                return acc;
+                return acc * 100;
             }
         }
 

@@ -24,11 +24,15 @@ namespace RealTimePPDisplayer.Calculator
         public int Score { get; set; }
         public ModsInfo Mods { get; set; }
 
-        public abstract PPTuple GetPP();
-        public virtual void ClearCache()
-        {
-        }
+        public abstract PPTuple GetPerformance();
+        public virtual void ClearCache(){}
 
+        /// <summary>
+        /// Gets the accuracy(0 ~ 100).
+        /// </summary>
+        /// <value>
+        /// The accuracy.
+        /// </value>
         public abstract double Accuracy { get; }
 
         public virtual void AccuracyRound(double acc, int object_count, int nmiss, out int n300, out int n100, out int n50)

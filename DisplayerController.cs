@@ -88,9 +88,9 @@ namespace RealTimePPDisplayer
                 var beatmap = cal.Beatmap.OrtdpBeatmap;
                 var mods = cal.Mods;
                 string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
-                string acc = $"{ cal.Accuracy * 100:F2}%";
+                string acc = $"{cal.Accuracy:F2}%";
                 string mods_str = $"{(mods != Mods.None ? "+" + mods.ShortName : "")}";
-                string pp = $"{cal.GetPP().RealTimePP:F2}pp";
+                string pp = $"{cal.GetPerformance().RealTimePP:F2}pp";
                 string msg = $"[RTPPD]{songs} {mods_str} | {acc} => {pp}";
 
                 IO.CurrentIO.Write($"[RTPPD]{songs}{acc}{mods_str} -> {pp}");
@@ -205,7 +205,7 @@ namespace RealTimePPDisplayer
             cal.Score = m_score;
             cal.Mods = m_cur_mods;
 
-            var pp_tuple = cal.GetPP();
+            var pp_tuple = cal.GetPerformance();
 
             pp_tuple.RealTimePP = F(pp_tuple.RealTimePP, pp_tuple.MaxPP, 0.0);
             pp_tuple.RealTimeSpeedPP = F(pp_tuple.RealTimeSpeedPP, pp_tuple.MaxPP, 0.0);

@@ -54,7 +54,7 @@
     <Compile Include="Beatmap\BeatmapReader.cs" />
     <Compile Include="Calculator\ManiaPerformanceCalculator.cs" />
     <Compile Include="Calculator\OppaiPerformanceCalculator.cs" />
-    <Compile Include="Calculator\OsuPerformanceCalculator.cs" />
+    <Compile Include="Calculator\StdPerformanceCalculator.cs" />
     <Compile Include="Calculator\PerformanceCalculatorBase.cs" />
     <Compile Include="Calculator\TaikoPerformanceCalculator.cs" />
     <Compile Include="DefaultLanguage.cs" />

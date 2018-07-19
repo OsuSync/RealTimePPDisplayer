@@ -32,8 +32,7 @@ namespace RealTimePPDisplayer.Calculator
             pp_tuple.MaxSpeedPP = result.speed;
             pp_tuple.MaxAccuracyPP = result.acc;
 
-            double acc = Accuracy * 100.0;
-            AccuracyRound(acc, Beatmap.ObjectsCount, CountMiss, out int n300, out int n100, out int n50);
+            AccuracyRound(Accuracy, Beatmap.ObjectsCount, CountMiss, out int n300, out int n100, out int n50);
 
             result = Oppai.GetIfFcPP(mods, n300, n100, n50, mode);
             pp_tuple.FullComboPP = result.total;
