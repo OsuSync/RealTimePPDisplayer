@@ -88,7 +88,7 @@ namespace RealTimePPDisplayer.Gui
 
         private static readonly List<string> s_hitcount_commands = new List<string>()
         {
-            "n300","n300g","n200","n150","n100","n50","nmiss","ngaki","nkatu",
+            "n300","n300g","n200","n150","n100","n50","nmiss","ngeki","nkatu",
             "rtmaxcombo","fullcombo","maxcombo","combo"
         };
 
