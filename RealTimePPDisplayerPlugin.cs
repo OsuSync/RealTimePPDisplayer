@@ -11,13 +11,13 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer
 {
-    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.4.0", Require = true)]
+    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.4.3", Require = true)]
     [SyncPluginID("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", VERSION)]
     public class RealTimePPDisplayerPlugin : Plugin
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.4.2";
+        public const string VERSION= "1.4.3";
 
         private OsuRTDataProviderPlugin m_memory_reader;
         private DisplayerController[] m_osu_pp_controls = new DisplayerController[16];

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using OsuRTDataProvider.Helper;
 using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
@@ -65,7 +66,7 @@ namespace RealTimePPDisplayer
             m_listener_manager.OnModsChanged += (mods) =>
             {
                 if (Setting.IgnoreTouchScreenDecrease)
-                    mods.Mod = (mods.Mod & ~ModsInfo.Mods.TouchScreen);
+                    mods.Mod = (mods.Mod & ~ModsInfo.Mods.TouchDevice);
                 m_cur_mods = mods;
                 if(m_status!=OsuStatus.Playing)
                     m_pp_calculator.ClearCache();
@@ -114,7 +115,7 @@ namespace RealTimePPDisplayer
                 m_tmp_last_pp_calculator = null;
             }
 
-            if (cur == OsuStatus.Listening || cur == OsuStatus.Editing)//Clear Output and reset
+            if (OsuStatusHelper.IsListening(cur) || cur == OsuStatus.Editing)//Clear Output and reset
             {
                 m_combo = 0;
                 m_max_combo = 0;
