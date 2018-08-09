@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using RealTimePPDisplayer.Expression;
 
 namespace RealTimePPDisplayer.Displayer
 {
@@ -81,93 +82,115 @@ namespace RealTimePPDisplayer.Displayer
 
         public virtual void OnDestroy() { }
 
-        private static ThreadLocal<Dictionary<string, double>> s_pp_expr_data = new ThreadLocal<Dictionary<string, double>>(()=> new Dictionary<string, double>());
-        private static ThreadLocal<Dictionary<string, Expression<double>>> s_pp_expression_dict = new ThreadLocal<Dictionary<string, Expression<double>>>(() => new Dictionary<string, Expression<double>>());
+        private static ExpressionContext _exprCtx =new ExpressionContext();
+        private static ThreadLocal<Dictionary<FormatArg, IAstNode>> s_pp_ast_dict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg, IAstNode>());
 
         public static StringFormatter GetFormattedPP(PPTuple tuple)
         {
             var formatter = StringFormatter.GetPPFormatter();
 
-            var pp_expr_data = s_pp_expr_data.Value;
-            var pp_expression_dict = s_pp_expression_dict.Value;
+            var ctx = _exprCtx;
+            var pp_expression_dict = s_pp_ast_dict.Value;
 
-            pp_expr_data["rtpp_speed"] = tuple.RealTimeSpeedPP;
-            pp_expr_data["rtpp_aim"] = tuple.RealTimeAimPP;
-            pp_expr_data["rtpp_acc"] = tuple.RealTimeAccuracyPP;
-            pp_expr_data["rtpp"] = tuple.RealTimePP;
 
-            pp_expr_data["fcpp_speed"] = tuple.FullComboSpeedPP;
-            pp_expr_data["fcpp_aim"] = tuple.FullComboAimPP;
-            pp_expr_data["fcpp_acc"] = tuple.FullComboAccuracyPP;
-            pp_expr_data["fcpp"] = tuple.FullComboPP;
+            ctx.Variables["rtpp_speed"] = tuple.RealTimeSpeedPP;
+            ctx.Variables["rtpp_aim"] = tuple.RealTimeAimPP;
+            ctx.Variables["rtpp_acc"] = tuple.RealTimeAccuracyPP;
+            ctx.Variables["rtpp"] = tuple.RealTimePP;
 
-            pp_expr_data["maxpp_speed"] = tuple.MaxSpeedPP;
-            pp_expr_data["maxpp_aim"] = tuple.MaxAimPP;
-            pp_expr_data["maxpp_acc"] = tuple.MaxAccuracyPP;
-            pp_expr_data["maxpp"] = tuple.MaxPP;
+            ctx.Variables["fcpp_speed"] = tuple.FullComboSpeedPP;
+            ctx.Variables["fcpp_aim"] = tuple.FullComboAimPP;
+            ctx.Variables["fcpp_acc"] = tuple.FullComboAccuracyPP;
+            ctx.Variables["fcpp"] = tuple.FullComboPP;
+
+            ctx.Variables["maxpp_speed"] = tuple.MaxSpeedPP;
+            ctx.Variables["maxpp_aim"] = tuple.MaxAimPP;
+            ctx.Variables["maxpp_acc"] = tuple.MaxAccuracyPP;
+            ctx.Variables["maxpp"] = tuple.MaxPP;
 
 
             foreach (var arg in formatter)
             {
-                Expression<double> expr;
-                if (!pp_expression_dict.ContainsKey(arg))
+                IAstNode root;
+                if (!pp_expression_dict.TryGetValue(arg,out root))
                 {
-                    expr = new Expression<double>(arg);
-                    expr.Data = pp_expr_data;
-                    pp_expression_dict[arg]=expr;
-                }
-                else
-                {
-                    expr = pp_expression_dict[arg];
+                    var parser = new ExpressionParser();
+                    try
+                    {
+                        root = parser.Parse(arg.ExprString);
+                    }
+                    catch (ExprssionTokenException e)
+                    {
+                        Sync.Tools.IO.CurrentIO.WriteColor(e.Message,ConsoleColor.Yellow);
+                    }
+
+                    pp_expression_dict[arg]=root;
                 }
 
-                formatter.Fill(arg, expr.EvalDouble());
+                try
+                {
+                    formatter.Fill(arg, ctx.ExecAst(root));
+                }
+                catch (ExpressionException e)
+                {
+                    Sync.Tools.IO.CurrentIO.WriteColor(e.Message, ConsoleColor.Yellow);
+                }
             }
 
             return formatter;
         }
 
-
-        private static ThreadLocal<Dictionary<string, int>> s_hit_count_expr_data = new ThreadLocal<Dictionary<string, int>>(()=>new Dictionary<string, int>());
-        private static ThreadLocal<Dictionary<string, Expression<int>>> s_hit_count_expression_dict = new ThreadLocal<Dictionary<string, Expression<int>>>(() => new Dictionary<string, Expression<int>>());
+        private static ThreadLocal<Dictionary<FormatArg, IAstNode>> s_hit_count_expression_dict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg,IAstNode>());
 
         public static StringFormatter GetFormattedHitCount(HitCountTuple tuple)
         {
             var formatter = StringFormatter.GetHitCountFormatter();
-            var hit_count_expr_data = s_hit_count_expr_data.Value;
+
+            var ctx = _exprCtx;
             var hit_count_expression_dict = s_hit_count_expression_dict.Value;
 
-            hit_count_expr_data["n300g"] = tuple.CountGeki;
-            hit_count_expr_data["n300"] = tuple.Count300;
-            hit_count_expr_data["n200"] = tuple.CountKatu;
-            hit_count_expr_data["n100"] = tuple.Count100;
-            hit_count_expr_data["n150"] = tuple.Count100;
-            hit_count_expr_data["n50"] = tuple.Count50;
-            hit_count_expr_data["nmiss"] = tuple.CountMiss;
-            hit_count_expr_data["ngeki"] = tuple.CountGeki;
-            hit_count_expr_data["nkatu"] = tuple.CountKatu;
+            ctx.Variables["n300g"] = tuple.CountGeki;
+            ctx.Variables["n300"] = tuple.Count300;
+            ctx.Variables["n200"] = tuple.CountKatu;
+            ctx.Variables["n100"] = tuple.Count100;
+            ctx.Variables["n150"] = tuple.Count100;
+            ctx.Variables["n50"] = tuple.Count50;
+            ctx.Variables["nmiss"] = tuple.CountMiss;
+            ctx.Variables["ngeki"] = tuple.CountGeki;
+            ctx.Variables["nkatu"] = tuple.CountKatu;
 
-            hit_count_expr_data["rtmaxcombo"] = tuple.RealTimeMaxCombo;
-            hit_count_expr_data["fullcombo"] = tuple.FullCombo;
-            hit_count_expr_data["maxcombo"] = tuple.PlayerMaxCombo;
-            hit_count_expr_data["combo"] = tuple.Combo;
+            ctx.Variables["rtmaxcombo"] = tuple.RealTimeMaxCombo;
+            ctx.Variables["fullcombo"] = tuple.FullCombo;
+            ctx.Variables["maxcombo"] = tuple.PlayerMaxCombo;
+            ctx.Variables["combo"] = tuple.Combo;
 
 
             foreach (var arg in formatter)
             {
-                Expression<int> expr;
-                if (!hit_count_expression_dict.ContainsKey(arg))
+                IAstNode root;
+                if (!hit_count_expression_dict.TryGetValue(arg,out root))
                 {
-                    expr = new Expression<int>(arg);
-                    expr.Data = hit_count_expr_data;
-                    hit_count_expression_dict[arg]=expr;
-                }
-                else
-                {
-                    expr = hit_count_expression_dict[arg];
+                    var parser = new ExpressionParser();
+                    try
+                    {
+                        root = parser.Parse(arg.ExprString);
+                    }
+                    catch (ExprssionTokenException e)
+                    {
+                        Sync.Tools.IO.CurrentIO.WriteColor(e.Message,ConsoleColor.Yellow);
+                    }
+
+                    hit_count_expression_dict[arg]=root;
                 }
 
-                formatter.Fill(arg, expr.EvalInt());
+                try
+                {
+                    formatter.Fill(arg, ctx.ExecAst(root));
+                }
+                catch (ExpressionException e)
+                {
+                    Sync.Tools.IO.CurrentIO.WriteColor(e.Message,ConsoleColor.Yellow);
+                }
             }
 
             return formatter;

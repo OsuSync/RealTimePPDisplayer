@@ -59,11 +59,15 @@
     <Compile Include="Calculator\TaikoPerformanceCalculator.cs" />
     <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Displayer\DisplayerBase.cs" />
-    <Compile Include="Displayer\Expression.cs" />
     <Compile Include="Displayer\MmfDisplayer.cs" />
     <Compile Include="Displayer\TextDisplayer.cs" />
     <Compile Include="Displayer\WpfDisplayer.cs" />
     <Compile Include="Attribute\DisplayListAttribute.cs" />
+    <Compile Include="Expression\AstNode.cs" />
+    <Compile Include="Expression\ExpressionContext.cs" />
+    <Compile Include="Expression\ExpressionException.cs" />
+    <Compile Include="Expression\ExpressionParser.cs" />
+    <Compile Include="Expression\Token.cs" />
     <Compile Include="Gui\FormatEditor.xaml.cs">
       <DependentUpon>FormatEditor.xaml</DependentUpon>
     </Compile>
@@ -106,6 +110,7 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy /y $(TargetPath) $(SolutionDir)\Sync\bin\$(ConfigurationName)\Plugins
