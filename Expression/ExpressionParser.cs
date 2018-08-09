@@ -1,4 +1,4 @@
-﻿///LL(1) Grammar, but use recursion to drop.
+﻿///LL(1) Grammar, but use recursive descent
 using System;
 using System.Collections.Generic;
 using System.IO;
