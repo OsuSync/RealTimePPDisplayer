@@ -293,7 +293,7 @@ namespace RealTimePPDisplayer
         //rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc
         public static string PPFormat = "${rtpp}pp";
         //combo maxcombo fullcombo n300 n100 n50 nmiss
-        public static string HitCountFormat = "${n100}x100 ${n50}x50 ${nmiss}xMiss";
+        public static string HitCountFormat = "${n100@0}x100 ${n50@0}x50 ${nmiss@0}xMiss";
         public static bool IgnoreTouchScreenDecrease = false;
         public static bool RankingSendPerformanceToChat = false;
 
