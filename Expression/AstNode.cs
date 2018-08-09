@@ -21,7 +21,6 @@ namespace RealTimePPDisplayer.Expression
 
         public AstOpNode(string op)
         {
-
             Op = op;
         }
     }
