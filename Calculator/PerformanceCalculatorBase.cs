@@ -25,7 +25,14 @@ namespace RealTimePPDisplayer.Calculator
         public ModsInfo Mods { get; set; }
 
         public abstract PPTuple GetPerformance();
-        public virtual void ClearCache(){}
+
+        public virtual void ClearCache()
+        {
+            Count300 = Count100 = Count50 = CountGeki = CountKatu = CountMiss = 0;
+            Time = 0;
+            MaxCombo = 0;
+            Score = 0;
+        }
 
         /// <summary>
         /// Gets the accuracy(0 ~ 100).

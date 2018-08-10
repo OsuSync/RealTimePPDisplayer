@@ -12,21 +12,21 @@ namespace RealTimePPDisplayer.Calculator
 {
     public class Oppai
     {
-        private pp_params m_real_time_data = new pp_params();
-        private pp_params m_cache = new pp_params();
+        private pp_params _realTimeData = new pp_params();
+        private readonly pp_params _cache = new pp_params();
 
-        public int RealTimeMaxCombo => m_real_time_data.max_combo;
-        public int FullCombo => m_cache.max_combo;
+        public int RealTimeMaxCombo => _realTimeData.max_combo;
+        public int FullCombo => _cache.max_combo;
 
         public BeatmapReader Beatmap { get; set; }
 
-        private int GetPosition(int end_time, out int nline)
+        private int GetPosition(int endTime, out int nline)
         {
             int pos = Beatmap.BeatmapHeaderSpan.Length;
             nline = 0;
             foreach (var obj in Beatmap.Objects)
             {
-                if (obj.StartTime > end_time) break;
+                if (obj.StartTime > endTime) break;
                 pos += (obj.Length);
                 nline++;
             }
@@ -34,20 +34,19 @@ namespace RealTimePPDisplayer.Calculator
             return pos;
         }
 
-        private ModsInfo _max_mods = ModsInfo.Empty;
-        private pp_calc _max_result;
+        private ModsInfo _maxMods = ModsInfo.Empty;
+        private pp_calc _maxResult;
 
         public pp_calc GetMaxPP(ModsInfo mods, OsuPlayMode mode)
         {
-            bool need_update = false;
-            need_update = need_update || mods != _max_mods;
+            bool needUpdate = mods != _maxMods;
 
-            if (need_update)
+            if (needUpdate)
             {
-                _max_mods = mods;
+                _maxMods = mods;
 
-                Oppai.rtpp_params args;
-                args.combo = Oppai.FULL_COMBO;
+                rtpp_params args;
+                args.combo = FULL_COMBO;
                 args.mods = (uint)mods.Mod;
                 args.n100 = 0;
                 args.n50 = 0;
@@ -55,99 +54,100 @@ namespace RealTimePPDisplayer.Calculator
                 args.mode = (uint)mode;
 
                 //Cache Beatmap
-                Oppai.get_ppv2(Beatmap.RawData, (uint)Beatmap.RawData.Length, ref args, false, m_cache, ref _max_result);
+                get_ppv2(Beatmap.RawData, (uint)Beatmap.RawData.Length, ref args, false, _cache, ref _maxResult);
             }
-            return _max_result;
+            return _maxResult;
         }
 
-        private int _fc_n100 = -1;
-        private int _fc_n50 = -1;
-        private Oppai.pp_calc _fc_result;
+        private int _fcN100 = -1;
+        private int _fcN50 = -1;
+        private pp_calc _fcResult;
 
-        public Oppai.pp_calc GetIfFcPP(ModsInfo mods, int n300, int n100, int n50, OsuPlayMode mode)
+        public pp_calc GetIfFcPP(ModsInfo mods, int n300, int n100, int n50, OsuPlayMode mode)
         {
-            bool need_update = false;
-            need_update = need_update || _fc_n100 != n100;
-            need_update = need_update || _fc_n50 != n50;
+            var needUpdate = _fcN100 != n100;
+            needUpdate = needUpdate || _fcN50 != n50;
 
 
-            if (need_update)
+            if (needUpdate)
             {
-                _fc_n100 = n100;
-                _fc_n50 = n50;
+                _fcN100 = n100;
+                _fcN50 = n50;
 
-                Oppai.rtpp_params args;
-                args.combo = Oppai.FULL_COMBO;
+                rtpp_params args;
+                args.combo = FULL_COMBO;
                 args.mods = (uint)mods.Mod;
                 args.n100 = n100;
                 args.n50 = n50;
                 args.nmiss = 0;
                 args.mode = (uint)mode;
 
-                Oppai.get_ppv2(Beatmap.RawData, (uint)Beatmap.RawData.Length, ref args, true, m_cache, ref _fc_result);
+                get_ppv2(Beatmap.RawData, (uint)Beatmap.RawData.Length, ref args, true, _cache, ref _fcResult);
             }
 
-            return _fc_result;
+            return _fcResult;
         }
 
         private int _pos = -1;
         private int _n100 = -1;
         private int _n50 = -1;
         private int _nmiss = -1;
-        private int _max_combo = -1;
-        private Oppai.pp_calc _rtpp_result;
+        private int _maxCombo = -1;
+        private pp_calc _rtppResult;
 
-        public Oppai.pp_calc GetRealTimePP(int end_time, ModsInfo mods, int n100, int n50, int nmiss, int max_combo, OsuPlayMode mode)
+        public pp_calc GetRealTimePP(int endTime, ModsInfo mods, int n100, int n50, int nmiss, int maxCombo, OsuPlayMode mode)
         {
-            int pos = GetPosition(end_time, out int nobject);
+            int pos = GetPosition(endTime, out int nobject);
 
-            bool need_update = false;
-            need_update = need_update || _pos != pos;
-            need_update = need_update || _n100 != n100;
-            need_update = need_update || _n50 != n50;
-            need_update = need_update || _nmiss != nmiss;
-            need_update = need_update || _max_combo != max_combo;
+            var needUpdate = false;
+            needUpdate = _pos != pos;
+            needUpdate = needUpdate || _n100 != n100;
+            needUpdate = needUpdate || _n50 != n50;
+            needUpdate = needUpdate || _nmiss != nmiss;
+            needUpdate = needUpdate || _maxCombo != maxCombo;
 
-            if (need_update)
+            if (needUpdate)
             {
                 _pos = pos;
                 _n100 = n100;
                 _n50 = n50;
                 _nmiss = nmiss;
-                _max_combo = max_combo;
+                _maxCombo = maxCombo;
 
-                Oppai.rtpp_params args;
-                args.combo = max_combo;
+                rtpp_params args;
+                args.combo = maxCombo;
                 args.mods = (uint)mods.Mod;
                 args.n100 = n100;
                 args.n50 = n50;
                 args.nmiss = nmiss;
                 args.mode = (uint)mode;
 
-                if (!Oppai.get_ppv2(Beatmap.RawData, (uint)pos, ref args, false, m_real_time_data, ref _rtpp_result))
+                if (!get_ppv2(Beatmap.RawData, (uint)pos, ref args, false, _realTimeData, ref _rtppResult))
                 {
-                    return Oppai.pp_calc.Empty;
+                    return pp_calc.Empty;
                 }
             }
 
-            return _rtpp_result;
+            return _rtppResult;
         }
 
         public void Clear()
         {
+            _realTimeData = new pp_params();
+
             _pos = -1;
             _n100 = -1;
             _n50 = -1;
             _nmiss = -1;
-            _max_combo = -1;
-            _rtpp_result = Oppai.pp_calc.Empty;
+            _maxCombo = -1;
+            _rtppResult = pp_calc.Empty;
 
-            _fc_n100 = -1;
-            _fc_n50 = -1;
-            _fc_result = Oppai.pp_calc.Empty;
+            _fcN100 = -1;
+            _fcN50 = -1;
+            _fcResult = pp_calc.Empty;
 
-            _max_mods = ModsInfo.Empty;
-            _max_result = Oppai.pp_calc.Empty;
+            _maxMods = ModsInfo.Empty;
+            _maxResult = pp_calc.Empty;
         }
 
         public const Int32 FULL_COMBO = -1;
@@ -194,7 +194,7 @@ namespace RealTimePPDisplayer.Calculator
 
         #region oppai P/Ivoke
         [DllImport(@"oppai.dll")]
-        public extern static bool get_ppv2(byte[] data, UInt32 data_size,ref rtpp_params args, Boolean use_cache,pp_params cache,ref pp_calc result);
+        public static extern bool get_ppv2(byte[] data, UInt32 dataSize,ref rtpp_params args, Boolean useCache,pp_params cache,ref pp_calc result);
         #endregion
 
         #region oppai-ng function
@@ -206,40 +206,37 @@ namespace RealTimePPDisplayer.Calculator
 
         public static double acc_calc(int n300, int n100, int n50,int misses)
         {
-            int total_hits = n300 + n100 + n50 + misses;
+            int totalHits = n300 + n100 + n50 + misses;
             double acc = 1.0;
 
-            if (total_hits > 0)
+            if (totalHits > 0)
             {
                 acc = (
                     n50 * 50.0 + n100 * 100.0 + n300 * 300.0) /
-                    (total_hits * 300.0);
+                    (totalHits * 300.0);
             }
 
             return acc;
         }
 
-        public static void acc_round(double acc_percent, int nobjects,
+        public static void acc_round(double accPercent, int nobjects,
             int misses, out int n300, out int n100,out int n50)
         {
-            int max300;
-            double maxacc;
-
             misses = Math.Min(nobjects, misses);
-            max300 = nobjects - misses;
-            maxacc = acc_calc(max300, 0, 0, misses) * 100.0;
-            acc_percent = Math.Max(0.0, Math.Min(maxacc, acc_percent));
+            var max300 = nobjects - misses;
+            var maxacc = acc_calc(max300, 0, 0, misses) * 100.0;
+            accPercent = Math.Max(0.0, Math.Min(maxacc, accPercent));
 
             n50 = 0;
 
             /* just some black magic maths from wolfram alpha */
-            n100 = (int)round_oppai(-3.0 * ((acc_percent * 0.01 - 1.0) *
+            n100 = (int)round_oppai(-3.0 * ((accPercent * 0.01 - 1.0) *
             nobjects + misses) * 0.5);
             if (n100 > nobjects - misses)
             {
                 /* acc lower than all 100s, use 50s */
                 n100 = 0;
-                n50 = (int)round_oppai(-6.0 * ((acc_percent * 0.01 - 1.0) *nobjects + misses) * 0.2);
+                n50 = (int)round_oppai(-6.0 * ((accPercent * 0.01 - 1.0) *nobjects + misses) * 0.2);
 
                 n50 = Math.Min(max300, n50);
             }
@@ -253,30 +250,27 @@ namespace RealTimePPDisplayer.Calculator
 
         public static double taiko_acc_calc(int n300, int n150, int nmiss)
         {
-            int total_hits = n300 + n150 + nmiss;
+            int totalHits = n300 + n150 + nmiss;
             double acc = 0;
 
-            if (total_hits > 0)
+            if (totalHits > 0)
             {
-                acc = (n150 * 150.0 + n300 * 300.0) / (total_hits * 300.0);
+                acc = (n150 * 150.0 + n300 * 300.0) / (totalHits * 300.0);
             }
 
             return acc;
         }
 
-        public static void taiko_acc_round(double acc_percent, int nobjects, int nmisses, out int n300, out int n150)
+        public static void taiko_acc_round(double accPercent, int nobjects, int nmisses, out int n300, out int n150)
         {
-            int max300;
-            double maxacc;
-
             nmisses = Math.Min(nobjects, nmisses);
-            max300 = nobjects - nmisses;
-            maxacc = acc_calc(max300, 0, 0, nmisses) * 100.0;
-            acc_percent = Math.Max(0.0, Math.Min(maxacc, acc_percent));
+            var max300 = nobjects - nmisses;
+            var maxacc = acc_calc(max300, 0, 0, nmisses) * 100.0;
+            accPercent = Math.Max(0.0, Math.Min(maxacc, accPercent));
 
             /* just some black magic maths from wolfram alpha */
             n150 = (int)
-                round_oppai(-2.0 * ((acc_percent * 0.01 - 1.0) *
+                round_oppai(-2.0 * ((accPercent * 0.01 - 1.0) *
                     nobjects + nmisses));
 
             n150 = Math.Min(max300, n150);

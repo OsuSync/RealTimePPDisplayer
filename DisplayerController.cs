@@ -176,6 +176,7 @@ namespace RealTimePPDisplayer
 
             if (_time > time)//Reset
             {
+                _ppCalculator.ClearCache();
                 _combo = 0;
                 _maxCombo = 0;
                 _n100 = 0;
