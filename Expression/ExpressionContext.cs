@@ -72,22 +72,33 @@ namespace RealTimePPDisplayer.Expression
                     break;
 
                 case AstFunctionNode funcNode:
-                    if (Functions.TryGetValue(funcNode.Id, out var func))
+                    try
                     {
-                        try
+                        if (funcNode.Id == "set")
                         {
-                            return func(ComputeArgs(funcNode.Args));
-                        }
-                        catch (ArgumentOutOfRangeException)
-                        {
-                            throw new ExpressionException($"The function is missing a parameter. Fucntion: {funcNode.Id}");
-                        }
-                    }
-                    else
-                    {
-                        throw new ExpressionException($"No function found. Fucntion: { funcNode.Id }");
-                    }
+                            AstVariableNode varNode = funcNode.Args[0] as AstVariableNode;
+                            string varName = varNode?.Id ?? throw new ExpressionException("The first parameter is the variable name.");
 
+                            double varVal = ExecAst(funcNode.Args[1]);
+                            Variables[varName] = varVal;
+                            return 0;
+                        }
+                        else
+                        {
+                            if (Functions.TryGetValue(funcNode.Id, out var func))
+                            {
+                                return func(ComputeArgs(funcNode.Args));
+                            }
+                            else
+                            {
+                                throw new ExpressionException($"No function found. Fucntion: {funcNode.Id}");
+                            }
+                        }
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        throw new ExpressionException($"The function is missing a parameter. Fucntion: {funcNode.Id}");
+                    }
             }
             return Double.NaN;
         }
