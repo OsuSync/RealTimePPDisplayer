@@ -32,7 +32,7 @@ namespace RealTimePPDisplayer.Expression
             Functions["log"] = (args) => Math.Log(args[0]);
             Functions["log10"] = (args) => Math.Log10(args[0]);
             Functions["floor"] = (args) => Math.Floor(args[0]);
-            Functions["ceiling"] = (args) => Math.Ceiling(args[0]);
+            Functions["ceil"] = (args) => Math.Ceiling(args[0]);
             Functions["round"] = (args) => Math.Round(args[0],(int)args[1], MidpointRounding.AwayFromZero);
             Functions["sign"] = (args) => Math.Sign(args[0]);
             Functions["truncate"] = (args) => Math.Truncate(args[0]);
