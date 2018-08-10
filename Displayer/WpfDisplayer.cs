@@ -1,101 +1,96 @@
 ﻿using RealTimePPDisplayer.Displayer.View;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace RealTimePPDisplayer.Displayer
 {
     class WpfDisplayer : DisplayerBase
     {
-        private PPWindow m_win;
-        private static Thread m_win_thread;
-        private bool m_output = false;
+        private PPWindow _win;
+        private bool _output;
 
-        PPTuple m_current_pp;
-        PPTuple m_target_pp;
-        PPTuple m_speed;
+        PPTuple _currentPp;
+        PPTuple _targetPp;
+        PPTuple _speed;
 
         public WpfDisplayer(int? id)
         {
+            _output = false;
             if (Application.Current == null)
             {
-                m_win_thread = new Thread(() => new Application().Run());
-                m_win_thread.Name = "STA WPF Application Thread";
-                m_win_thread.SetApartmentState(ApartmentState.STA);
-                m_win_thread.Start();
+                var winThread = new Thread(() => new Application().Run())
+                {
+                    Name = "STA WPF Application Thread"
+                };
+                winThread.SetApartmentState(ApartmentState.STA);
+                winThread.Start();
                 Thread.Sleep(100);
             }
 
+            Debug.Assert(Application.Current != null, "Application.Current != null");
             Application.Current.Dispatcher.Invoke(() => ShowPPWindow(id));
         }
 
         public override void Clear()
         {
-            m_output = false;
-            m_speed = PPTuple.Empty;
-            m_current_pp = PPTuple.Empty;
-            m_target_pp = PPTuple.Empty;
+            _output = false;
+            _speed = PPTuple.Empty;
+            _currentPp = PPTuple.Empty;
+            _targetPp = PPTuple.Empty;
 
             
-            if (m_win != null)
+            if (_win != null)
             {
-                m_win.HitCountContext = "";
-                m_win.PPContext = "";
+                _win.HitCountContext = "";
+                _win.PpContext = "";
             }
         }
 
         public override void OnUpdatePP(PPTuple tuple)
         {
-            m_output = true;
+            _output = true;
 
-            m_target_pp = tuple;
+            _targetPp = tuple;
         }
 
         public override void OnUpdateHitCount(HitCountTuple tuple)
         {
             var formatter = GetFormattedHitCount(tuple);
 
-            string str = formatter.ToString();
-
-            if (m_win != null)
-                m_win.HitCountContext = formatter.ToString();
-            m_win.Refresh();
+            if (_win != null)
+                _win.HitCountContext = formatter.ToString();
+            _win.Refresh();
         }
 
         public override void FixedDisplay(double time)
         {
-            if (!m_output)return;
+            if (!_output)return;
 
-            m_current_pp=SmoothMath.SmoothDampPPTuple(m_current_pp, m_target_pp, ref m_speed, time);
+            _currentPp=SmoothMath.SmoothDampPPTuple(_currentPp, _targetPp, ref _speed, time);
 
-            var formatter = GetFormattedPP(m_current_pp);
-            string str = formatter.ToString();
+            var formatter = GetFormattedPP(_currentPp);
 
-            if (m_win != null)
-                m_win.PPContext = formatter.ToString();
-            m_win.Refresh();
+            if (_win != null)
+                _win.PpContext = formatter.ToString();
+            _win.Refresh();
         }
 
         private void ShowPPWindow(int? id)
         {
-            m_win = new PPWindow();
+            _win = new PPWindow();
 
             if (id != null)
-                m_win.Title += $"{id}";
+                _win.Title += $"{id}";
 
-            m_win.client_id.Content = id?.ToString() ?? "";
+            _win.client_id.Content = id?.ToString() ?? "";
 
-            m_win.Show();
+            _win.Show();
         }
 
         public override void OnDestroy()
         {
-            m_win.Dispatcher.Invoke(() => m_win.Close());
+            _win.Dispatcher.Invoke(() => _win.Close());
         }
     }
 }

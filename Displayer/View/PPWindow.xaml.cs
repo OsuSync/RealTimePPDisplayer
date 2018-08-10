@@ -41,7 +41,7 @@ namespace RealTimePPDisplayer.Displayer.View
 
         private void OnPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = this.PropertyChanged;
+            PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null)
             {
                 PropertyChangedEventArgs e = new PropertyChangedEventArgs(propertyName);
@@ -49,24 +49,24 @@ namespace RealTimePPDisplayer.Displayer.View
             }
         }
 
-        private string m_pp_context = "0.00pp";
-        public string PPContext
+        private string _ppContext = "0.00pp";
+        public string PpContext
         {
-            get => m_pp_context;
+            get => _ppContext;
             set
             {
-                m_pp_context = value;
+                _ppContext = value;
                 OnPropertyChanged("PPContext");
             }
         }
 
-        private string m_hit_count_context = "0x100 0x50 0xMiss";
+        private string _hitCountContext = "0x100 0x50 0xMiss";
         public string HitCountContext
         {
-            get => m_hit_count_context;
+            get => _hitCountContext;
             set
             {
-                m_hit_count_context = value;
+                _hitCountContext = value;
                 OnPropertyChanged("HitCountContext");
             }
         }
@@ -131,7 +131,7 @@ namespace RealTimePPDisplayer.Displayer.View
 
         private void ReloadSetting()
         {
-            Dispatcher.Invoke(() => LoadSetting());
+            Dispatcher.Invoke(LoadSetting);
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -142,10 +142,10 @@ namespace RealTimePPDisplayer.Displayer.View
 
     static class ExtensionMethods
     {
-        private static Action EmptyDelegate = delegate () { };
+        private static readonly Action s_emptyDelegate = delegate () { };
         public static void Refresh(this UIElement uiElement)
         {
-            uiElement.Dispatcher.Invoke(DispatcherPriority.Render, EmptyDelegate);
+            uiElement.Dispatcher.Invoke(DispatcherPriority.Render, s_emptyDelegate);
         }
     }
 }

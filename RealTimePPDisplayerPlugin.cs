@@ -1,13 +1,13 @@
-﻿using OsuRTDataProvider;
-using RealTimePPDisplayer.Displayer;
-using RealTimePPDisplayer.Gui;
-using Sync.Plugins;
-using Sync.Tools;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using OsuRTDataProvider;
+using RealTimePPDisplayer.Displayer;
+using RealTimePPDisplayer.Gui;
+using Sync.Plugins;
+using Sync.Tools;
 
 namespace RealTimePPDisplayer
 {
@@ -19,31 +19,31 @@ namespace RealTimePPDisplayer
         public const string PLUGIN_AUTHOR = "KedamaOvO";
         public const string VERSION= "1.5.0";
 
-        private OsuRTDataProviderPlugin m_memory_reader;
-        private DisplayerController[] m_osu_pp_controls = new DisplayerController[16];
+        private OsuRTDataProviderPlugin _ortdp;
+        private readonly DisplayerController[] _osuPpControls = new DisplayerController[16];
 
-        private PluginConfigurationManager m_config_manager;
+        private PluginConfigurationManager _configManager;
 
-        public int TourneyWindowCount => m_memory_reader.TourneyListenerManagersCount;
-        public bool TourneyMode => m_memory_reader.TourneyListenerManagers != null;
+        public int TourneyWindowCount => _ortdp.TourneyListenerManagersCount;
+        public bool TourneyMode => _ortdp.TourneyListenerManagers != null;
 
         #region FixedDisplay Field
         public static RealTimePPDisplayerPlugin Instance;
-        public IEnumerable<string> DisplayerNames => m_displayer_creators.Select(d=>d.Key);
+        public IEnumerable<string> DisplayerNames => _displayerCreators.Select(d=>d.Key);
 
-        private bool m_stop_fixed_update = false;
-        private Dictionary<string, Func<int?, DisplayerBase>> m_displayer_creators = new Dictionary<string,Func<int?, DisplayerBase>>();
-        private readonly object m_all_displayer_mtx = new object();
-        private LinkedList<KeyValuePair<string,DisplayerBase>> m_all_displayers = new LinkedList<KeyValuePair<string,DisplayerBase>>();
-        private TimeSpan m_fixed_interval;
+        private bool _stopFixedUpdate;
+        private readonly Dictionary<string, Func<int?, DisplayerBase>> _displayerCreators = new Dictionary<string,Func<int?, DisplayerBase>>();
+        private readonly object _allDisplayerMtx = new object();
+        private readonly LinkedList<KeyValuePair<string,DisplayerBase>> _allDisplayers = new LinkedList<KeyValuePair<string,DisplayerBase>>();
+        private TimeSpan _fixedInterval;
 
-        private Task m_fixed_update_thread;
+        private Task _fixedUpdateThread;
         #endregion
 
         public RealTimePPDisplayerPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
-            base.EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
+            EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
 
             Instance = this;
         }
@@ -53,10 +53,10 @@ namespace RealTimePPDisplayer
         /// </summary>
         public override void OnEnable()
         {
-            m_config_manager = new PluginConfigurationManager(this);
-            m_config_manager.AddItem(new SettingIni());
+            _configManager = new PluginConfigurationManager(this);
+            _configManager.AddItem(new SettingIni());
 
-            m_memory_reader = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "OsuRTDataProvider") as OsuRTDataProviderPlugin;
+            _ortdp = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "OsuRTDataProvider") as OsuRTDataProviderPlugin;
             var gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
 
             if (gui != null)
@@ -64,48 +64,46 @@ namespace RealTimePPDisplayer
                 GuiRegisterHelper.RegisterFormatEditorWindow(gui);
             }
 
-            if (m_memory_reader == null)
+            if (_ortdp == null)
             {
-                Sync.Tools.IO.CurrentIO.WriteColor("No found OsuRTDataProvider!", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor("No found OsuRTDataProvider!", ConsoleColor.Red);
                 return;
             }
 
-            int size = TourneyMode ? m_memory_reader.TourneyListenerManagersCount : 1;
+            int size = TourneyMode ? _ortdp.TourneyListenerManagersCount : 1;
 
             for (int i = 0; i < size; i++)
             {
-                var manager = m_memory_reader.ListenerManager;
-                int? id = null;
+                var manager = _ortdp.ListenerManager;
                 if (TourneyMode)
                 {
-                    id = i;
-                    manager = m_memory_reader.TourneyListenerManagers[i];
+                    manager = _ortdp.TourneyListenerManagers[i];
                 }
-                m_osu_pp_controls[i] = new DisplayerController(manager,id);
+                _osuPpControls[i] = new DisplayerController(manager);
             }
 
-            m_fixed_interval = TimeSpan.FromSeconds(1.0 / Setting.FPS);
+            _fixedInterval = TimeSpan.FromSeconds(1.0 / Setting.FPS);
 
-            m_fixed_update_thread = Task.Run(() =>
+            _fixedUpdateThread = Task.Run(() =>
             {
-                while (!m_stop_fixed_update)
+                while (!_stopFixedUpdate)
                 {
-                    lock (m_all_displayer_mtx)
+                    lock (_allDisplayerMtx)
                     {
-                        foreach (var d in m_all_displayers)
-                            d.Value.FixedDisplay(m_fixed_interval.TotalSeconds);
+                        foreach (var d in _allDisplayers)
+                            d.Value.FixedDisplay(_fixedInterval.TotalSeconds);
                     }
-                    Thread.Sleep(m_fixed_interval);
+                    Thread.Sleep(_fixedInterval);
                 }
             });
 
-            RegisterDisplayer("wpf", (id) => new WpfDisplayer(id));
-            RegisterDisplayer("mmf", (id) => new MmfDisplayer(id));
-            RegisterDisplayer("mmf-split", (id) => new MmfDisplayer(id,true));
-            RegisterDisplayer("text", (id) => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
-            RegisterDisplayer("text-split", (id) => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
+            RegisterDisplayer("wpf", id => new WpfDisplayer(id));
+            RegisterDisplayer("mmf", id => new MmfDisplayer(id));
+            RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,true));
+            RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
+            RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
 
-            Sync.Tools.IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
+            IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
         }
 
         #region Displayer operation
@@ -117,13 +115,13 @@ namespace RealTimePPDisplayer
         /// <returns></returns>
         public bool RegisterDisplayer(string name,Func<int?,DisplayerBase> creator)
         {
-            if(m_displayer_creators.ContainsKey(name))
+            if(_displayerCreators.ContainsKey(name))
             {
-                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
                 return false;
             }
 
-            m_displayer_creators[name]=creator;
+            _displayerCreators[name]=creator;
 
             if (Setting.OutputMethods.Contains(name))
                 AddDisplayer(name, creator);
@@ -133,12 +131,12 @@ namespace RealTimePPDisplayer
 
         private void AddDisplayer(string name,Func<int?, DisplayerBase> creator)
         {
-            lock (m_all_displayer_mtx)
+            lock (_allDisplayerMtx)
             {
-                foreach (var p in m_all_displayers)
+                foreach (var p in _allDisplayers)
                     if (p.Key == name) return;
 
-                int size = TourneyMode ? m_memory_reader.TourneyListenerManagersCount : 1;
+                int size = TourneyMode ? _ortdp.TourneyListenerManagersCount : 1;
 
                 for (int i = 0; i < size; i++)
                 {
@@ -146,29 +144,29 @@ namespace RealTimePPDisplayer
                     if (TourneyMode) id = i;
 
                     var displayer = creator(id);
-                    m_osu_pp_controls[i].AddDisplayer(name, displayer);
-                    m_all_displayers.AddLast(new KeyValuePair<string, DisplayerBase>(name, displayer));
+                    _osuPpControls[i].AddDisplayer(name, displayer);
+                    _allDisplayers.AddLast(new KeyValuePair<string, DisplayerBase>(name, displayer));
                 }
             }
         }
 
         private void RemoveDisplayer(string name)
         {
-            lock (m_all_displayer_mtx)
+            lock (_allDisplayerMtx)
             {
-                for (var node = m_all_displayers.First; node != null;)
+                for (var node = _allDisplayers.First; node != null;)
                 {
                     if (node.Value.Key == name)
                     {
-                        int size = TourneyMode ? m_memory_reader.TourneyListenerManagersCount : 1;
+                        int size = TourneyMode ? _ortdp.TourneyListenerManagersCount : 1;
                         for (int i = 0; i < size; i++)
                         {
-                            m_osu_pp_controls[i].RemoveDisplayer(name);
+                            _osuPpControls[i].RemoveDisplayer(name);
 
                         }
                         node.Value.Value.OnDestroy();
                         var nnode = node.Next;
-                        m_all_displayers.Remove(node);
+                        _allDisplayers.Remove(node);
                         node = nnode;
                         continue;
                     }
@@ -179,31 +177,35 @@ namespace RealTimePPDisplayer
 
         private void RemoveAllDisplayer()
         {
-            foreach (var p in m_all_displayers)
+            lock (_allDisplayerMtx)
             {
-                p.Value.Clear();
-                p.Value.OnDestroy();
+                foreach (var p in _allDisplayers)
+                {
+                    p.Value.Clear();
+                    p.Value.OnDestroy();
+                }
+
+                _allDisplayers.Clear();
             }
-            m_all_displayers.Clear();
         }
         #endregion
 
-        private void InitCommand(PluginEvents.InitCommandEvent @e)
+        private void InitCommand(PluginEvents.InitCommandEvent e)
         {
-            @e.Commands.Dispatch.bind("rtpp", (args) =>
+            e.Commands.Dispatch.bind("rtpp", args =>
             {
                 if(args.Count>=2)
                 {
                     switch(args[0])
                     {
                         case "add":
-                            if (!m_displayer_creators.ContainsKey(args[1])) return false;
-                            var creator = m_displayer_creators[args[1]];
+                            if (!_displayerCreators.ContainsKey(args[1])) return false;
+                            var creator = _displayerCreators[args[1]];
                             AddDisplayer(args[1], creator);
                             break;
 
                         case "remove":
-                            if (!m_displayer_creators.ContainsKey(args[1])) return false;
+                            if (!_displayerCreators.ContainsKey(args[1])) return false;
                             RemoveDisplayer(args[1]);
 
                             break;
@@ -216,12 +218,12 @@ namespace RealTimePPDisplayer
 
         public override void OnDisable()
         {
-            m_stop_fixed_update = true;
-            m_fixed_update_thread.Wait(5000);
+            _stopFixedUpdate = true;
+            _fixedUpdateThread.Wait(5000);
             RemoveAllDisplayer();
-            m_displayer_creators.Clear();
-            for (int i = 0; i < m_osu_pp_controls.Length; i++)
-                m_osu_pp_controls[i] = null;
+            _displayerCreators.Clear();
+            for (int i = 0; i < _osuPpControls.Length; i++)
+                _osuPpControls[i] = null;
         }
 
         public override void OnExit()

@@ -1,55 +1,52 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.MemoryMappedFiles;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Displayer
 {
     class MmfDisplayer : DisplayerBase
     {
-        private readonly string m_mmf_name;
+        private readonly string _mmfName;
 
-        private readonly char[] m_pp_buffer = new char[1024];
-        private readonly char[] m_hit_buffer = new char[1024];
-        private int m_hit_str_len = 0;
-        private MemoryMappedFile[] m_mmfs=new MemoryMappedFile[2];
+        private readonly char[] _ppBuffer = new char[1024];
+        private readonly char[] _hitBuffer = new char[1024];
+        private int _hitStrLen;
+        private readonly MemoryMappedFile[] _mmfs=new MemoryMappedFile[2];
 
-        private bool m_output = false;
+        private bool _output;
 
-        PPTuple m_current_pp;
-        PPTuple m_target_pp;
-        PPTuple m_speed;
+        private PPTuple _currentPp;
+        private PPTuple _targetPp;
+        private PPTuple _speed;
 
-        private readonly bool m_splited = false;
+        private readonly bool _splited;
 
         public MmfDisplayer(int? id,bool splited = false)
         {
-            m_splited = splited;
-            m_mmf_name = id == null ? "rtpp" : $"rtpp{id}";
+            _init = false;
+            _output = false;
+            _splited = splited;
+            _mmfName = id == null ? "rtpp" : $"rtpp{id}";
 
-            if (m_splited)
+            if (_splited)
             {
-                m_mmfs[0] = MemoryMappedFile.CreateOrOpen($"{m_mmf_name}-pp", 1024);
-                m_mmfs[1] = MemoryMappedFile.CreateOrOpen($"{m_mmf_name}-hit", 1024);
+                _mmfs[0] = MemoryMappedFile.CreateOrOpen($"{_mmfName}-pp", 1024);
+                _mmfs[1] = MemoryMappedFile.CreateOrOpen($"{_mmfName}-hit", 1024);
             }
             else
             {
-                m_mmfs[0] = MemoryMappedFile.CreateOrOpen(m_mmf_name, 1024);
+                _mmfs[0] = MemoryMappedFile.CreateOrOpen(_mmfName, 1024);
             }
         }
 
         public override void Clear()
         {
-            m_output = false;
-            m_speed = PPTuple.Empty;
-            m_current_pp = PPTuple.Empty;
-            m_target_pp = PPTuple.Empty;
+            _output = false;
+            _speed = PPTuple.Empty;
+            _currentPp = PPTuple.Empty;
+            _targetPp = PPTuple.Empty;
 
-            foreach (var mmf in m_mmfs)
+            foreach (var mmf in _mmfs)
             {
                 if (mmf != null)
                     using (MemoryMappedViewStream stream = mmf.CreateViewStream())
@@ -57,81 +54,81 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
-        private bool _init = false;
+        private bool _init;
 
         public override void OnUpdatePP(PPTuple tuple)
         {
-            m_output = true;
+            _output = true;
 
-            m_target_pp = tuple;
+            _targetPp = tuple;
         }
 
         public override void OnUpdateHitCount(HitCountTuple tuple)
         {
             var formatter = GetFormattedHitCount(tuple);
 
-            m_hit_str_len= formatter.CopyTo(0,m_hit_buffer,0);
+            _hitStrLen= formatter.CopyTo(0,_hitBuffer,0);
         }
 
         public override void Display()
         {
             if (!_init)
             {
-                if(m_splited)
+                if(_splited)
                 {
-                    Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, $"{m_mmf_name}-pp"), ConsoleColor.DarkGreen);
-                    Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, $"{m_mmf_name}-hit"), ConsoleColor.DarkGreen);
+                    Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, $"{_mmfName}-pp"), ConsoleColor.DarkGreen);
+                    Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, $"{_mmfName}-hit"), ConsoleColor.DarkGreen);
                 }
                 else
-                    Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, m_mmf_name), ConsoleColor.DarkGreen);
+                    Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, _mmfName), ConsoleColor.DarkGreen);
                 _init = true;
             }
         }
 
         public override void FixedDisplay(double time)
         {
-            if (!m_output) return;
-            if (double.IsNaN(m_current_pp.RealTimePP)) m_current_pp.RealTimePP = 0;
-            if (double.IsNaN(m_current_pp.FullComboPP)) m_current_pp.FullComboPP = 0;
-            if (double.IsNaN(m_speed.RealTimePP)) m_speed.RealTimePP = 0;
-            if (double.IsNaN(m_speed.FullComboPP)) m_speed.FullComboPP = 0;
+            if (!_output) return;
+            if (double.IsNaN(_currentPp.RealTimePP)) _currentPp.RealTimePP = 0;
+            if (double.IsNaN(_currentPp.FullComboPP)) _currentPp.FullComboPP = 0;
+            if (double.IsNaN(_speed.RealTimePP)) _speed.RealTimePP = 0;
+            if (double.IsNaN(_speed.FullComboPP)) _speed.FullComboPP = 0;
 
-            m_current_pp = SmoothMath.SmoothDampPPTuple(m_current_pp, m_target_pp, ref m_speed, time);
+            _currentPp = SmoothMath.SmoothDampPPTuple(_currentPp, _targetPp, ref _speed, time);
 
-            var formatter = GetFormattedPP(m_current_pp);
+            var formatter = GetFormattedPP(_currentPp);
 
-            int len= formatter.CopyTo(0,m_pp_buffer,0);
+            int len= formatter.CopyTo(0,_ppBuffer,0);
 
-            StreamWriter[] stream_writers = new StreamWriter[2];
+            StreamWriter[] streamWriters = new StreamWriter[2];
 
-            if (m_splited)
+            if (_splited)
             {
-                stream_writers[0] = new StreamWriter(m_mmfs[0].CreateViewStream());
-                stream_writers[1] = new StreamWriter(m_mmfs[1].CreateViewStream());
+                streamWriters[0] = new StreamWriter(_mmfs[0].CreateViewStream());
+                streamWriters[1] = new StreamWriter(_mmfs[1].CreateViewStream());
             }
             else
             {
-                stream_writers[0] = new StreamWriter(m_mmfs[0].CreateViewStream());
-                stream_writers[1] = stream_writers[0];
+                streamWriters[0] = new StreamWriter(_mmfs[0].CreateViewStream());
+                streamWriters[1] = streamWriters[0];
             }
 
-            stream_writers[0].Write(m_pp_buffer, 0, len);
-            if (!m_splited) stream_writers[0].Write('\n');
-            else stream_writers[0].Write('\0');
+            streamWriters[0].Write(_ppBuffer, 0, len);
+            streamWriters[0].Write(!_splited ? '\n' : '\0');
 
-            stream_writers[1].Write(m_hit_buffer, 0, m_hit_str_len);
-            stream_writers[1].Write('\0');
+            streamWriters[1].Write(_hitBuffer, 0, _hitStrLen);
+            streamWriters[1].Write('\0');
 
-            for (int i = 0; i < m_mmfs.Length; i++)
-                if (m_mmfs[i] != null)
-                    stream_writers[i].Dispose();
+            for (int i = 0; i < _mmfs.Length; i++)
+                if (_mmfs[i] != null)
+                    streamWriters[i].Dispose();
         }
 
         public override void OnDestroy()
         {
-            foreach(var mmf in m_mmfs)
-                if(mmf!=null)
-                    mmf.Dispose();
+            foreach(var mmf in _mmfs)
+            {
+                mmf?.Dispose();
+            }
         }
     }
 }

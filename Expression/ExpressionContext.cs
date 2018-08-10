@@ -38,12 +38,6 @@ namespace RealTimePPDisplayer.Expression
             Functions["truncate"] = (args) => Math.Truncate(args[0]);
         }
 
-        public double Compute(string expr)
-        {
-            ExpressionParser ep = new ExpressionParser();
-            return ExecAst(ep.Parse(expr));
-        }
-
         public double ExecAst(IAstNode root)
         {
             switch (root)

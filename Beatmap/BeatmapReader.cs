@@ -3,6 +3,7 @@ using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Calculator;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -19,28 +20,28 @@ namespace RealTimePPDisplayer.Beatmap
             public int Length;
         }
 
-        public OsuRTDataProvider.BeatmapInfo.Beatmap OrtdpBeatmap { get; private set; }
+        public OsuRTDataProvider.BeatmapInfo.Beatmap OrtdpBeatmap { get; }
 
-        private BeatmapHeader m_beatmap_header_span;
-        public BeatmapHeader BeatmapHeaderSpan => m_beatmap_header_span;
+        private BeatmapHeader _beatmapHeaderSpan;
+        public BeatmapHeader BeatmapHeaderSpan => _beatmapHeaderSpan;
 
-        public byte[] RawData { get; private set; }
-        public List<BeatmapObject> Objects { get; private set; } = new List<BeatmapObject>();
+        public byte[] RawData { get; }
+        public List<BeatmapObject> Objects { get; } = new List<BeatmapObject>();
 
         public int ObjectsCount => Objects.Count;
-        public int BeatmapDuration => Objects.LastOrDefault().StartTime;
+        public int BeatmapDuration => Objects.LastOrDefault()?.StartTime??-1;
 
         public OsuPlayMode Mode { get; set; }
         public double OverallDifficulty { get; private set; }
-        public double HPDrainRate { get; private set; }
+        public double HpDrainRate { get; private set; }
         public double CircleSize { get; private set; }
         public int KeyCount { get; private set; }
 
         public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap,OsuPlayMode mode=OsuPlayMode.Unknown)
         {
             OrtdpBeatmap = beatmap;
-            m_beatmap_header_span.Offset = 0;
-            m_beatmap_header_span.Length = 0;
+            _beatmapHeaderSpan.Offset = 0;
+            _beatmapHeaderSpan.Length = 0;
             Mode = mode;
 
             StringBuilder sb=new StringBuilder();
@@ -63,21 +64,22 @@ namespace RealTimePPDisplayer.Beatmap
             {
                 using (var sr = new StreamReader(ms))
                 {
-                    string block_name = "";
+                    string blockName = "";
                     while (!sr.EndOfStream)
                     {
-                        string raw_line = sr.ReadLine();
-                        int raw_line_len = Encoding.UTF8.GetByteCount(raw_line) + bias;
+                        string rawLine = sr.ReadLine();
+                        Debug.Assert(rawLine != null, nameof(rawLine) + " != null");
+                        int rawLineLen = Encoding.UTF8.GetByteCount(rawLine) + bias;
 
-                        string line = raw_line.Trim();
+                        string line = rawLine.Trim();
 
                         if (line.StartsWith("["))
                         {
-                            block_name = line.Substring(1, line.Length - 2).Trim();
-                            if (block_name == "HitObjects")
-                                m_beatmap_header_span.Length = pos + raw_line_len;
+                            blockName = line.Substring(1, line.Length - 2).Trim();
+                            if (blockName == "HitObjects")
+                                _beatmapHeaderSpan.Length = pos + rawLineLen;
                         }
-                        else if (!string.IsNullOrEmpty(line) && (block_name == "General" || block_name == "Difficulty"))
+                        else if (!string.IsNullOrEmpty(line) && (blockName == "General" || blockName == "Difficulty"))
                         {
                             GetPropertyString(line, out var prop, out var val);
 
@@ -87,7 +89,7 @@ namespace RealTimePPDisplayer.Beatmap
                                     OsuPlayMode mode = (OsuPlayMode)int.Parse(val);
                                     if (mode != OsuPlayMode.Mania && Mode == OsuPlayMode.Mania)
                                     {
-                                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::Beatmap]Only support mania beatmap.", ConsoleColor.Yellow);
+                                        Sync.Tools.IO.CurrentIO.WriteColor("[RTPPD::Beatmap]Only support mania beatmap.", ConsoleColor.Yellow);
                                         Mode = mode;
                                     }
                                     else if (mode == OsuPlayMode.Mania && Mode != OsuPlayMode.Mania)
@@ -99,7 +101,7 @@ namespace RealTimePPDisplayer.Beatmap
                                     OverallDifficulty = double.Parse(val, CultureInfo.InvariantCulture);
                                     break;
                                 case "HPDrainRate":
-                                    HPDrainRate = double.Parse(val, CultureInfo.InvariantCulture);
+                                    HpDrainRate = double.Parse(val, CultureInfo.InvariantCulture);
                                     break;
                                 case "CircleSize":
                                     CircleSize = double.Parse(val,CultureInfo.InvariantCulture);
@@ -108,18 +110,28 @@ namespace RealTimePPDisplayer.Beatmap
                                     break;
                             }
                         }
-                        else if (!string.IsNullOrEmpty(line) && block_name == "HitObjects")
+                        else if (!string.IsNullOrEmpty(line) && blockName == "HitObjects")
                         {
                             BeatmapObject obj;
-                            if (Mode != OsuPlayMode.Mania)
-                                obj = new BeatmapObject(line, pos, raw_line_len, this);
-                            else
-                                obj = new ManiaBeatmapObject(line, pos, raw_line_len, this);
+
+                            switch (Mode)
+                            {
+                                case OsuPlayMode.Mania:
+                                    obj = new ManiaBeatmapObject(line, pos, rawLineLen, this);
+                                    break;
+                                case OsuPlayMode.Osu:
+                                case OsuPlayMode.Taiko:
+                                    obj =  new ManiaBeatmapObject(line, pos, rawLineLen, this);
+                                    break;
+                                default:
+                                    obj = null;
+                                    break;
+                            }
 
                             Objects.Add(obj);
                         }
 
-                        pos += raw_line_len;
+                        pos += rawLineLen;
                     }
                 }
             }

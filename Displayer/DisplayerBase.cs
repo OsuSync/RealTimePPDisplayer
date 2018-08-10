@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using RealTimePPDisplayer.Expression;
 
 namespace RealTimePPDisplayer.Displayer
@@ -48,20 +45,12 @@ namespace RealTimePPDisplayer.Displayer
         /// <summary>
         /// Update PP
         /// </summary>
-        /// <param name="cur_pp">real time PP</param>
-        /// <param name="if_fc_pp">if FC pp</param>
-        /// <param name="max_pp">beatmap max pp</param>
         public abstract void OnUpdatePP(PPTuple tuple);
 
         /// <summary>
         /// Update HitCount
         /// </summary>
-        /// <param name="n300">300 count</param>
-        /// <param name="n100">100 count</param>
-        /// <param name="n50">50 count</param>
-        /// <param name="nmiss">miss count</param>
-        /// <param name="combo">current combo</param>
-        /// <param name="max_combo">current max combo</param>
+        /// <param name="tuple"></param>
         public abstract void OnUpdateHitCount(HitCountTuple tuple);
 
         /// <summary>
@@ -82,15 +71,15 @@ namespace RealTimePPDisplayer.Displayer
 
         public virtual void OnDestroy() { }
 
-        private static readonly ExpressionContext _exprCtx = new ExpressionContext();
-        private static ThreadLocal<Dictionary<FormatArg, IAstNode>> s_pp_ast_dict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg, IAstNode>());
+        private static readonly ExpressionContext s_exprCtx = new ExpressionContext();
+        private static readonly ThreadLocal<Dictionary<FormatArg, IAstNode>> s_ppAstDict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg, IAstNode>());
 
         public static StringFormatter GetFormattedPP(PPTuple tuple)
         {
             var formatter = StringFormatter.GetPPFormatter();
 
-            var ctx = _exprCtx;
-            var pp_expression_dict = s_pp_ast_dict.Value;
+            var ctx = s_exprCtx;
+            var ppExpressionDict = s_ppAstDict.Value;
 
 
             ctx.Variables["rtpp_speed"] = tuple.RealTimeSpeedPP;
@@ -111,7 +100,7 @@ namespace RealTimePPDisplayer.Displayer
 
             foreach (var arg in formatter)
             {
-                if (!pp_expression_dict.TryGetValue(arg,out var root))
+                if (!ppExpressionDict.TryGetValue(arg,out var root))
                 {
                     var parser = new ExpressionParser();
                     try
@@ -123,7 +112,7 @@ namespace RealTimePPDisplayer.Displayer
                         Sync.Tools.IO.CurrentIO.WriteColor(e.Message,ConsoleColor.Yellow);
                     }
 
-                    pp_expression_dict[arg]=root;
+                    ppExpressionDict[arg]=root;
                 }
 
                 try
@@ -145,7 +134,7 @@ namespace RealTimePPDisplayer.Displayer
         {
             var formatter = StringFormatter.GetHitCountFormatter();
 
-            var ctx = _exprCtx;
+            var ctx = s_exprCtx;
             var hit_count_expression_dict = s_hit_count_expression_dict.Value;
 
             ctx.Variables["n300g"] = tuple.CountGeki;

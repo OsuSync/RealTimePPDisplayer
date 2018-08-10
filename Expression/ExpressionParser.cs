@@ -34,8 +34,13 @@ namespace RealTimePPDisplayer.Expression
     /// </summary>
     class ExpressionParser
     {
-        List<Token> _tokens = new List<Token>();
-        private int _pos = 0;
+        private readonly List<Token> _tokens = new List<Token>();
+        private int _pos;
+
+        public ExpressionParser()
+        {
+            _pos = 0;
+        }
 
         public IAstNode Parse(string expr)
         {
@@ -52,8 +57,7 @@ namespace RealTimePPDisplayer.Expression
                 _tokens.Add(token);
             } while (token.Type != TokenType.Eof);
 
-            IAstNode root;
-            root = E1();
+            var root = E1();
             if (_tokens[_pos].Type == TokenType.Eof)
             {
                 return root;
@@ -88,34 +92,34 @@ namespace RealTimePPDisplayer.Expression
 
         public AstOpNode E1P(IAstNode node)
         {
-            int old_pos = _pos;
+            int oldPos = _pos;
             Token token = GetToken();
 
             if ((token.Type == TokenType.Op && token.Data == "+")||
                 (token.Type == TokenType.Op && token.Data == "-"))
             {
                 AstOpNode op = new AstOpNode(token.Data);
-                IAstNode e2node = E2();
+                IAstNode e2Node = E2();
 
-                if (e2node!= null)
+                if (e2Node!= null)
                 {
                     AstOpNode rnode = E1P(node);
                     if (rnode != null)
                     {
                         rnode.LNode = op;
                         op.LNode = node;
-                        op.RNode = e2node;
+                        op.RNode = e2Node;
                         return rnode;
                     }
                     else
                     {
                         op.LNode = node;
-                        op.RNode = e2node;
+                        op.RNode = e2Node;
                         return op;
                     }
                 }
             }
-            _pos = old_pos;
+            _pos = oldPos;
 
             return null;
         }
@@ -141,7 +145,7 @@ namespace RealTimePPDisplayer.Expression
 
         private AstOpNode E2P(IAstNode node)
         {
-            int old_pos = _pos;
+            int oldPos = _pos;
             Token token = GetToken();
 
             {
@@ -149,28 +153,28 @@ namespace RealTimePPDisplayer.Expression
                     (token.Type == TokenType.Op && token.Data == "/"))
                 {
                     AstOpNode op = new AstOpNode(token.Data);
-                    IAstNode e3node = E3();
+                    IAstNode e3Node = E3();
 
-                    if (e3node != null)
+                    if (e3Node != null)
                     {
                         AstOpNode rnode = E2P(node);
                         if (rnode != null)
                         {
                             rnode.LNode = op;
                             op.LNode = node;
-                            op.RNode = e3node;
+                            op.RNode = e3Node;
                             return rnode;
                         }
                         else
                         {
                             op.LNode = node;
-                            op.RNode = e3node;
+                            op.RNode = e3Node;
                             return op;
                         }
                     }
                 }
             }
-            _pos = old_pos;
+            _pos = oldPos;
 
             return null;
         }
@@ -197,7 +201,7 @@ namespace RealTimePPDisplayer.Expression
 
         private AstOpNode E3P(IAstNode node)
         {
-            int old_pos = _pos;
+            int oldPos = _pos;
 
             {
                 Token token = GetToken();
@@ -205,38 +209,38 @@ namespace RealTimePPDisplayer.Expression
                 if (token.Type == TokenType.Op && token.Data == "^")
                 {
                     AstOpNode op = new AstOpNode(token.Data);
-                    IAstNode e4node = E4();
+                    IAstNode e4Node = E4();
 
-                    if (e4node != null)
+                    if (e4Node != null)
                     {
                         AstOpNode rnode = E3P(node);
                         if (rnode != null)
                         {
                             rnode.LNode = op;
                             op.LNode = node;
-                            op.RNode = e4node;
+                            op.RNode = e4Node;
                             return rnode;
                         }
                         else
                         {
                             op.LNode = node;
-                            op.RNode = e4node;
+                            op.RNode = e4Node;
                             return op;
                         }
                     }
 
                 }
             }
-            _pos = old_pos;
+            _pos = oldPos;
 
             return null;
         }
 
         private IAstNode E4()
         {
-            int old_pos = _pos;
+            int oldPos = _pos;
             Token token = GetToken();
-            IAstNode node = null;
+            IAstNode node;
 
             if (token.Type == TokenType.Op && token.Data == "(")
             {
@@ -250,7 +254,7 @@ namespace RealTimePPDisplayer.Expression
                     }
                 }
             }
-            _pos = old_pos;
+            _pos = oldPos;
 
             {
                 node = Func();
@@ -265,7 +269,7 @@ namespace RealTimePPDisplayer.Expression
 
         private IAstNode Func()
         {
-            int old_pos = _pos;
+            int oldPos = _pos;
             Token token = GetToken();
 
             if (token.Type == TokenType.Id)
@@ -285,7 +289,7 @@ namespace RealTimePPDisplayer.Expression
                     }
                 }
             }
-            _pos = old_pos;
+            _pos = oldPos;
 
             return null;
         }
@@ -326,10 +330,9 @@ namespace RealTimePPDisplayer.Expression
 
         private AstFuncArgsTempNode FuncArgsP()
         {
-            int old_pos = _pos;
+            int oldPos = _pos;
             {
                 Token token = GetToken();
-                AstFuncArgsTempNode argsNode = null;
 
                 if (token.Type == TokenType.Op && token.Data == ",")
                 {
@@ -337,13 +340,13 @@ namespace RealTimePPDisplayer.Expression
                     if (node != null)
                     {
                         AstFuncArgsTempNode temp = FuncArgsP();
-                        argsNode = new AstFuncArgsTempNode(node, temp);
+                        var argsNode = new AstFuncArgsTempNode(node, temp);
                         return argsNode;
                     }
 
                 }
 
-                _pos = old_pos;
+                _pos = oldPos;
             }
 
             {
@@ -359,7 +362,7 @@ namespace RealTimePPDisplayer.Expression
 
         private IAstNode F()
         {
-            int old_pos = _pos;
+            int oldPos = _pos;
             Token token = GetToken();
             if (token.Type == TokenType.Id)
             {
@@ -370,7 +373,7 @@ namespace RealTimePPDisplayer.Expression
                 return new AstNumberNode(token.Number);
             }
 
-            _pos = old_pos;
+            _pos = oldPos;
             return null;
         }
     }

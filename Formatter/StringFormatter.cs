@@ -19,16 +19,16 @@ namespace RealTimePPDisplayer
 
     public class StringFormatter:IEnumerable<FormatArg>
     {
-        private static ThreadLocal<StringFormatter> s_pp_format_local = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
-        private static ThreadLocal<StringFormatter> s_hit_count_format_local = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
+        private static readonly ThreadLocal<StringFormatter> s_ppFormatLocal = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
+        private static readonly ThreadLocal<StringFormatter> s_hitCountFormatLocal = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
 
         public string Format { get; private set; }
-        private StringBuilder m_builder=new StringBuilder(1024);
+        private readonly StringBuilder _builder=new StringBuilder(1024);
 
         private readonly object _mtx = new object();
-        public List<FormatArg> m_args = new List<FormatArg>(16);
-        static Regex pattern = new Regex(@"\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/)+?)?(@\d+)?\}");
-        static Regex new_line_pattern = new Regex(@"(?<=[^\\])\\n");
+        private readonly List<FormatArg> _args = new List<FormatArg>(16);
+        private static readonly Regex s_pattern = new Regex(@"\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/)+?)?(@\d+)?\}");
+        private static readonly Regex s_newLinePattern = new Regex(@"(?<=[^\\])\\n");
 
         protected StringFormatter(string format)
         {
@@ -39,17 +39,20 @@ namespace RealTimePPDisplayer
         {
             lock (_mtx)
             {
-                m_args.Clear();
-                Format = new_line_pattern.Replace(format, Environment.NewLine);
+                _args.Clear();
+                Format = s_newLinePattern.Replace(format, Environment.NewLine);
 
-                var result = pattern.Matches(format);
+                var result = s_pattern.Matches(format);
 
                 foreach (Match match in result)
                 {
-                    FormatArg arg = new FormatArg();
-                    arg.RawString = match.Value.TrimStart('$','{').TrimEnd('}');
-                    arg.ExprString = arg.RawString;
-                    arg.Digits = Int32.MinValue;
+                    string rawExpr =  match.Value.TrimStart('$','{').TrimEnd('}');
+                    FormatArg arg = new FormatArg
+                    {
+                        RawString = rawExpr,
+                        ExprString = rawExpr,
+                        Digits = Int32.MinValue
+                    };
 
                     if (arg.RawString.Contains('@'))
                     {
@@ -58,31 +61,31 @@ namespace RealTimePPDisplayer
                         arg.Digits = int.Parse(pair[1]);
                     }
 
-                    m_args.Add(arg);
+                    _args.Add(arg);
                 }
             }
         }
 
         public void Clear()
         {
-            m_builder.Clear();
-            m_builder.Append(Format);
+            _builder.Clear();
+            _builder.Append(Format);
         }
 
-        public int CopyTo(int src_index,char[] dst,int dst_index)
+        public int CopyTo(int srcIndex,char[] dst,int dstIndex)
         {
-            m_builder.CopyTo(src_index,dst,dst_index,m_builder.Length);
-            return m_builder.Length;
+            _builder.CopyTo(srcIndex,dst,dstIndex,_builder.Length);
+            return _builder.Length;
         }
 
         public override string ToString()
         {
-            return m_builder.ToString();
+            return _builder.ToString();
         }
 
         public void Fill(FormatArg arg,string val)
         {
-            m_builder.Replace($"${{{arg.RawString}}}", val);
+            _builder.Replace($"${{{arg.RawString}}}", val);
         }
 
         public void Fill(FormatArg arg, int n)
@@ -101,27 +104,27 @@ namespace RealTimePPDisplayer
         {
             lock (_mtx)
             {
-                foreach (var p in m_args)
+                foreach (var p in _args)
                     yield return p;
             }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            foreach (var p in m_args)
+            foreach (var p in _args)
                 yield return p;
         }
 
         public static StringFormatter GetPPFormatter()
         {
-            var t = s_pp_format_local.Value;
+            var t = s_ppFormatLocal.Value;
             t.Clear();
             return t;
         }
 
         public static StringFormatter GetHitCountFormatter()
         {
-            var t = s_hit_count_format_local.Value;
+            var t = s_hitCountFormatLocal.Value;
             t.Clear();
             return t;
         }
