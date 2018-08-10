@@ -11,7 +11,6 @@ namespace RealTimePPDisplayer.Displayer
         private bool _output;
 
         PPTuple _currentPp;
-        PPTuple _targetPp;
         PPTuple _speed;
 
         public WpfDisplayer(int? id)
@@ -34,11 +33,10 @@ namespace RealTimePPDisplayer.Displayer
 
         public override void Clear()
         {
+            base.Clear();
             _output = false;
             _speed = PPTuple.Empty;
             _currentPp = PPTuple.Empty;
-            _targetPp = PPTuple.Empty;
-
             
             if (_win != null)
             {
@@ -47,19 +45,11 @@ namespace RealTimePPDisplayer.Displayer
             }
         }
 
-        public override void OnUpdatePP(PPTuple tuple)
+        public override void Display()
         {
-            _output = true;
-
-            _targetPp = tuple;
-        }
-
-        public override void OnUpdateHitCount(HitCountTuple tuple)
-        {
-            var formatter = GetFormattedHitCount(tuple);
-
             if (_win != null)
-                _win.HitCountContext = formatter.ToString();
+                _win.HitCountContext = FormatHitCount().ToString();
+            _output = true;
             _win.Refresh();
         }
 
@@ -67,9 +57,9 @@ namespace RealTimePPDisplayer.Displayer
         {
             if (!_output)return;
 
-            _currentPp=SmoothMath.SmoothDampPPTuple(_currentPp, _targetPp, ref _speed, time);
+            _currentPp=SmoothMath.SmoothDampPPTuple(_currentPp, Pp, ref _speed, time);
 
-            var formatter = GetFormattedPP(_currentPp);
+            var formatter = FormatPp(_currentPp);
 
             if (_win != null)
                 _win.PpContext = formatter.ToString();

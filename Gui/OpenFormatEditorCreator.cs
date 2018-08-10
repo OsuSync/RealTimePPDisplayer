@@ -21,8 +21,7 @@ namespace RealTimePPDisplayer.Gui
 
             btn.Click += (s, e) =>
             {
-                var ishticount = attr is HitCountFormatAttribute;
-                new FormatEditor(prop, configuration_instance, ishticount).ShowDialog();
+                new FormatEditor(prop, configuration_instance).ShowDialog();
             };
 
             panel.Children.Add(btn);

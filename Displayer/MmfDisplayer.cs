@@ -16,7 +16,6 @@ namespace RealTimePPDisplayer.Displayer
         private bool _output;
 
         private PPTuple _currentPp;
-        private PPTuple _targetPp;
         private PPTuple _speed;
 
         private readonly bool _splited;
@@ -41,10 +40,10 @@ namespace RealTimePPDisplayer.Displayer
 
         public override void Clear()
         {
+            base.Clear();
             _output = false;
             _speed = PPTuple.Empty;
             _currentPp = PPTuple.Empty;
-            _targetPp = PPTuple.Empty;
 
             foreach (var mmf in _mmfs)
             {
@@ -55,20 +54,6 @@ namespace RealTimePPDisplayer.Displayer
         }
 
         private bool _init;
-
-        public override void OnUpdatePP(PPTuple tuple)
-        {
-            _output = true;
-
-            _targetPp = tuple;
-        }
-
-        public override void OnUpdateHitCount(HitCountTuple tuple)
-        {
-            var formatter = GetFormattedHitCount(tuple);
-
-            _hitStrLen= formatter.CopyTo(0,_hitBuffer,0);
-        }
 
         public override void Display()
         {
@@ -83,6 +68,9 @@ namespace RealTimePPDisplayer.Displayer
                     Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, _mmfName), ConsoleColor.DarkGreen);
                 _init = true;
             }
+
+            _output = true;
+            _hitStrLen= FormatHitCount().CopyTo(0,_hitBuffer,0);
         }
 
         public override void FixedDisplay(double time)
@@ -93,9 +81,9 @@ namespace RealTimePPDisplayer.Displayer
             if (double.IsNaN(_speed.RealTimePP)) _speed.RealTimePP = 0;
             if (double.IsNaN(_speed.FullComboPP)) _speed.FullComboPP = 0;
 
-            _currentPp = SmoothMath.SmoothDampPPTuple(_currentPp, _targetPp, ref _speed, time);
+            _currentPp = SmoothMath.SmoothDampPPTuple(_currentPp, Pp, ref _speed, time);
 
-            var formatter = GetFormattedPP(_currentPp);
+            var formatter = FormatPp(_currentPp);
 
             int len= formatter.CopyTo(0,_ppBuffer,0);
 

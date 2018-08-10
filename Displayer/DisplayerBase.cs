@@ -45,23 +45,16 @@ namespace RealTimePPDisplayer.Displayer
         public double Duration;
     }
 
-    public abstract class DisplayerBase
+    public class DisplayerBase
     {
-        /// <summary>
-        /// Update PP
-        /// </summary>
-        public abstract void OnUpdatePP(PPTuple tuple);
-
-        /// <summary>
-        /// Update HitCount
-        /// </summary>
-        /// <param name="tuple"></param>
-        public abstract void OnUpdateHitCount(HitCountTuple tuple);
-
         /// <summary>
         /// Clear Output
         /// </summary>
-        public abstract void Clear();
+        public virtual void Clear()
+        {
+            HitCount = new HitCountTuple();
+            Pp = new PPTuple();
+        }
 
         /// <summary>
         /// Displayer(ORTDP Thread[call interval=ORTDP.IntervalTime])
@@ -76,17 +69,15 @@ namespace RealTimePPDisplayer.Displayer
 
         public virtual void OnDestroy() { }
 
-        private static readonly ExpressionContext s_exprCtx = new ExpressionContext();
+        private object _mtx = new object();
+        public HitCountTuple HitCount { get; set; } = new HitCountTuple();
+        public PPTuple Pp { get; set; } = new PPTuple();
+
+        private readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(()=>new ExpressionContext());
         private static readonly ThreadLocal<Dictionary<FormatArg, IAstNode>> s_ppAstDict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg, IAstNode>());
 
-        public static StringFormatter GetFormattedPP(PPTuple tuple)
+        private void UpdateContextVariablesFromPpTuple(ExpressionContext ctx, PPTuple tuple)
         {
-            var formatter = StringFormatter.GetPPFormatter();
-
-            var ctx = s_exprCtx;
-            var ppExpressionDict = s_ppAstDict.Value;
-
-
             ctx.Variables["rtpp_speed"] = tuple.RealTimeSpeedPP;
             ctx.Variables["rtpp_aim"] = tuple.RealTimeAimPP;
             ctx.Variables["rtpp_acc"] = tuple.RealTimeAccuracyPP;
@@ -101,7 +92,44 @@ namespace RealTimePPDisplayer.Displayer
             ctx.Variables["maxpp_aim"] = tuple.MaxAimPP;
             ctx.Variables["maxpp_acc"] = tuple.MaxAccuracyPP;
             ctx.Variables["maxpp"] = tuple.MaxPP;
+        }
 
+        private void UpdateContextVariablesFromHitCountTuple(ExpressionContext ctx, HitCountTuple tuple)
+        {
+            ctx.Variables["n300g"] = tuple.CountGeki;
+            ctx.Variables["n300"] = tuple.Count300;
+            ctx.Variables["n200"] = tuple.CountKatu;
+            ctx.Variables["n100"] = tuple.Count100;
+            ctx.Variables["n150"] = tuple.Count100;
+            ctx.Variables["n50"] = tuple.Count50;
+            ctx.Variables["nmiss"] = tuple.CountMiss;
+            ctx.Variables["ngeki"] = tuple.CountGeki;
+            ctx.Variables["nkatu"] = tuple.CountKatu;
+
+            ctx.Variables["current_maxcombo"] = tuple.CurrentMaxCombo;
+            ctx.Variables["fullcombo"] = tuple.FullCombo;
+            ctx.Variables["maxcombo"] = tuple.PlayerMaxCombo;
+            ctx.Variables["player_maxcombo"] = tuple.PlayerMaxCombo;
+            ctx.Variables["combo"] = tuple.Combo;
+
+            ctx.Variables["objects_count"] = tuple.ObjectsCount;
+            ctx.Variables["time"] = tuple.PlayTime;
+            ctx.Variables["duration"] = tuple.Duration;
+        }
+
+        public StringFormatter FormatPp(PPTuple? pp=null)
+        {
+            var formatter = StringFormatter.GetPPFormatter();
+            var tuple = pp??Pp;
+
+            var ctx = s_exprCtx.Value;
+            var ppExpressionDict = s_ppAstDict.Value;
+
+            lock (_mtx)
+            {
+                UpdateContextVariablesFromPpTuple(ctx, tuple);
+                UpdateContextVariablesFromHitCountTuple(ctx, HitCount);
+            }
 
             foreach (var arg in formatter)
             {
@@ -133,38 +161,25 @@ namespace RealTimePPDisplayer.Displayer
             return formatter;
         }
 
-        private static ThreadLocal<Dictionary<FormatArg, IAstNode>> s_hit_count_expression_dict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg,IAstNode>());
+        private static readonly ThreadLocal<Dictionary<FormatArg, IAstNode>> s_hitCountExpressionDict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg,IAstNode>());
 
-        public static StringFormatter GetFormattedHitCount(HitCountTuple tuple)
+        public StringFormatter FormatHitCount(HitCountTuple? hitCount=null)
         {
             var formatter = StringFormatter.GetHitCountFormatter();
+            var tuple = hitCount ?? HitCount;
 
-            var ctx = s_exprCtx;
-            var hit_count_expression_dict = s_hit_count_expression_dict.Value;
+            var ctx = s_exprCtx.Value;
+            var hitCountExpressionDict = s_hitCountExpressionDict.Value;
 
-            ctx.Variables["n300g"] = tuple.CountGeki;
-            ctx.Variables["n300"] = tuple.Count300;
-            ctx.Variables["n200"] = tuple.CountKatu;
-            ctx.Variables["n100"] = tuple.Count100;
-            ctx.Variables["n150"] = tuple.Count100;
-            ctx.Variables["n50"] = tuple.Count50;
-            ctx.Variables["nmiss"] = tuple.CountMiss;
-            ctx.Variables["ngeki"] = tuple.CountGeki;
-            ctx.Variables["nkatu"] = tuple.CountKatu;
-
-            ctx.Variables["current_maxcombo"] = tuple.CurrentMaxCombo;
-            ctx.Variables["fullcombo"] = tuple.FullCombo;
-            ctx.Variables["maxcombo"] = tuple.PlayerMaxCombo;
-            ctx.Variables["player_maxcombo"] = tuple.PlayerMaxCombo;
-            ctx.Variables["combo"] = tuple.Combo;
-
-            ctx.Variables["objects_count"] = tuple.ObjectsCount;
-            ctx.Variables["time"] = tuple.PlayTime;
-            ctx.Variables["duration"] = tuple.Duration;
+            lock (_mtx)
+            {
+                UpdateContextVariablesFromPpTuple(ctx, Pp);
+                UpdateContextVariablesFromHitCountTuple(ctx, tuple);
+            }
 
             foreach (var arg in formatter)
             {
-                if (!hit_count_expression_dict.TryGetValue(arg,out var root))
+                if (!hitCountExpressionDict.TryGetValue(arg,out var root))
                 {
                     var parser = new ExpressionParser();
                     try
@@ -176,7 +191,7 @@ namespace RealTimePPDisplayer.Displayer
                         Sync.Tools.IO.CurrentIO.WriteColor(e.Message,ConsoleColor.Yellow);
                     }
 
-                    hit_count_expression_dict[arg]=root;
+                    hitCountExpressionDict[arg]=root;
                 }
 
                 try

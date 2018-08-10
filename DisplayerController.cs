@@ -220,7 +220,7 @@ namespace RealTimePPDisplayer
 
             foreach(var p in _displayers)
             {
-                p.Value.OnUpdatePP(ppTuple);
+                p.Value.Pp=ppTuple;
                 if (Setting.DisplayHitObject)
                 {
                     HitCountTuple hitTuple;
@@ -237,7 +237,7 @@ namespace RealTimePPDisplayer
                     hitTuple.ObjectsCount = cal.Beatmap.ObjectsCount;
                     hitTuple.PlayTime = time;
                     hitTuple.Duration = cal.Beatmap.BeatmapDuration;
-                    p.Value.OnUpdateHitCount(hitTuple);
+                    p.Value.HitCount=hitTuple;
                 }
                 p.Value.Display();
             }

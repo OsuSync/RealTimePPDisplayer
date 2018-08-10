@@ -52,7 +52,8 @@ namespace RealTimePPDisplayer.Expression
                     }
                     else
                     {
-                        throw new ExpressionException($"No Variable found. Variable: { varNode.Id }");
+                        Sync.Tools.IO.CurrentIO.WriteColor($"No Variable found. Variable: { varNode.Id }",ConsoleColor.Yellow);
+                        return 0;
                     }
 
                 case AstOpNode opNode:

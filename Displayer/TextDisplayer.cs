@@ -36,25 +36,11 @@ namespace RealTimePPDisplayer.Displayer
 
         public override void Clear()
         {
+            base.Clear();
             using (File.Open(_filenames[0], FileMode.Create, FileAccess.Write, FileShare.Read))
                 if(_splited)
                     using (File.Open(_filenames[1], FileMode.Create, FileAccess.Write, FileShare.Read)){}
         }
-
-        public override void OnUpdatePP(PPTuple tuple)
-        {
-            var formatter = GetFormattedPP(tuple);
-
-            _ppStrLen = formatter.CopyTo(0,_ppBuffer,0);
-        }
-
-        public override void OnUpdateHitCount(HitCountTuple tuple)
-        {
-            var formatter = GetFormattedHitCount(tuple);
-
-            _hitStrLen = formatter.CopyTo(0, _hitBuffer, 0);
-        }
-
         private bool _init;
 
         public override void Display()
@@ -66,6 +52,8 @@ namespace RealTimePPDisplayer.Displayer
                         Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.TEXT_MODE_OUTPUT_PATH_FORMAT, filename), ConsoleColor.DarkGreen);
                 _init = true;
             }
+            _ppStrLen = FormatPp().CopyTo(0,_ppBuffer,0);
+            _hitStrLen = FormatHitCount().CopyTo(0, _hitBuffer, 0);
 
             StreamWriter[] streamWriters = new StreamWriter[2];
 

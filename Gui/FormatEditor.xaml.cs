@@ -46,7 +46,7 @@ namespace RealTimePPDisplayer.Gui
             }
         }
 
-        private static readonly PPTuple s_perview_pp_tuple = new PPTuple
+        private static readonly PPTuple s_perviewPpTuple = new PPTuple
         {
             RealTimeAccuracyPP = 52.25,
             RealTimeAimPP = 121.1,
@@ -64,7 +64,7 @@ namespace RealTimePPDisplayer.Gui
             MaxPP = 810.6
         };
 
-        private static readonly HitCountTuple s_perview_hitcount_tuple = new HitCountTuple
+        private static readonly HitCountTuple s_perviewHitcountTuple = new HitCountTuple
         {
             Count300 = 501,
             Count100 = 12,
@@ -79,43 +79,56 @@ namespace RealTimePPDisplayer.Gui
             CurrentMaxCombo = 1256
         };
 
-        private static readonly List<string> s_pp_commands = new List<string>()
+        private static readonly List<string> s_commands = new List<string>()
         {
-            "rtpp","rtpp_aim","rtpp_acc","rtpp_speed",
-            "fcpp","fcpp_aim","fcpp_acc","fcpp_speed",
-            "maxpp","maxpp_aim","maxpp_acc","maxpp_speed"
+            "rtpp",
+            "rtpp_aim",
+            "rtpp_acc",
+            "rtpp_speed",
+            "fcpp",
+            "fcpp_aim",
+            "fcpp_acc",
+            "fcpp_speed",
+            "maxpp",
+            "maxpp_aim",
+            "maxpp_acc",
+            "maxpp_speed",
+            "n300",
+            "n300g",
+            "n200",
+            "n150",
+            "n100",
+            "n50",
+            "nmiss",
+            "ngeki",
+            "nkatu",
+            "rtmaxcombo",
+            "fullcombo",
+            "maxcombo",
+            "combo"
         };
 
-        private static readonly List<string> s_hitcount_commands = new List<string>()
+        public FormatEditor(PropertyInfo prop, object configurationInstance)
         {
-            "n300","n300g","n200","n150","n100","n50","nmiss","ngeki","nkatu",
-            "rtmaxcombo","fullcombo","maxcombo","combo"
-        };
-
-        public FormatEditor(PropertyInfo prop, object configuration_instance, bool isHitCount)
-        {
-            var item = new ConfigItemProxy(prop, configuration_instance);
+            var item = new ConfigItemProxy(prop, configurationInstance);
 
             InitializeComponent();
 
             FormatEditBox.DataContext = item;
+            var displayer = new DisplayerBase()
+            {
+                HitCount = s_perviewHitcountTuple,
+                Pp = s_perviewPpTuple
+            };
 
             FormatEditBox.TextChanged += (s, e) =>
             {
-                string formated;
-                if (isHitCount)
-                {
-                    formated = DisplayerBase.GetFormattedHitCount(s_perview_hitcount_tuple).ToString();
-                }
-                else
-                {
-                    formated = DisplayerBase.GetFormattedPP(s_perview_pp_tuple).ToString();
-                }
+                string formated = displayer.FormatPp().ToString();
+
                 FormatPreviewBox.Text = formated;
             };
 
-            var commands = isHitCount ? s_hitcount_commands:s_pp_commands;
-            foreach (var para in commands)
+            foreach (var para in s_commands)
             {
                 var btn = new Button()
                 {
