@@ -37,7 +37,12 @@ namespace RealTimePPDisplayer.Displayer
         public int Combo;
         public int PlayerMaxCombo;
         public int FullCombo;
-        public int RealTimeMaxCombo;
+        public int CurrentMaxCombo;
+
+        public int ObjectsCount;
+
+        public double PlayTime;
+        public double Duration;
     }
 
     public abstract class DisplayerBase
@@ -147,11 +152,15 @@ namespace RealTimePPDisplayer.Displayer
             ctx.Variables["ngeki"] = tuple.CountGeki;
             ctx.Variables["nkatu"] = tuple.CountKatu;
 
-            ctx.Variables["rtmaxcombo"] = tuple.RealTimeMaxCombo;
+            ctx.Variables["current_maxcombo"] = tuple.CurrentMaxCombo;
             ctx.Variables["fullcombo"] = tuple.FullCombo;
             ctx.Variables["maxcombo"] = tuple.PlayerMaxCombo;
+            ctx.Variables["player_maxcombo"] = tuple.PlayerMaxCombo;
             ctx.Variables["combo"] = tuple.Combo;
 
+            ctx.Variables["objects_count"] = tuple.ObjectsCount;
+            ctx.Variables["time"] = tuple.PlayTime;
+            ctx.Variables["duration"] = tuple.Duration;
 
             foreach (var arg in formatter)
             {

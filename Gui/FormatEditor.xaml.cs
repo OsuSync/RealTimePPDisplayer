@@ -76,7 +76,7 @@ namespace RealTimePPDisplayer.Gui
             Combo=1254,
             PlayerMaxCombo = 1254,
             FullCombo = 1854,
-            RealTimeMaxCombo = 1256
+            CurrentMaxCombo = 1256
         };
 
         private static readonly List<string> s_pp_commands = new List<string>()

@@ -231,9 +231,12 @@ namespace RealTimePPDisplayer
                     hitTuple.Combo = _combo;
                     hitTuple.FullCombo = (cal as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 0;
                     hitTuple.PlayerMaxCombo = _maxCombo;
-                    hitTuple.RealTimeMaxCombo = (cal as OppaiPerformanceCalculator)?.Oppai.RealTimeMaxCombo??0;
+                    hitTuple.CurrentMaxCombo = (cal as OppaiPerformanceCalculator)?.Oppai.RealTimeMaxCombo??0;
                     hitTuple.CountGeki = _ngeki;
                     hitTuple.CountKatu = _nkatu;
+                    hitTuple.ObjectsCount = cal.Beatmap.ObjectsCount;
+                    hitTuple.PlayTime = time;
+                    hitTuple.Duration = cal.Beatmap.BeatmapDuration;
                     p.Value.OnUpdateHitCount(hitTuple);
                 }
                 p.Value.Display();
