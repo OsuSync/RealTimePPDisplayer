@@ -56,7 +56,7 @@ namespace RealTimePPDisplayer.Displayer.View
             set
             {
                 _ppContext = value;
-                OnPropertyChanged("PPContext");
+                OnPropertyChanged(nameof(PpContext));
             }
         }
 
@@ -67,7 +67,7 @@ namespace RealTimePPDisplayer.Displayer.View
             set
             {
                 _hitCountContext = value;
-                OnPropertyChanged("HitCountContext");
+                OnPropertyChanged(nameof(HitCountContext));
             }
         }
 
