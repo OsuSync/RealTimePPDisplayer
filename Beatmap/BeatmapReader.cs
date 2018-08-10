@@ -121,7 +121,7 @@ namespace RealTimePPDisplayer.Beatmap
                                     break;
                                 case OsuPlayMode.Osu:
                                 case OsuPlayMode.Taiko:
-                                    obj =  new ManiaBeatmapObject(line, pos, rawLineLen, this);
+                                    obj =  new BeatmapObject(line, pos, rawLineLen, this);
                                     break;
                                 default:
                                     obj = null;
