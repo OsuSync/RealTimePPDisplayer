@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -87,7 +88,7 @@ namespace RealTimePPDisplayer.Expression
             switch (type)
             {
                 case TokenType.Number:
-                    Number = double.Parse(data);
+                    Number = double.Parse(data,CultureInfo.InvariantCulture);
                     break;
             }
         }
