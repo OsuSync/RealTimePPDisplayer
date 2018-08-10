@@ -82,7 +82,7 @@ namespace RealTimePPDisplayer.Displayer
 
         public virtual void OnDestroy() { }
 
-        private static ExpressionContext _exprCtx =new ExpressionContext();
+        private static readonly ExpressionContext _exprCtx = new ExpressionContext();
         private static ThreadLocal<Dictionary<FormatArg, IAstNode>> s_pp_ast_dict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg, IAstNode>());
 
         public static StringFormatter GetFormattedPP(PPTuple tuple)
@@ -111,8 +111,7 @@ namespace RealTimePPDisplayer.Displayer
 
             foreach (var arg in formatter)
             {
-                IAstNode root;
-                if (!pp_expression_dict.TryGetValue(arg,out root))
+                if (!pp_expression_dict.TryGetValue(arg,out var root))
                 {
                     var parser = new ExpressionParser();
                     try
@@ -167,8 +166,7 @@ namespace RealTimePPDisplayer.Displayer
 
             foreach (var arg in formatter)
             {
-                IAstNode root;
-                if (!hit_count_expression_dict.TryGetValue(arg,out root))
+                if (!hit_count_expression_dict.TryGetValue(arg,out var root))
                 {
                     var parser = new ExpressionParser();
                     try

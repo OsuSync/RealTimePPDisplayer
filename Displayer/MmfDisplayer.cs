@@ -11,10 +11,10 @@ namespace RealTimePPDisplayer.Displayer
 {
     class MmfDisplayer : DisplayerBase
     {
-        private string m_mmf_name;
+        private readonly string m_mmf_name;
 
-        private char[] m_pp_buffer = new char[1024];
-        private char[] m_hit_buffer = new char[1024];
+        private readonly char[] m_pp_buffer = new char[1024];
+        private readonly char[] m_hit_buffer = new char[1024];
         private int m_hit_str_len = 0;
         private MemoryMappedFile[] m_mmfs=new MemoryMappedFile[2];
 
@@ -24,7 +24,7 @@ namespace RealTimePPDisplayer.Displayer
         PPTuple m_target_pp;
         PPTuple m_speed;
 
-        private bool m_splited = false;
+        private readonly bool m_splited = false;
 
         public MmfDisplayer(int? id,bool splited = false)
         {

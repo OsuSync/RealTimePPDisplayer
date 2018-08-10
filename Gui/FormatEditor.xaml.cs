@@ -24,8 +24,8 @@ namespace RealTimePPDisplayer.Gui
     {
         class ConfigItemProxy : INotifyPropertyChanged
         {
-            private PropertyInfo m_prop;
-            private object m_instance;
+            private readonly PropertyInfo m_prop;
+            private readonly object m_instance;
 
             public event PropertyChangedEventHandler PropertyChanged;
 

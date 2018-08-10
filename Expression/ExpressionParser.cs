@@ -310,8 +310,7 @@ namespace RealTimePPDisplayer.Expression
                 if (node != null)
                 {
                     var argNode = FuncArgsP();
-                    List<IAstNode> args=new List<IAstNode>();
-                    args.Add(node);
+                    List<IAstNode> args = new List<IAstNode> {node};
                     while (argNode != null)
                     {
                         args.Add(argNode.Content);

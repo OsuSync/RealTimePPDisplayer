@@ -33,7 +33,7 @@ namespace RealTimePPDisplayer
 
         private bool m_stop_fixed_update = false;
         private Dictionary<string, Func<int?, DisplayerBase>> m_displayer_creators = new Dictionary<string,Func<int?, DisplayerBase>>();
-        private object m_all_displayer_mtx = new object();
+        private readonly object m_all_displayer_mtx = new object();
         private LinkedList<KeyValuePair<string,DisplayerBase>> m_all_displayers = new LinkedList<KeyValuePair<string,DisplayerBase>>();
         private TimeSpan m_fixed_interval;
 

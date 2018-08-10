@@ -9,8 +9,6 @@ namespace RealTimePPDisplayer.Expression
 {
     class ExpressionContext
     {
-        private IAstNode _root;
-
         public ConcurrentDictionary<string, double> Variables { get; } = new ConcurrentDictionary<string, double>();
         public ConcurrentDictionary<string, Func<List<double>, double>> Functions = new ConcurrentDictionary<string, Func<List<double>, double>>();
 
@@ -85,7 +83,7 @@ namespace RealTimePPDisplayer.Expression
                         {
                             return func(ComputeArgs(funcNode.Args));
                         }
-                        catch (ArgumentOutOfRangeException e)
+                        catch (ArgumentOutOfRangeException)
                         {
                             throw new ExpressionException($"The function is missing a parameter. Fucntion: {funcNode.Id}");
                         }

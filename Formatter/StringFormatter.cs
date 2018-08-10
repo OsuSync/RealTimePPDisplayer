@@ -25,7 +25,7 @@ namespace RealTimePPDisplayer
         public string Format { get; private set; }
         private StringBuilder m_builder=new StringBuilder(1024);
 
-        private object _mtx = new object();
+        private readonly object _mtx = new object();
         public List<FormatArg> m_args = new List<FormatArg>(16);
         static Regex pattern = new Regex(@"\$\{(([A-Z]|[a-z]|[0-9]|_|\.|,|\(|\)|\^|\+|\-|\*|\/)+?)?(@\d+)?\}");
         static Regex new_line_pattern = new Regex(@"(?<=[^\\])\\n");
