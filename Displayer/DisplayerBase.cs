@@ -80,7 +80,7 @@ namespace RealTimePPDisplayer.Displayer
         public HitCountTuple HitCount { get; set; } = new HitCountTuple();
         public PPTuple Pp { get; set; } = new PPTuple();
 
-        private readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(()=>new ExpressionContext());
+        private readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(()=>new ExpressionContext(),true);
         private static readonly ThreadLocal<Dictionary<FormatArg, IAstNode>> s_ppAstDict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg, IAstNode>());
 
         private void UpdateContextVariablesFromPpTuple(ExpressionContext ctx, PPTuple tuple)
