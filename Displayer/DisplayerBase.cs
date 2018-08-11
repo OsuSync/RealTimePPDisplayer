@@ -52,6 +52,13 @@ namespace RealTimePPDisplayer.Displayer
         /// </summary>
         public virtual void Clear()
         {
+            lock (_mtx)
+            {
+                foreach (var ctx in s_exprCtx.Values)
+                foreach (var k in ctx.Variables.Keys)
+                    ctx.Variables[k] = 0;
+            }
+
             HitCount = new HitCountTuple();
             Pp = new PPTuple();
         }
