@@ -12,6 +12,7 @@ namespace RealTimePPDisplayer.Gui
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var panel = base.CreateControl(attr, prop, configuration_instance);
+            FormatEditor window = null;
 
             Button btn = new Button()
             {
@@ -21,7 +22,11 @@ namespace RealTimePPDisplayer.Gui
 
             btn.Click += (s, e) =>
             {
-                new FormatEditor(prop, configuration_instance).ShowDialog();
+                window = (window ?? new FormatEditor(prop, configuration_instance));
+                if (window.Visibility == Visibility.Visible)
+                    window.Activate();
+                else
+                    window.Show();
             };
 
             panel.Children.Add(btn);
