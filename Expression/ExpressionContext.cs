@@ -41,6 +41,8 @@ namespace RealTimePPDisplayer.Expression
             Functions["lerp"] = (args) => (1-args[2])*args[0]+args[2]*args[1];
             Functions["random"] = (args) =>
                 args.Count >= 2 ? args[0] + _random.NextDouble() * (args[1] - args[0]) : _random.NextDouble();
+            Functions["getTime"] = (args) =>
+                DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
         }
 
         public double ExecAst(IAstNode root)

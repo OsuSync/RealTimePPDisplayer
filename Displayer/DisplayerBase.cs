@@ -120,7 +120,7 @@ namespace RealTimePPDisplayer.Displayer
             ctx.Variables["combo"] = tuple.Combo;
 
             ctx.Variables["objects_count"] = tuple.ObjectsCount;
-            ctx.Variables["time"] = tuple.PlayTime;
+            ctx.Variables["play_time"] = tuple.PlayTime;
             ctx.Variables["duration"] = tuple.Duration;
         }
 
