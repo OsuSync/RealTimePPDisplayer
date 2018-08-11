@@ -88,7 +88,14 @@ namespace RealTimePPDisplayer.Expression
             switch (type)
             {
                 case TokenType.Number:
-                    Number = double.Parse(data,CultureInfo.InvariantCulture);
+                    if (double.TryParse(data,NumberStyles.Float,CultureInfo.InvariantCulture,out double dval))
+                    {
+                        Number = dval;
+                    }
+                    else
+                    {
+                        throw new ExprssionTokenException($"The number does not match the rules. Data: {data}");
+                    }
                     break;
             }
         }

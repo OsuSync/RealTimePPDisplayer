@@ -53,7 +53,7 @@ namespace RealTimePPDisplayer.Expression
                     }
                     else
                     {
-                        Sync.Tools.IO.CurrentIO.WriteColor($"No Variable found. Variable: { varNode.Id }",ConsoleColor.Yellow);
+                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]No Variable found (return zero). Variable name: { varNode.Id }",ConsoleColor.Yellow);
                         return 0;
                     }
 

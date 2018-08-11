@@ -149,7 +149,7 @@ namespace RealTimePPDisplayer.Displayer
                     }
                     catch (ExprssionTokenException e)
                     {
-                        Sync.Tools.IO.CurrentIO.WriteColor(e.Message,ConsoleColor.Yellow);
+                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}",ConsoleColor.Yellow);
                     }
 
                     ppExpressionDict[arg]=root;
@@ -161,7 +161,7 @@ namespace RealTimePPDisplayer.Displayer
                 }
                 catch (ExpressionException e)
                 {
-                    Sync.Tools.IO.CurrentIO.WriteColor(e.Message, ConsoleColor.Yellow);
+                    Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}", ConsoleColor.Yellow);
                 }
             }
 
@@ -195,7 +195,7 @@ namespace RealTimePPDisplayer.Displayer
                     }
                     catch (ExprssionTokenException e)
                     {
-                        Sync.Tools.IO.CurrentIO.WriteColor(e.Message,ConsoleColor.Yellow);
+                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}",ConsoleColor.Yellow);
                     }
 
                     hitCountExpressionDict[arg]=root;
@@ -207,7 +207,7 @@ namespace RealTimePPDisplayer.Displayer
                 }
                 catch (ExpressionException e)
                 {
-                    Sync.Tools.IO.CurrentIO.WriteColor(e.Message,ConsoleColor.Yellow);
+                    Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}",ConsoleColor.Yellow);
                 }
             }
 
