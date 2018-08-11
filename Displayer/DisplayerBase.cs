@@ -173,6 +173,8 @@ namespace RealTimePPDisplayer.Displayer
         public StringFormatter FormatHitCount(HitCountTuple? hitCount=null)
         {
             var formatter = StringFormatter.GetHitCountFormatter();
+            if (!Setting.DisplayHitObject) return formatter;
+
             var tuple = hitCount ?? HitCount;
 
             var ctx = s_exprCtx.Value;
