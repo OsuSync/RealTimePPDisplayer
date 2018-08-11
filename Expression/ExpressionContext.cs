@@ -37,6 +37,7 @@ namespace RealTimePPDisplayer.Expression
             Functions["sign"] = (args) => Math.Sign(args[0]);
             Functions["truncate"] = (args) => Math.Truncate(args[0]);
             Functions["clamp"] = (args) => Math.Max(Math.Min(args[0], args[2]),args[1]);
+            Functions["lerp"] = (args) => (1-args[2])*args[0]+args[2]*args[1];
         }
 
         public double ExecAst(IAstNode root)
