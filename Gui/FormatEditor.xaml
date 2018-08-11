@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:RealTimePPDisplayer.Gui"
              mc:Ignorable="d" 
              Width="800" Height="500"
+             Closing="FormatEditor_OnClosing"
              ResizeMode="NoResize" Title="Format Editor">
     <Grid>
         <Grid.RowDefinitions>

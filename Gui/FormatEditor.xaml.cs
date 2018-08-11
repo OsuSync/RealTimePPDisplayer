@@ -144,5 +144,11 @@ namespace RealTimePPDisplayer.Gui
                 ButtonsList.Children.Add(btn);
             }
         }
+
+        private void FormatEditor_OnClosing(object sender, CancelEventArgs e)
+        {
+            e.Cancel = true;
+            Hide();
+        }
     }
 }
