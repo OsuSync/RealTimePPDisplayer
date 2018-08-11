@@ -102,6 +102,7 @@ namespace RealTimePPDisplayer
             RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,true));
             RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
+            RegisterDisplayer("console", id => new ConsoleDisplayer());
 
             IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
         }
