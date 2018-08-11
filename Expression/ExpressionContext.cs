@@ -9,6 +9,7 @@ namespace RealTimePPDisplayer.Expression
 {
     class ExpressionContext
     {
+        private Random _random=new Random();
         public ConcurrentDictionary<string, double> Variables { get; } = new ConcurrentDictionary<string, double>();
         public ConcurrentDictionary<string, Func<List<double>, double>> Functions = new ConcurrentDictionary<string, Func<List<double>, double>>();
 
@@ -38,6 +39,8 @@ namespace RealTimePPDisplayer.Expression
             Functions["truncate"] = (args) => Math.Truncate(args[0]);
             Functions["clamp"] = (args) => Math.Max(Math.Min(args[0], args[2]),args[1]);
             Functions["lerp"] = (args) => (1-args[2])*args[0]+args[2]*args[1];
+            Functions["random"] = (args) =>
+                args.Count >= 2 ? args[0] + _random.NextDouble() * (args[1] - args[0]) : _random.NextDouble();
         }
 
         public double ExecAst(IAstNode root)
