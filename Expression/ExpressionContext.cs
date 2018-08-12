@@ -10,13 +10,15 @@ namespace RealTimePPDisplayer.Expression
     class ExpressionContext
     {
         private Random _random=new Random();
+
+        public ConcurrentDictionary<string, double> Constants { get; } = new ConcurrentDictionary<string, double>();
         public ConcurrentDictionary<string, double> Variables { get; } = new ConcurrentDictionary<string, double>();
         public ConcurrentDictionary<string, Func<List<double>, double>> Functions = new ConcurrentDictionary<string, Func<List<double>, double>>();
 
         public ExpressionContext()
         {
-            Variables["pi"] = Math.PI;
-            Variables["e"] = Math.E;
+            Constants["pi"] = Math.PI;
+            Constants["e"] = Math.E;
 
             Functions["sin"] = (args) => Math.Sin(args[0]);
             Functions["cos"] = (args) => Math.Cos(args[0]);
@@ -52,7 +54,11 @@ namespace RealTimePPDisplayer.Expression
                 case AstNumberNode numberNode:
                     return numberNode.Number;
                 case AstVariableNode varNode:
-                    if (Variables.TryGetValue(varNode.Id, out var val))
+                    if (Constants.TryGetValue(varNode.Id, out var val))
+                    {
+                        return val;
+                    }
+                    else if (Variables.TryGetValue(varNode.Id, out val))
                     {
                         return val;
                     }
