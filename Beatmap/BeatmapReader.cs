@@ -48,7 +48,7 @@ namespace RealTimePPDisplayer.Beatmap
 
             foreach (var line in File.ReadAllLines(beatmap.FilenameFull))
             {
-                sb.Append($"{line}\r\n");
+                sb.Append($"{line}\n");
             }
 
             RawData = Encoding.UTF8.GetBytes(sb.ToString());
@@ -57,7 +57,7 @@ namespace RealTimePPDisplayer.Beatmap
 
         public void Parse()
         {
-            int bias = 2;
+            int bias = 1;
             int pos = 0;
 
             using (var ms = new MemoryStream(RawData))
@@ -119,6 +119,7 @@ namespace RealTimePPDisplayer.Beatmap
                                 case OsuPlayMode.Mania:
                                     obj = new ManiaBeatmapObject(line, pos, rawLineLen, this);
                                     break;
+                                case OsuPlayMode.CatchTheBeat:
                                 case OsuPlayMode.Osu:
                                 case OsuPlayMode.Taiko:
                                     obj =  new BeatmapObject(line, pos, rawLineLen, this);
@@ -138,6 +139,20 @@ namespace RealTimePPDisplayer.Beatmap
 
             if (Mode == OsuPlayMode.Mania)
                 Objects.Sort((a,b)=>a.StartTime-b.StartTime);
+        }
+
+        public int GetPosition(int endTime, out int nobject)
+        {
+            int pos = BeatmapHeaderSpan.Length;
+            nobject = 0;
+            foreach (var obj in Objects)
+            {
+                if (obj.StartTime > endTime) break;
+                pos += (obj.Length);
+                nobject++;
+            }
+
+            return pos;
         }
 
         #region Tool Function

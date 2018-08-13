@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="Beatmap\BeatmapObject.cs" />
     <Compile Include="Beatmap\BeatmapReader.cs" />
+    <Compile Include="Calculator\CatchTheBeatPerformanceCalculator.cs" />
     <Compile Include="Calculator\ManiaPerformanceCalculator.cs" />
     <Compile Include="Calculator\OppaiPerformanceCalculator.cs" />
     <Compile Include="Calculator\StdPerformanceCalculator.cs" />

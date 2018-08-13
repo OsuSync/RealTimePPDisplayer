@@ -20,20 +20,6 @@ namespace RealTimePPDisplayer.Calculator
 
         public BeatmapReader Beatmap { get; set; }
 
-        private int GetPosition(int endTime, out int nline)
-        {
-            int pos = Beatmap.BeatmapHeaderSpan.Length;
-            nline = 0;
-            foreach (var obj in Beatmap.Objects)
-            {
-                if (obj.StartTime > endTime) break;
-                pos += (obj.Length);
-                nline++;
-            }
-
-            return pos;
-        }
-
         private ModsInfo _maxMods = ModsInfo.Empty;
         private pp_calc _maxResult;
 
@@ -97,7 +83,7 @@ namespace RealTimePPDisplayer.Calculator
 
         public pp_calc GetRealTimePP(int endTime, ModsInfo mods, int n100, int n50, int nmiss, int maxCombo, OsuPlayMode mode)
         {
-            int pos = GetPosition(endTime, out int nobject);
+            int pos = Beatmap.GetPosition(endTime, out int nobject);
 
             var needUpdate = false;
             needUpdate = _pos != pos;

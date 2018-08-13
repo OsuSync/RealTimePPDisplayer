@@ -140,8 +140,7 @@ namespace RealTimePPDisplayer
                 case OsuPlayMode.Mania:
                     _ppCalculator = new ManiaPerformanceCalculator(); break;
                 default:
-                    CurrentIO.WriteColor("[RealTimePPDisplayer]Unsupported Mode", ConsoleColor.Red);
-                    _ppCalculator = null; break;
+                    _ppCalculator = new CatchTheBeatPerformanceCalculator(); break;
             }
             _mode = mode;
         }
@@ -216,29 +215,40 @@ namespace RealTimePPDisplayer
             ppTuple.RealTimeAimPP = F(ppTuple.RealTimeAimPP, double.NaN);
             ppTuple.RealTimeAccuracyPP = F(ppTuple.RealTimeAccuracyPP, double.NaN);
 
+            int fullCombo = 0;
+            int rtMaxCombo = 0;
+            if (cal is OppaiPerformanceCalculator  oppai)
+            {
+                fullCombo = oppai.Oppai.FullCombo;
+                rtMaxCombo = oppai.Oppai.RealTimeMaxCombo;
+            }
+            else if(cal is CatchTheBeatPerformanceCalculator ctb)
+            {
+                fullCombo = ctb.FullCombo;
+                rtMaxCombo =ctb.RealTimeMaxCombo;
+            }
+
+            HitCountTuple hitTuple;
+            hitTuple.Count300 = _n300;
+            hitTuple.Count100 = _n100;
+            hitTuple.Count50 = _n50;
+            hitTuple.CountMiss = _nmiss;
+            hitTuple.Combo = _combo;
+            hitTuple.FullCombo = fullCombo;
+            hitTuple.PlayerMaxCombo = _maxCombo;
+            hitTuple.CurrentMaxCombo = rtMaxCombo;
+            hitTuple.CountGeki = _ngeki;
+            hitTuple.CountKatu = _nkatu;
+            hitTuple.ObjectsCount = cal.Beatmap.ObjectsCount;
+            hitTuple.PlayTime = time;
+            hitTuple.Duration = cal.Beatmap.BeatmapDuration;
+
             if (_maxCombo > ((cal as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 20000)) _maxCombo = 0;
 
             foreach(var p in _displayers)
             {
                 p.Value.Pp=ppTuple;
-                if (Setting.DisplayHitObject)
-                {
-                    HitCountTuple hitTuple;
-                    hitTuple.Count300 = _n300;
-                    hitTuple.Count100 = _n100;
-                    hitTuple.Count50 = _n50;
-                    hitTuple.CountMiss = _nmiss;
-                    hitTuple.Combo = _combo;
-                    hitTuple.FullCombo = (cal as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 0;
-                    hitTuple.PlayerMaxCombo = _maxCombo;
-                    hitTuple.CurrentMaxCombo = (cal as OppaiPerformanceCalculator)?.Oppai.RealTimeMaxCombo??0;
-                    hitTuple.CountGeki = _ngeki;
-                    hitTuple.CountKatu = _nkatu;
-                    hitTuple.ObjectsCount = cal.Beatmap.ObjectsCount;
-                    hitTuple.PlayTime = time;
-                    hitTuple.Duration = cal.Beatmap.BeatmapDuration;
-                    p.Value.HitCount=hitTuple;
-                }
+                p.Value.HitCount=hitTuple;
                 p.Value.Display();
             }
 
