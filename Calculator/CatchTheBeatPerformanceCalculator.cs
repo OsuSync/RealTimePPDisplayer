@@ -33,22 +33,18 @@ namespace RealTimePPDisplayer.Calculator
 
         static CatchTheBeatPerformanceCalculator()
         {
-            foreach (var process in Process.GetProcessesByName("pypy3-rtpp"))
-            {
-                process.Kill();
-            }
-
             if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"ctb-server\pypy3\pypy3-rtpp.exe")))
             {
-                Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::CTB]Please download ctbserver to the Sync root directory.",ConsoleColor.Red);
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::CTB]Please download ctb-server to the Sync root directory.",ConsoleColor.Red);
                 return;
             }
 
             Process ctbServer = new Process();
-            ctbServer.StartInfo.Arguments = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"ctb-server\ctbserver.py");
-            ctbServer.StartInfo.FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"ctb-server\pypy3\pypy3-rtpp.exe");
+            ctbServer.StartInfo.Arguments = @"/c .\run_ctb_server.bat";
+            ctbServer.StartInfo.FileName = "cmd.exe";
             ctbServer.StartInfo.CreateNoWindow = true;
             ctbServer.StartInfo.UseShellExecute = false;
+            ctbServer.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,@".\ctb-server");
             ctbServer.Start();
 
 
@@ -113,6 +109,8 @@ namespace RealTimePPDisplayer.Calculator
 
         private bool _cleared = true;
         private double _last_acc = 0;
+        private int _last_max_combo = 0;
+        private int _last_nmiss = 0;
         private PPTuple _ppTuple = new PPTuple();
 
         public override PPTuple GetPerformance()
@@ -125,10 +123,13 @@ namespace RealTimePPDisplayer.Calculator
             if (_cleared == true)
             {
                 ctbPp = SendGetPp(new ArraySegment<byte>(Beatmap.RawData), Mods, c_fullCombo, 0, 100);
-                _ppTuple.MaxPP = ctbPp.Pp;
-                _ppTuple.MaxAccuracyPP = 0;
-                _ppTuple.MaxSpeedPP = 0;
-                _ppTuple.MaxAimPP = 0;
+                if (ctbPp != null)
+                {
+                    _ppTuple.MaxPP = ctbPp.Pp;
+                    _ppTuple.MaxAccuracyPP = 0;
+                    _ppTuple.MaxSpeedPP = 0;
+                    _ppTuple.MaxAimPP = 0;
+                }
 
                 FullCombo = ctbPp.FullCombo;
 
@@ -138,24 +139,35 @@ namespace RealTimePPDisplayer.Calculator
             if (_last_acc != Accuracy)
             {
                 ctbPp = SendGetPp(new ArraySegment<byte>(Beatmap.RawData), Mods, c_fullCombo, 0, Accuracy);
-                _ppTuple.FullComboPP = ctbPp.Pp;
-                _ppTuple.FullComboAccuracyPP = 0;
-                _ppTuple.FullComboSpeedPP = 0;
-                _ppTuple.FullComboAimPP = 0;
+                if (ctbPp != null)
+                {
+                    _ppTuple.FullComboPP = ctbPp.Pp;
+                    _ppTuple.FullComboAccuracyPP = 0;
+                    _ppTuple.FullComboSpeedPP = 0;
+                    _ppTuple.FullComboAimPP = 0;
+                }
             }
 
             _last_acc = Accuracy;
 
-            if (nobject > 0)
+            bool needUpdate = _last_max_combo!=MaxCombo;
+            needUpdate |= _last_nmiss != CountMiss;
+
+
+            if (needUpdate)
             {
-                ctbPp = SendGetPp(new ArraySegment<byte>(Beatmap.RawData, 0, pos), Mods, MaxCombo, CountMiss, Accuracy);
-                if (ctbPp != null)
+                if (nobject > 0)
                 {
-                    _ppTuple.RealTimePP = ctbPp.Pp;
-                    _ppTuple.RealTimeAccuracyPP = 0;
-                    _ppTuple.RealTimeSpeedPP = 0;
-                    _ppTuple.RealTimeAimPP = 0;
-                    RealTimeMaxCombo = ctbPp.FullCombo;
+                    ctbPp = SendGetPp(new ArraySegment<byte>(Beatmap.RawData, 0, pos), Mods, MaxCombo, CountMiss,
+                        Accuracy);
+                    if (ctbPp != null)
+                    {
+                        _ppTuple.RealTimePP = ctbPp.Pp;
+                        _ppTuple.RealTimeAccuracyPP = 0;
+                        _ppTuple.RealTimeSpeedPP = 0;
+                        _ppTuple.RealTimeAimPP = 0;
+                        RealTimeMaxCombo = ctbPp.FullCombo;
+                    }
                 }
             }
 
@@ -168,6 +180,8 @@ namespace RealTimePPDisplayer.Calculator
             _ppTuple = new PPTuple();
             _cleared = true;
             _last_acc = 0;
+            _last_max_combo = 0;
+            _last_nmiss = 0;
         }
 
         public override double Accuracy

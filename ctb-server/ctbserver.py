@@ -1,11 +1,9 @@
 from osu_parser.beatmap import Beatmap
 from osu.ctb.difficulty import Difficulty
 from ppCalc import calculate_pp
-import signal
 import socket
 import struct
 import sys
-import threading
 import traceback
 import time
 
@@ -34,9 +32,8 @@ def process_tcp(sock):
     """
     content_count_bytes = sock.recv(4)
     content_count = int.from_bytes(content_count_bytes,byteorder="little")
-    s = time.clock()
+
     content = read_string(sock,content_count)
-    print("read string: %f s" % (time.clock() - s))
 
     mods_bytes = sock.recv(4)
     mods = int.from_bytes(mods_bytes,byteorder="little")
@@ -50,10 +47,8 @@ def process_tcp(sock):
     accuracy_bytes = sock.recv(8)
     accuracy, = struct.unpack('<d', accuracy_bytes)
 
-    s = time.clock()
     beatmap = Beatmap(content)
     difficulty = Difficulty(beatmap, mods)
-    print("get pp: %f s" % (time.clock() - s))
 
     send_ctb_result(sock,beatmap,difficulty,max_combo,miss,accuracy)
 
