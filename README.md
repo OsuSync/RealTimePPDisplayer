@@ -5,7 +5,7 @@ This is a Sync! plugin for displaying the current beatmap's pp in real-time when
 Please read the README about [Osu!RTDP](https://github.com/KedamaOvO/OsuRTDataProvider-Release) and [OsuForum](https://osu.ppy.sh/forum/t/685031) before you use this.
 
 # Settings
-Settings is in config.ini<br>
+The settings for this application are located in the config.ini<br>
 
 | Setting Name  | Default Value | Description |
 |:------------- |:-------------|:-----|
