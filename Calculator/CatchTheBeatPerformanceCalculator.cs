@@ -90,7 +90,7 @@ namespace RealTimePPDisplayer.Calculator
             }
             catch (SocketException)
             {
-                Console.WriteLine("[RTPPD::CTB]Restart ctb-server");
+                Sync.Tools.IO.CurrentIO.WriteColor("[RTPPD::CTB]Restart ctb-server",ConsoleColor.Green);
                 RestartCtbServer();
             }
 
