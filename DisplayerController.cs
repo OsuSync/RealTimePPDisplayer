@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using OsuRTDataProvider.Helper;
 using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
@@ -20,7 +22,7 @@ namespace RealTimePPDisplayer
 
         private BeatmapReader _beatmapReader;
 
-        private OsuPlayMode _lastMode = OsuPlayMode.Osu;
+        private Mutex _playStatusLocker = new Mutex();
         private OsuPlayMode _mode = OsuPlayMode.Osu;
         private PerformanceCalculatorBase _stdPpCalculator;
         private PerformanceCalculatorBase _taikoPpCalculator;
@@ -83,9 +85,20 @@ namespace RealTimePPDisplayer
         #region RTPP Listener
         private void RtppOnStatusChanged(OsuStatus last,OsuStatus cur)
         {
+            if (cur == OsuStatus.Playing)
+                _playStatusLocker.WaitOne();
+
+            if (OsuStatusHelper.IsListening(cur))
+            {
+                try
+                {
+                    _playStatusLocker.ReleaseMutex();
+                }
+                catch (ApplicationException)
+                {}
+            }
+
             var cal = GetCalculator(_mode);
-            if (cal.Cleared&&_lastMode!=OsuPlayMode.Unknown)
-                cal = GetCalculator(_lastMode);
 
             if ((cur == OsuStatus.Rank && last == OsuStatus.Playing))
             {
@@ -95,16 +108,16 @@ namespace RealTimePPDisplayer
                 string acc = $"{cal.Accuracy:F2}%";
                 string modsStr = $"{(mods != ModsInfo.Mods.None ? "+" + mods.ShortName : "")}";
                 string pp = $"{cal.GetPerformance().RealTimePP:F2}pp";
-                string msg = $"[RTPPD]{songs} {modsStr} | {acc} => {pp}";
+                string msg = $"[RTPPD]{songs} {modsStr} | {acc} => {pp} {_mode}";
 
-                CurrentIO.Write($"[RTPPD]{songs}{acc}{modsStr} -> {pp}");
+                CurrentIO.Write(msg);
                 if (SyncHost.Instance.ClientWrapper.Client.CurrentStatus == SourceStatus.CONNECTED_WORKING &&
                     Setting.RankingSendPerformanceToChat)
                 {
                     if (beatmap.BeatmapID != 0)
                     {
                         string dlUrl = beatmap.DownloadLink;
-                        SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD][{dlUrl} {songs}] {modsStr} | {acc} => {pp}"));
+                        SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper.Client.NickName, $"[RTPPD][{dlUrl} {songs}] {modsStr} | {acc} => {pp} ({_mode})"));
                     }
                     else
                     {
@@ -131,8 +144,18 @@ namespace RealTimePPDisplayer
 
         private void RtppOnPlayModeChanged(OsuPlayMode last,OsuPlayMode mode)
         {
-            _lastMode = last;
-            _mode = mode;
+            Task.Run(() =>
+            {
+                bool @lock = _time > _beatmapReader?.BeatmapDuration / 4;
+                if (@lock)
+                    _playStatusLocker.WaitOne();
+
+                _mode = mode;
+
+                if (@lock)
+                    _playStatusLocker.ReleaseMutex();
+            });
+
         }
 
         private void RtppOnBeatmapChanged(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap)
