@@ -20,9 +20,13 @@ namespace RealTimePPDisplayer
 
         private BeatmapReader _beatmapReader;
 
+        private OsuPlayMode _lastMode = OsuPlayMode.Osu;
         private OsuPlayMode _mode = OsuPlayMode.Osu;
-        private PerformanceCalculatorBase _tmpLastPpCalculator;
-        private PerformanceCalculatorBase _ppCalculator=new StdPerformanceCalculator();
+        private PerformanceCalculatorBase _stdPpCalculator;
+        private PerformanceCalculatorBase _taikoPpCalculator;
+        private PerformanceCalculatorBase _maniaPpCalculator;
+        private PerformanceCalculatorBase _ctbPpCalculator;
+
         private ModsInfo _curMods = ModsInfo.Empty;
         private OsuStatus _status;
 
@@ -53,7 +57,8 @@ namespace RealTimePPDisplayer
             listenerManager.OnComboChanged += (combo) =>
             {
                 if (_status != OsuStatus.Playing) return;
-                if(combo<= ((_ppCalculator as OppaiPerformanceCalculator)?.Oppai.FullCombo??20000))
+                int fullCombo = GetFullCombo(GetCalculator(_mode));
+                if(combo<= (fullCombo == 0?20000:fullCombo))
                 {
                     _combo = combo;
                     _maxCombo = Math.Max(_maxCombo, _combo);
@@ -66,7 +71,7 @@ namespace RealTimePPDisplayer
                     mods.Mod = (mods.Mod & ~ModsInfo.Mods.TouchDevice);
                 _curMods = mods;
                 if(_status!=OsuStatus.Playing)
-                    _ppCalculator.ClearCache();
+                    GetCalculator(_mode).ClearCache();
             };
 
             listenerManager.OnPlayModeChanged += RtppOnPlayModeChanged;
@@ -78,11 +83,12 @@ namespace RealTimePPDisplayer
         #region RTPP Listener
         private void RtppOnStatusChanged(OsuStatus last,OsuStatus cur)
         {
-            _status = cur;
+            var cal = GetCalculator(_mode);
+            if (cal.Cleared&&_lastMode!=OsuPlayMode.Unknown)
+                cal = GetCalculator(_lastMode);
+
             if ((cur == OsuStatus.Rank && last == OsuStatus.Playing))
             {
-                var cal = _tmpLastPpCalculator??_ppCalculator;
-
                 var beatmap = cal.Beatmap.OrtdpBeatmap;
                 var mods = cal.Mods;
                 string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
@@ -107,10 +113,7 @@ namespace RealTimePPDisplayer
                 }
             }
 
-            if (cur != OsuStatus.Rank)
-            {
-                _tmpLastPpCalculator = null;
-            }
+            cal.ClearCache();
 
             if (OsuStatusHelper.IsListening(cur) || cur == OsuStatus.Editing)//Clear Output and reset
             {
@@ -123,29 +126,12 @@ namespace RealTimePPDisplayer
                     p.Value.Clear();
             }
 
-            _ppCalculator.ClearCache();
+            _status = cur;
         }
 
         private void RtppOnPlayModeChanged(OsuPlayMode last,OsuPlayMode mode)
         {
-            if (_status == OsuStatus.Playing)
-                _tmpLastPpCalculator = _ppCalculator;
-
-            switch (mode)
-            {
-                case OsuPlayMode.Osu:
-                    _ppCalculator = new StdPerformanceCalculator(); break;
-                case OsuPlayMode.Taiko:
-                    _ppCalculator = new TaikoPerformanceCalculator(); break;
-                case OsuPlayMode.Mania:
-                    _ppCalculator = new ManiaPerformanceCalculator(); break;
-                case OsuPlayMode.CatchTheBeat:
-                    _ppCalculator = new CatchTheBeatPerformanceCalculator(); break;
-                default:
-                    CurrentIO.WriteColor($"[RealTimePPDisplay]Unknown Mode! Mode:0x{mode:X8}",ConsoleColor.Red);
-                    _ppCalculator = null;
-                    break;
-            }
+            _lastMode = last;
             _mode = mode;
         }
 
@@ -162,16 +148,17 @@ namespace RealTimePPDisplayer
             if (Setting.DebugMode)
                 CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}", ConsoleColor.Blue);
             _beatmapReader = new BeatmapReader(beatmap,_mode);
-            _ppCalculator.ClearCache();
+            GetCalculator(_mode).ClearCache();
         }
 
         private void RtppOnPlayingTimeChanged(int time)
         {
-            if (_ppCalculator == null) return;
+            var cal = GetCalculator(_mode);
+            if (cal == null) return;
             if (_status != OsuStatus.Playing) return;
             if (_curMods == ModsInfo.Mods.Unknown) return;
 
-            var cal = _tmpLastPpCalculator ?? _ppCalculator;
+
 
             int totalhit = _n300 + _n100 + _n50 + _n50 + _nkatu + _ngeki + _nmiss;
             if (time > cal.Beatmap?.BeatmapDuration &&
@@ -179,7 +166,7 @@ namespace RealTimePPDisplayer
 
             if (_time > time)//Reset
             {
-                _ppCalculator.ClearCache();
+                cal.ClearCache();
                 _combo = 0;
                 _maxCombo = 0;
                 _n100 = 0;
@@ -219,18 +206,8 @@ namespace RealTimePPDisplayer
             ppTuple.RealTimeAimPP = F(ppTuple.RealTimeAimPP, double.NaN);
             ppTuple.RealTimeAccuracyPP = F(ppTuple.RealTimeAccuracyPP, double.NaN);
 
-            int fullCombo = 0;
-            int rtMaxCombo = 0;
-            if (cal is OppaiPerformanceCalculator  oppai)
-            {
-                fullCombo = oppai.Oppai.FullCombo;
-                rtMaxCombo = oppai.Oppai.RealTimeMaxCombo;
-            }
-            else if(cal is CatchTheBeatPerformanceCalculator ctb)
-            {
-                fullCombo = ctb.FullCombo;
-                rtMaxCombo =ctb.RealTimeMaxCombo;
-            }
+            int fullCombo = GetFullCombo(cal);
+            int rtMaxCombo = GetRtMaxCombo(cal);
 
             HitCountTuple hitTuple;
             hitTuple.Count300 = _n300;
@@ -247,7 +224,7 @@ namespace RealTimePPDisplayer
             hitTuple.PlayTime = time;
             hitTuple.Duration = cal.Beatmap.BeatmapDuration;
 
-            if (_maxCombo > ((cal as OppaiPerformanceCalculator)?.Oppai.FullCombo ?? 20000)) _maxCombo = 0;
+            if (_maxCombo > (fullCombo == 0 ? 20000 : fullCombo)) _maxCombo = 0;
 
             foreach(var p in _displayers)
             {
@@ -286,6 +263,58 @@ namespace RealTimePPDisplayer
         private double F(double val, double max)
         {
             return Math.Abs(val) > max ? 0.0 : val;
+        }
+
+        private int GetFullCombo(PerformanceCalculatorBase cal)
+        {
+            int fullCombo = 0;
+            if (cal is OppaiPerformanceCalculator oppai)
+            {
+                fullCombo = oppai.Oppai.FullCombo;
+            }
+            else if (cal is CatchTheBeatPerformanceCalculator ctb)
+            {
+                fullCombo = ctb.FullCombo;
+            }
+
+            return fullCombo;
+        }
+
+        private int GetRtMaxCombo(PerformanceCalculatorBase cal)
+        {
+            int rtMaxCombo = 0;
+            if (cal is OppaiPerformanceCalculator oppai)
+            {
+                rtMaxCombo = oppai.Oppai.RealTimeMaxCombo;
+            }
+            else if (cal is CatchTheBeatPerformanceCalculator ctb)
+            {
+                rtMaxCombo = ctb.RealTimeMaxCombo;
+            }
+
+            return rtMaxCombo;
+        }
+
+        private PerformanceCalculatorBase GetCalculator(OsuPlayMode mode)
+        {
+            switch (mode)
+            {
+                case OsuPlayMode.Osu:
+                    _stdPpCalculator = _stdPpCalculator??new StdPerformanceCalculator();
+                    return _stdPpCalculator;
+                case OsuPlayMode.Taiko:
+                    _taikoPpCalculator = _taikoPpCalculator??new TaikoPerformanceCalculator();
+                    return _taikoPpCalculator;
+                case OsuPlayMode.Mania:
+                    _maniaPpCalculator = _maniaPpCalculator??new ManiaPerformanceCalculator();
+                    return _maniaPpCalculator;
+                case OsuPlayMode.CatchTheBeat:
+                    _ctbPpCalculator = _ctbPpCalculator??new CatchTheBeatPerformanceCalculator();
+                    return _ctbPpCalculator;
+                default:
+                    CurrentIO.WriteColor($"[RealTimePPDisplay]Unknown Mode! Mode:0x{(int)mode:X8}", ConsoleColor.Red);
+                    return null;
+            }
         }
         #endregion
     }

@@ -25,28 +25,28 @@ namespace RealTimePPDisplayer.Calculator
 
             Oppai.Beatmap = Beatmap;
 
-            PPTuple pp_tuple;
+            PPTuple ppTuple;
             var result = Oppai.GetMaxPP(mods, mode);
-            pp_tuple.MaxPP = result.total;
-            pp_tuple.MaxAimPP = result.aim;
-            pp_tuple.MaxSpeedPP = result.speed;
-            pp_tuple.MaxAccuracyPP = result.acc;
+            ppTuple.MaxPP = result.total;
+            ppTuple.MaxAimPP = result.aim;
+            ppTuple.MaxSpeedPP = result.speed;
+            ppTuple.MaxAccuracyPP = result.acc;
 
             AccuracyRound(Accuracy, Beatmap.ObjectsCount, CountMiss, out int n300, out int n100, out int n50);
 
             result = Oppai.GetIfFcPP(mods, n300, n100, n50, mode);
-            pp_tuple.FullComboPP = result.total;
-            pp_tuple.FullComboAimPP = result.aim;
-            pp_tuple.FullComboSpeedPP = result.speed;
-            pp_tuple.FullComboAccuracyPP = result.acc;
+            ppTuple.FullComboPP = result.total;
+            ppTuple.FullComboAimPP = result.aim;
+            ppTuple.FullComboSpeedPP = result.speed;
+            ppTuple.FullComboAccuracyPP = result.acc;
 
             result = Oppai.GetRealTimePP(Time, mods, Count100, Count50, CountMiss, MaxCombo, mode);
-            pp_tuple.RealTimePP = result.total;
-            pp_tuple.RealTimeAimPP = result.aim;
-            pp_tuple.RealTimeSpeedPP = result.speed;
-            pp_tuple.RealTimeAccuracyPP = result.acc;
+            ppTuple.RealTimePP = result.total;
+            ppTuple.RealTimeAimPP = result.aim;
+            ppTuple.RealTimeSpeedPP = result.speed;
+            ppTuple.RealTimeAccuracyPP = result.acc;
 
-            return pp_tuple;
+            return ppTuple;
         }
     }
 }

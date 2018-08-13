@@ -16,6 +16,7 @@ namespace RealTimePPDisplayer.Calculator
 
         public override PPTuple GetPerformance()
         {
+            base.GetPerformance();
             return GetPPFromOppai(Mods, s_mode);
         }
 

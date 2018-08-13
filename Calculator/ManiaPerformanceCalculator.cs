@@ -95,6 +95,8 @@ namespace RealTimePPDisplayer.Calculator
             if (Beatmap == null) return PPTuple.Empty;
             if (Beatmap.Mode != c_mode) return PPTuple.Empty;
 
+            base.GetPerformance();
+
             //Calculate Max PP
             if (!_init || _mods != Mods)
             {

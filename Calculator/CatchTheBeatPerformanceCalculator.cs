@@ -151,6 +151,7 @@ namespace RealTimePPDisplayer.Calculator
 
         public override PPTuple GetPerformance()
         {
+            base.GetPerformance();
             int pos = Beatmap.GetPosition(Time, out int nobject);
             
             CtbPp ctbPp;
