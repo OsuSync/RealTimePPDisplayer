@@ -139,8 +139,12 @@ namespace RealTimePPDisplayer
                     _ppCalculator = new TaikoPerformanceCalculator(); break;
                 case OsuPlayMode.Mania:
                     _ppCalculator = new ManiaPerformanceCalculator(); break;
-                default:
+                case OsuPlayMode.CatchTheBeat:
                     _ppCalculator = new CatchTheBeatPerformanceCalculator(); break;
+                default:
+                    CurrentIO.WriteColor($"[RealTimePPDisplay]Unknown Mode! Mode:0x{mode:X8}",ConsoleColor.Red);
+                    _ppCalculator = null;
+                    break;
             }
             _mode = mode;
         }

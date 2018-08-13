@@ -19,7 +19,8 @@ namespace RealTimePPDisplayer.Calculator
         private const int c_getPp = 1;
         private const int c_fullCombo = int.MaxValue;
         private static Timer _timer;
-        private static bool _ctbServerisRun = false;
+        private static Process _ctbServer;
+        public static bool CtbServerRunning => !_ctbServer.HasExited;
 
         public int FullCombo { get; private set; }
         public int RealTimeMaxCombo { get; private set; }
@@ -39,35 +40,70 @@ namespace RealTimePPDisplayer.Calculator
                 return;
             }
 
-            Process ctbServer = new Process();
-            ctbServer.StartInfo.Arguments = @"/c .\run_ctb_server.bat";
-            ctbServer.StartInfo.FileName = "cmd.exe";
-            ctbServer.StartInfo.CreateNoWindow = true;
-            ctbServer.StartInfo.UseShellExecute = false;
-            ctbServer.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,@".\ctb-server");
-            ctbServer.Start();
-
+            StartCtbServer();
 
             _timer = new Timer((_) => SendKeepServerRun(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
-            _ctbServerisRun = true;
+        }
+
+        private static void StartCtbServer()
+        {
+            _ctbServer = new Process();
+            _ctbServer.StartInfo.Arguments = @"/c .\run_ctb_server.bat";
+            _ctbServer.StartInfo.FileName = "cmd.exe";
+            _ctbServer.StartInfo.CreateNoWindow = true;
+            _ctbServer.StartInfo.UseShellExecute = false;
+            _ctbServer.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\ctb-server");
+            _ctbServer.Start();
+        }
+
+        private static void StopCtbServer()
+        {
+            foreach (var process in Process.GetProcessesByName("pypy3-rtpp"))
+            {
+                process.Kill();
+            }
+        }
+
+        private static void RestartCtbServer()
+        {
+            StopCtbServer();
+            StartCtbServer();
         }
 
         private static void SendKeepServerRun()
         {
-            if(!_ctbServerisRun)return;
-
-            using (TcpClient client = new TcpClient("127.0.0.1", 11800))
+            if (!CtbServerRunning)
             {
-                using (var sw = new BinaryWriter(client.GetStream()))
+                RestartCtbServer();
+                return;
+            }
+
+            try
+            {
+                using (TcpClient client = new TcpClient("127.0.0.1", 11800))
                 {
-                    sw.Write(c_keepServerRun);
+                    using (var sw = new BinaryWriter(client.GetStream()))
+                    {
+                        sw.Write(c_keepServerRun);
+                    }
                 }
             }
+            catch (SocketException)
+            {
+                Console.WriteLine("[RTPPD::CTB]Restart ctb-server");
+                RestartCtbServer();
+            }
+
         }
 
         private static CtbPp SendGetPp(ArraySegment<byte> content,ModsInfo mods,int maxCombo,int nmiss,double acc)
         {
-            if(!_ctbServerisRun)return new CtbPp();
+            if (!CtbServerRunning)
+            {
+                RestartCtbServer();
+                return new CtbPp();
+            }
+
             if(content.Count==0)return new CtbPp();
             acc /= 100; // from 0~100 to 0~1
 
@@ -106,8 +142,6 @@ namespace RealTimePPDisplayer.Calculator
                 return null;
             }
         }
-
-        public static bool IsInitialized() => _ctbServerisRun;
 
         private bool _cleared = true;
         private double _last_acc = 0;
