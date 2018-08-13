@@ -13,7 +13,7 @@ using RealTimePPDisplayer.Displayer;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    class CatchTheBeatPerformanceCalculator:PerformanceCalculatorBase
+    public class CatchTheBeatPerformanceCalculator:PerformanceCalculatorBase
     {
         private const int c_keepServerRun = 0;
         private const int c_getPp = 1;
@@ -106,6 +106,8 @@ namespace RealTimePPDisplayer.Calculator
                 return null;
             }
         }
+
+        public static bool IsInitialized() => _ctbServerisRun;
 
         private bool _cleared = true;
         private double _last_acc = 0;
