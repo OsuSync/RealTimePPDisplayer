@@ -88,7 +88,8 @@ namespace RealTimePPDisplayer
             if (cur == OsuStatus.Playing)
                 _playStatusLocker.WaitOne();
 
-            if (OsuStatusHelper.IsListening(cur))
+            if (OsuStatusHelper.IsListening(cur)||
+                cur == OsuStatus.NoFoundProcess)
             {
                 try
                 {
