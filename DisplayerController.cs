@@ -108,7 +108,7 @@ namespace RealTimePPDisplayer
                 string acc = $"{cal.Accuracy:F2}%";
                 string modsStr = $"{(mods != ModsInfo.Mods.None ? "+" + mods.ShortName : "")}";
                 string pp = $"{cal.GetPerformance().RealTimePP:F2}pp";
-                string msg = $"[RTPPD]{songs} {modsStr} | {acc} => {pp} {_mode}";
+                string msg = $"[RTPPD]{songs} {modsStr} | {acc} => {pp} ({_mode})";
 
                 CurrentIO.Write(msg);
                 if (SyncHost.Instance.ClientWrapper.Client.CurrentStatus == SourceStatus.CONNECTED_WORKING &&

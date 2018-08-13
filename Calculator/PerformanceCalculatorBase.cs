@@ -24,13 +24,7 @@ namespace RealTimePPDisplayer.Calculator
         public int Score { get; set; }
         public ModsInfo Mods { get; set; }
 
-        public bool Cleared { get; private set; } = true;
-
-        public virtual PPTuple GetPerformance()
-        {
-            Cleared = false;
-            return PPTuple.Empty;
-        }
+        public abstract PPTuple GetPerformance();
 
         public virtual void ClearCache()
         {
@@ -38,7 +32,6 @@ namespace RealTimePPDisplayer.Calculator
             Time = 0;
             MaxCombo = 0;
             Score = 0;
-            Cleared = true;
         }
 
         /// <summary>
