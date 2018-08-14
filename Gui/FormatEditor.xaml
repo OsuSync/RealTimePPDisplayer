@@ -5,16 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RealTimePPDisplayer.Gui"
              mc:Ignorable="d" 
-             Width="800" Height="500"
+             Width="800" Height="600"
              Closing="FormatEditor_OnClosing"
              ResizeMode="NoResize" Title="Format Editor">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="6*"/>
-            <RowDefinition Height="1*"/>
-            <RowDefinition Height="6*"/>
-            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="1.3*"/>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="1.3*"/>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
         <Label Content="Format:" Margin="2" Grid.Row="0"/>
         <TextBox Name="FormatEditBox" AcceptsReturn="True" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Text="{Binding Format,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="2" Grid.Row="1"/>
@@ -25,8 +26,14 @@
             </ScrollViewer>
         </Border>
 
-        <WrapPanel Name="ButtonsList" Grid.Row="4">
-        </WrapPanel>
+        <GroupBox Header="Variables and Constants" Grid.Row="4">        
+            <WrapPanel Name="VariableButtonsList" >
+            </WrapPanel>
+        </GroupBox>
 
+        <GroupBox Header="Funtions" Grid.Row="5">        
+            <WrapPanel Name="FunctionButtonsList" >
+            </WrapPanel>
+        </GroupBox>
     </Grid>
 </Window>

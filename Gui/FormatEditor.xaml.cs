@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using RealTimePPDisplayer.Attribute;
 using static RealTimePPDisplayer.Gui.OpenFormatEditorCreator;
 
 namespace RealTimePPDisplayer.Gui
@@ -79,8 +80,10 @@ namespace RealTimePPDisplayer.Gui
             CurrentMaxCombo = 1256
         };
 
-        private static readonly List<string> s_commands = new List<string>()
+        private static readonly List<string> s_variables = new List<string>()
         {
+            "pi",
+            "e",
             "rtpp",
             "rtpp_aim",
             "rtpp_acc",
@@ -108,6 +111,33 @@ namespace RealTimePPDisplayer.Gui
             "combo"
         };
 
+        private static readonly List<string> s_functionss = new List<string>()
+        {
+            "set(varName,expr)",
+            "sin(x)",
+            "cos(x)",
+            "tan(x)",
+            "asin(x)",
+            "acos(x)",
+            "atan(x)",
+            "pow(x,y)",
+            "sqrt(x)",
+            "max(a,b)",
+            "min(a,b)",
+            "exp(x)",
+            "log(x)",
+            "log10(x)",
+            "floor(x)",
+            "ceil(x)",
+            "round(x,digits)",
+            "sign(x)",
+            "truncate(x)",
+            "clamp(x,min,max)",
+            "lerp(from,to,t)",
+            "random()",
+            "getTime()",
+        };
+
         public FormatEditor(PropertyInfo prop, object configurationInstance)
         {
             var item = new ConfigItemProxy(prop, configurationInstance);
@@ -123,12 +153,15 @@ namespace RealTimePPDisplayer.Gui
 
             FormatEditBox.TextChanged += (s, e) =>
             {
-                string formated = displayer.FormatPp().ToString();
-
+                string formated;
+                if(prop.CustomAttributes.FirstOrDefault(attr=>attr.AttributeType == typeof(PerformanceFormatAttribute)) != null)
+                    formated = displayer.FormatPp().ToString();
+                else
+                    formated = displayer.FormatHitCount().ToString();
                 FormatPreviewBox.Text = formated;
             };
 
-            foreach (var para in s_commands)
+            foreach (var para in s_variables)
             {
                 var btn = new Button()
                 {
@@ -138,10 +171,32 @@ namespace RealTimePPDisplayer.Gui
 
                 btn.Click += (s, e) =>
                 {
-                    item.Format += $"${{{para}}}";
+                    int pos = FormatEditBox.CaretIndex;
+                    string val = $"${{{para}}}";
+                    item.Format = item.Format.Insert(pos,val);
+                    FormatEditBox.CaretIndex = pos + val.Length;
                 };
 
-                ButtonsList.Children.Add(btn);
+                VariableButtonsList.Children.Add(btn);
+            }
+
+            foreach (var para in s_functionss)
+            {
+                var btn = new Button()
+                {
+                    Content = para.Replace("_", "__"),
+                    Margin = new Thickness(1)
+                };
+
+                btn.Click += (s, e) =>
+                {
+                    int pos = FormatEditBox.CaretIndex;
+                    string val = $"${{{para}}}";
+                    item.Format = item.Format.Insert(pos, val);
+                    FormatEditBox.CaretIndex = pos + val.Length;
+                };
+
+                FunctionButtonsList.Children.Add(btn);
             }
         }
 
