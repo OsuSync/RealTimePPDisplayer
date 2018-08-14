@@ -16,8 +16,10 @@ namespace RealTimePPDisplayer.Expression
     /// E2 -> E2 / E3
     ///
     /// E3 -> E3 ^ E4
+    ///
+    /// E4 -> E5 | -E5 | +E5
     /// 
-    /// E4 -> (E1) | F | Func
+    /// E5 -> (E1) | F | Func
     ///
     /// Func -> Id(Args)
     /// Args -> Args , Args
@@ -143,6 +145,29 @@ namespace RealTimePPDisplayer.Expression
         }
 
         private IAstNode E4()
+        {
+            int oldPos = _pos;
+            Token token = GetToken();
+            if (token.Type == TokenType.Op && (token.Data == "-" || token.Data == "+"))
+            {
+                return new AstOpNode(token.Data)
+                {
+                    LNode = new AstNumberNode(0),
+                    RNode = E5()
+                };
+            }
+
+            _pos = oldPos;
+
+            IAstNode node = E5();
+            if (node != null)
+                return node;
+
+            _pos = oldPos;
+            return null;
+        }
+
+        private IAstNode E5()
         {
             int oldPos = _pos;
             Token token = GetToken();
