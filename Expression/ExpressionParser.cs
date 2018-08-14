@@ -93,8 +93,7 @@ namespace RealTimePPDisplayer.Expression
                         LNode = expr,
                         RNode = E2()
                     };
-                    if (op.RNode != null)
-                        expr = op;
+                    expr = op;
                 }
             }
 
@@ -115,8 +114,7 @@ namespace RealTimePPDisplayer.Expression
                         LNode = expr,
                         RNode = E3()
                     };
-                    if (op.RNode != null)
-                        expr = op;
+                    expr = op;
                 }
             }
 
@@ -136,8 +134,7 @@ namespace RealTimePPDisplayer.Expression
                         LNode = expr,
                         RNode = E4()
                     };
-                    if (op.RNode != null)
-                        expr = op;
+                    expr = op;
                 }
             }
 
@@ -150,20 +147,29 @@ namespace RealTimePPDisplayer.Expression
             Token token = GetToken();
             if (token.Type == TokenType.Op && (token.Data == "-" || token.Data == "+"))
             {
+                IAstNode node = E5();
+                bool negative = (token.Data == "-");
+
+                if (node is AstNumberNode numNode)
+                {
+                    return new AstNumberNode(negative?-numNode.Number:numNode.Number);
+                }
+
                 return new AstOpNode(token.Data)
                 {
                     LNode = new AstNumberNode(0),
-                    RNode = E5()
+                    RNode = node
                 };
             }
-
             _pos = oldPos;
 
-            IAstNode node = E5();
-            if (node != null)
-                return node;
-
+            {
+                IAstNode node = E5();
+                if (node != null)
+                    return node;
+            }
             _pos = oldPos;
+
             return null;
         }
 
