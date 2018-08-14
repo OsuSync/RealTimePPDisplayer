@@ -105,10 +105,14 @@ namespace RealTimePPDisplayer.Gui
             "nmiss",
             "ngeki",
             "nkatu",
-            "rtmaxcombo",
             "fullcombo",
             "maxcombo",
-            "combo"
+            "combo",
+            "player_maxcombo",
+            "current_maxcombo",
+            "objects_count",
+            "playtime",
+            "duration"
         };
 
         private static readonly List<string> s_functionss = new List<string>()
