@@ -15,7 +15,7 @@ TIMEOUT = 3
 def read_string(sock,count,encoding='utf-8'):
     total_bytes = b""
     while True:
-        recv_bytes = sock.recv(count)
+        recv_bytes = sock.recv(count - len(total_bytes))
         total_bytes += recv_bytes
         if len(total_bytes) >= count:
             break
