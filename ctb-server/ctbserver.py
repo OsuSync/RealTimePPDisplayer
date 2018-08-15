@@ -79,7 +79,8 @@ s.settimeout(TIMEOUT)
 
 while not quit_self:
     sock,addr = s.accept()
-
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER,struct.pack('ii', 1, 0))
+    
     cmd_type = int.from_bytes(sock.recv(4),byteorder="little")
     if cmd_type == KEEP_SERVER_RUN:
         sock.close()
