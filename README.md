@@ -9,8 +9,8 @@ The settings for this application are located in the config.ini<br>
 
 | Setting Name  | Default Value | Description |
 |:------------- |:-------------|:-----|
-| OutputMethods | wpf | The output mode of plugin, you can choose "wpf","mmf" and "text" (segmenting with ',' e.g: wpf,text) |
-| UseText  | False | Whether to output to txt file(**recommended OutputMethods**) |
+| OutputMethods | wpf | The output mode of plugin, you can choose "wpf","mmf" and "text" (segmenting with ',' e.g: wpf, text) |
+| UseText  | False | Output to txt file (**recommended OutputMethods**) |
 | TextOutputPath  | rtpp{0}.txt |  Output file path |
 | DisplayHitObject | True  | Whether to display hitobjects (like 300_count/50_count and others) |
 | PPFontSize | 48 | pp value text font size (in px) |
@@ -20,14 +20,14 @@ The settings for this application are located in the config.ini<br>
 | BackgroundColor | FF00FF00 | Backgound color (default is green and good for colorkey in OBS) |
 | WindowHeight | 172 | Window Height (in px) |
 | WindowWidth | 280 | Window Width (in px) |
-| SmoothTime | 200 | Time in ms to smooth the pp counter changing |
+| SmoothTime | 200 | Time in ms to smooth the pp counter's changes |
 | FPS | 60 | FPS |
-| Topmost | False | Whether to pp window is located at the topmost portion of the screen (you can right click pp window) |
+| Topmost | False | Make the pp window is located at the topmost portion of the screen (you can right click pp window) |
 | WindowTextShadow | True| Whether to apply text shadow effect |
 | DebugMode | False | Enable debug ouput |
 | RoundDigits | 2 | Accurate up to {**RoundDigits**} decimal places. |
 | PPFormat | ${rtpp}pp | You can choose **rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc** [more](https://github.com/KedamaOvO/RealTimePPDisplayer/wiki/How-to-customize-my-output-content%3F)|
-| HitCountFormat | ${n100}x100 ${n50}x50 ${nmiss}xMiss | you can choose **combo maxcombo fullcombo n300 n100 n50 nmiss** [more](https://github.com/KedamaOvO/RealTimePPDisplayer/wiki/How-to-customize-my-output-content%3F)|
+| HitCountFormat | ${n100}x100 ${n50}x50 ${nmiss}xMiss | You can choose **combo maxcombo fullcombo n300 n100 n50 nmiss** [more](https://github.com/KedamaOvO/RealTimePPDisplayer/wiki/How-to-customize-my-output-content%3F)|
 | FontName | Segoe UI | Font name |
 
 # How to use MMF?
