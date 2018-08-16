@@ -25,7 +25,7 @@ namespace RealTimePPDisplayer.Calculator
         public int FullCombo { get; private set; }
         public int RealTimeMaxCombo { get; private set; }
 
-        class CtbPp
+        public class CtbPp
         {
             public double Stars { get; set; }
             public double Pp { get; set; }
@@ -85,6 +85,7 @@ namespace RealTimePPDisplayer.Calculator
                     using (var sw = new BinaryWriter(client.GetStream()))
                     {
                         sw.Write(c_keepServerRun);
+                        sw.Flush();
                     }
                 }
             }
@@ -96,7 +97,7 @@ namespace RealTimePPDisplayer.Calculator
 
         }
 
-        private static CtbPp SendGetPp(ArraySegment<byte> content,ModsInfo mods,int maxCombo,int nmiss,double acc)
+        public static CtbPp SendGetPp(ArraySegment<byte> content,ModsInfo mods,int maxCombo,int nmiss,double acc)
         {
             if (!CtbServerRunning)
             {
@@ -111,6 +112,7 @@ namespace RealTimePPDisplayer.Calculator
             {
                 using (TcpClient client = new TcpClient("127.0.0.1", 11800))
                 {
+                    client.LingerState = new LingerOption(true,0);
                     var stream = client.GetStream();
                     using (var sw = new BinaryWriter(stream, Encoding.UTF8, true))
                     {
@@ -121,6 +123,7 @@ namespace RealTimePPDisplayer.Calculator
                         sw.Write(maxCombo); //max_combo
                         sw.Write(nmiss); //miss
                         sw.Write(acc); //acc(0-1)
+                        sw.Flush();
                     }
 
                     using (var br = new BinaryReader(stream))
