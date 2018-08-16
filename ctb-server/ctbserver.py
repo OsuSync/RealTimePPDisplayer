@@ -26,9 +26,6 @@ def process_tcp(sock):
     content_count - 4 bytes (int)
     content - string (string)
     mods - 4 bytes (int)
-    max_combo - 4 bytes (int)
-    miss - 4 bytes (int)
-    accuracy - 8 bytes (double)
     """
     content_count_bytes = sock.recv(4)
     content_count = int.from_bytes(content_count_bytes,byteorder="little")
@@ -38,37 +35,23 @@ def process_tcp(sock):
     mods_bytes = sock.recv(4)
     mods = int.from_bytes(mods_bytes,byteorder="little")
 
-    max_combo_bytes = sock.recv(4)
-    max_combo = int.from_bytes(max_combo_bytes,byteorder="little")
-
-    miss_bytes = sock.recv(4)
-    miss = int.from_bytes(miss_bytes,byteorder="little")
-
-    accuracy_bytes = sock.recv(8)
-    accuracy, = struct.unpack('<d', accuracy_bytes)
-
     beatmap = Beatmap(content)
     difficulty = Difficulty(beatmap, mods)
 
-    send_ctb_result(sock,beatmap,difficulty,max_combo,miss,accuracy)
+    send_ctb_result(sock,beatmap,difficulty)
 
-def send_ctb_result(sock,beatmap,difficulty,max_combo,miss,accuracy):
+def send_ctb_result(sock,beatmap,difficulty):
     """
     stars - 8 bytes (double)
     pp - 8 bytes (double)
     full_combo 4 bytes (int)
+    ar - 8 bytes (double)
     """
     stars = difficulty.star_rating
-    full_combo = beatmap.max_combo
-
-    if max_combo == 2147483647:
-        max_combo = full_combo
-
-    pp = calculate_pp(difficulty, accuracy, max_combo, miss)
-
+    
     sock.send(struct.pack("<d", stars))
-    sock.send(struct.pack("<d", pp))
-    sock.send(struct.pack("<i", full_combo))
+    sock.send(struct.pack("<i", beatmap.max_combo))
+    sock.send(struct.pack("<d", difficulty.beatmap.difficulty["ApproachRate"]))
 
 quit_self = False
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

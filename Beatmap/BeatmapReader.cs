@@ -32,6 +32,7 @@ namespace RealTimePPDisplayer.Beatmap
         public int BeatmapDuration => Objects.LastOrDefault()?.StartTime??-1;
 
         public OsuPlayMode Mode { get; set; }
+        public double ApproachRate { get; set; } = -1;
         public double OverallDifficulty { get; private set; }
         public double HpDrainRate { get; private set; }
         public double CircleSize { get; private set; }
@@ -96,6 +97,9 @@ namespace RealTimePPDisplayer.Beatmap
                                     {
                                         Mode = mode;
                                     }
+                                    break;
+                                case "ApproachRate":
+                                    ApproachRate = double.Parse(val, CultureInfo.InvariantCulture);
                                     break;
                                 case "OverallDifficulty":
                                     OverallDifficulty = double.Parse(val, CultureInfo.InvariantCulture);

@@ -25,11 +25,11 @@ namespace RealTimePPDisplayer.Calculator
         public int FullCombo { get; private set; }
         public int RealTimeMaxCombo { get; private set; }
 
-        public class CtbPp
+        public class CtbServerResult
         {
             public double Stars { get; set; }
-            public double Pp { get; set; }
             public int FullCombo { get; set; }
+            public double ApproachRate { get; set; }
         }
 
         static CatchTheBeatPerformanceCalculator()
@@ -97,16 +97,15 @@ namespace RealTimePPDisplayer.Calculator
 
         }
 
-        public static CtbPp SendGetPp(ArraySegment<byte> content,ModsInfo mods,int maxCombo,int nmiss,double acc)
+        public static CtbServerResult SendGetPp(ArraySegment<byte> content,ModsInfo mods)
         {
             if (!CtbServerRunning)
             {
                 RestartCtbServer();
-                return new CtbPp();
+                return new CtbServerResult();
             }
 
-            if(content.Count==0)return new CtbPp();
-            acc /= 100; // from 0~100 to 0~1
+            if(content.Count==0)return new CtbServerResult();
 
             try
             {
@@ -120,19 +119,15 @@ namespace RealTimePPDisplayer.Calculator
                         sw.Write(content.Count);
                         stream.Write(content.Array, content.Offset, content.Count);
                         sw.Write((int) mods.Mod); //mods
-                        sw.Write(maxCombo); //max_combo
-                        sw.Write(nmiss); //miss
-                        sw.Write(acc); //acc(0-1)
                         sw.Flush();
                     }
 
                     using (var br = new BinaryReader(stream))
                     {
-                        var ret = new CtbPp();
+                        var ret = new CtbServerResult();
                         ret.Stars = br.ReadDouble();
-                        ret.Pp = br.ReadDouble();
                         ret.FullCombo = br.ReadInt32();
-
+                        ret.ApproachRate = br.ReadDouble();
                         return ret;
                     }
                 }
@@ -146,48 +141,90 @@ namespace RealTimePPDisplayer.Calculator
             }
         }
 
+        /// <summary>
+        /// Calculates the pp.
+        /// </summary>
+        /// <param name="serverResult">The server result.</param>
+        /// <param name="ar">The ar.</param>
+        /// <param name="mods">The mods.</param>
+        /// <param name="acc">The acc (0-100).</param>
+        /// <param name="maxCombo">The maximum combo.</param>
+        /// <param name="nmiss">The nmiss.</param>
+        /// <returns></returns>
+        public static double CalculatePp(CtbServerResult serverResult,ModsInfo mods,double acc,int maxCombo,int nmiss)
+        {
+            acc /= 100.0;
+
+            double pp = Math.Pow(((5 * serverResult.Stars / 0.0049) - 4), 2) / 100000;
+            double length_bonus = 0.95 + 0.4 * Math.Min(1, maxCombo / 3000.0);
+            if (maxCombo > 3000)
+                length_bonus += Math.Log10(maxCombo / 3000.0) * 0.5;
+
+            pp *= length_bonus;
+            pp *= Math.Pow(0.97, nmiss);
+            pp *= Math.Min(Math.Pow(maxCombo, 0.8) / Math.Pow(serverResult.FullCombo, 0.8), 1);
+
+            if (serverResult.ApproachRate > 9)
+                pp *= 1 + 0.1 * (serverResult.ApproachRate - 9);
+            if (serverResult.ApproachRate < 8)
+                pp *= 1 + 0.025 * (8 - serverResult.ApproachRate);
+
+            if (mods.HasMod(ModsInfo.Mods.Hidden))
+                pp *= 1.05 + 0.075 * (10 - Math.Min(10, serverResult.ApproachRate));
+            if (mods.HasMod(ModsInfo.Mods.Flashlight))
+                pp *= 1.35 * length_bonus;
+
+            pp *= Math.Pow(acc, 5.5);
+
+            if (mods.HasMod(ModsInfo.Mods.NoFail))
+                pp *= 0.9;
+            if (mods.HasMod(ModsInfo.Mods.SpunOut))
+                pp *= 0.95;
+
+            return pp;
+        }
+
         private bool _cleared = true;
-        private double _last_acc = 0;
+        private double _lastAcc = 0;
         private int _last_max_combo = 0;
         private int _last_nmiss = 0;
         private PPTuple _ppTuple = new PPTuple();
+        private CtbServerResult _maxPpResult;
 
         public override PPTuple GetPerformance()
         {
             int pos = Beatmap.GetPosition(Time, out int nobject);
-            
-            CtbPp ctbPp;
-
 
             if (_cleared == true)
             {
-                ctbPp = SendGetPp(new ArraySegment<byte>(Beatmap.RawData), Mods, c_fullCombo, 0, 100);
-                if (ctbPp != null)
+                _maxPpResult = SendGetPp(new ArraySegment<byte>(Beatmap.RawData), Mods);
+                if (_maxPpResult != null)
                 {
-                    _ppTuple.MaxPP = ctbPp.Pp;
+                    _ppTuple.MaxPP = CalculatePp(_maxPpResult,Mods,100,_maxPpResult.FullCombo,CountMiss);
                     _ppTuple.MaxAccuracyPP = 0;
                     _ppTuple.MaxSpeedPP = 0;
                     _ppTuple.MaxAimPP = 0;
                 }
 
-                FullCombo = ctbPp.FullCombo;
+                FullCombo = _maxPpResult.FullCombo;
 
                 _cleared = false;
             }
 
-            if (_last_acc != Accuracy)
+            if (_lastAcc != Accuracy)
             {
-                ctbPp = SendGetPp(new ArraySegment<byte>(Beatmap.RawData), Mods, c_fullCombo, 0, Accuracy);
-                if (ctbPp != null)
+                
+                if (_maxPpResult != null)
                 {
-                    _ppTuple.FullComboPP = ctbPp.Pp;
+                    double fcpp = CalculatePp(_maxPpResult, Mods, Accuracy, _maxPpResult.FullCombo,CountMiss);
+                    _ppTuple.FullComboPP = fcpp;
                     _ppTuple.FullComboAccuracyPP = 0;
                     _ppTuple.FullComboSpeedPP = 0;
                     _ppTuple.FullComboAimPP = 0;
                 }
             }
 
-            _last_acc = Accuracy;
+            _lastAcc = Accuracy;
 
             bool needUpdate = _last_max_combo!=MaxCombo;
             needUpdate |= _last_nmiss != CountMiss;
@@ -197,15 +234,15 @@ namespace RealTimePPDisplayer.Calculator
             {
                 if (nobject > 0)
                 {
-                    ctbPp = SendGetPp(new ArraySegment<byte>(Beatmap.RawData, 0, pos), Mods, MaxCombo, CountMiss,
-                        Accuracy);
-                    if (ctbPp != null)
+                    CtbServerResult ctbServerResult;
+                    ctbServerResult = SendGetPp(new ArraySegment<byte>(Beatmap.RawData, 0, pos), Mods);
+                    if (ctbServerResult != null)
                     {
-                        _ppTuple.RealTimePP = ctbPp.Pp;
+                        _ppTuple.RealTimePP = CalculatePp(ctbServerResult,Mods,Accuracy,MaxCombo,CountMiss);
                         _ppTuple.RealTimeAccuracyPP = 0;
                         _ppTuple.RealTimeSpeedPP = 0;
                         _ppTuple.RealTimeAimPP = 0;
-                        RealTimeMaxCombo = ctbPp.FullCombo;
+                        RealTimeMaxCombo = ctbServerResult.FullCombo;
                     }
                 }
             }
@@ -218,7 +255,7 @@ namespace RealTimePPDisplayer.Calculator
             base.ClearCache();
             _ppTuple = new PPTuple();
             _cleared = true;
-            _last_acc = 0;
+            _lastAcc = 0;
             _last_max_combo = 0;
             _last_nmiss = 0;
         }
