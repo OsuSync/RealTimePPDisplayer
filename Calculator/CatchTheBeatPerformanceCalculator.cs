@@ -224,7 +224,7 @@ namespace RealTimePPDisplayer.Calculator
                 _maxPpResult = SendCalculateCtb(new ArraySegment<byte>(Beatmap.RawData), Mods);
                 if (_maxPpResult != null)
                 {
-                    _ppTuple.MaxPP = CalculatePp(_maxPpResult, Mods, 100, _maxPpResult.FullCombo, CountMiss);
+                    _ppTuple.MaxPP = CalculatePp(_maxPpResult, Mods, 100, _maxPpResult.FullCombo, 0);
                     _ppTuple.MaxAccuracyPP = 0;
                     _ppTuple.MaxSpeedPP = 0;
                     _ppTuple.MaxAimPP = 0;
@@ -240,7 +240,7 @@ namespace RealTimePPDisplayer.Calculator
 
                 if (_maxPpResult != null)
                 {
-                    double fcpp = CalculatePp(_maxPpResult, Mods, Accuracy, _maxPpResult.FullCombo, CountMiss);
+                    double fcpp = CalculatePp(_maxPpResult, Mods, Accuracy, _maxPpResult.FullCombo, 0);
                     _ppTuple.FullComboPP = fcpp;
                     _ppTuple.FullComboAccuracyPP = 0;
                     _ppTuple.FullComboSpeedPP = 0;
