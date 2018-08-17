@@ -13,17 +13,18 @@ using RealTimePPDisplayer.Displayer;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    public class CatchTheBeatPerformanceCalculator : PerformanceCalculatorBase,IDisposable
+    public class CatchTheBeatPerformanceCalculator : PerformanceCalculatorBase
     {
         private const int c_keepAlive = 0;
         private const int c_keepAliveOk = 1;
         private const int c_calculateCtb = 2;
 
         private const int c_fullCombo = int.MaxValue;
-        private static Thread _timer;
-        private static Process _ctbServer;
-        public static bool CtbServerRunning => !_ctbServer.HasExited;
+        private static Process s_ctbServer;
+        public  static bool CtbServerRunning => !s_ctbServer.HasExited;
+
         private TcpClient _tcpClient;
+        private Timer _timer;
 
         public int FullCombo { get; private set; }
         public int RealTimeMaxCombo { get; private set; }
@@ -49,13 +50,13 @@ namespace RealTimePPDisplayer.Calculator
 
         private static void StartCtbServer()
         {
-            _ctbServer = new Process();
-            _ctbServer.StartInfo.Arguments = @"/c .\run_ctb_server.bat";
-            _ctbServer.StartInfo.FileName = "cmd.exe";
-            _ctbServer.StartInfo.CreateNoWindow = true;
-            _ctbServer.StartInfo.UseShellExecute = false;
-            _ctbServer.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\ctb-server");
-            _ctbServer.Start();
+            s_ctbServer = new Process();
+            s_ctbServer.StartInfo.Arguments = @"/c .\run_ctb_server.bat";
+            s_ctbServer.StartInfo.FileName = "cmd.exe";
+            s_ctbServer.StartInfo.CreateNoWindow = true;
+            s_ctbServer.StartInfo.UseShellExecute = false;
+            s_ctbServer.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @".\ctb-server");
+            s_ctbServer.Start();
         }
 
         private static void StopCtbServer()
@@ -81,16 +82,8 @@ namespace RealTimePPDisplayer.Calculator
         private void ConnectCtbServer()
         {
             _tcpClient = new TcpClient("127.0.0.1", 11800);
-            _timer?.Abort();
-            _timer = new Thread(() =>
-            {
-                while (true)
-                {
-                    SendKeepAlive();
-                    Thread.Sleep(1000);
-                }
-            });
-            _timer.Start();
+            _timer?.Dispose();
+            _timer = new Timer((_) =>SendKeepAlive(),null,TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
             //_tcpClient.ReceiveTimeout = 3 * 1000;
         }
 
@@ -289,11 +282,6 @@ namespace RealTimePPDisplayer.Calculator
             _lastAcc = 0;
             _last_max_combo = 0;
             _last_nmiss = 0;
-        }
-
-        public void Dispose()
-        {
-            _timer.Abort();
         }
 
         public override double Accuracy
