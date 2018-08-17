@@ -244,9 +244,10 @@ namespace RealTimePPDisplayer
             hitTuple.CurrentMaxCombo = rtMaxCombo;
             hitTuple.CountGeki = _ngeki;
             hitTuple.CountKatu = _nkatu;
-            hitTuple.ObjectsCount = cal.Beatmap.ObjectsCount;
-            hitTuple.PlayTime = time;
-            hitTuple.Duration = cal.Beatmap.BeatmapDuration;
+
+            BeatmapTuple beatmapTuple;
+            beatmapTuple.Duration = cal.Beatmap.BeatmapDuration;
+            beatmapTuple.ObjectsCount = cal.Beatmap.ObjectsCount;
 
             if (_maxCombo > (fullCombo == 0 ? 20000 : fullCombo)) _maxCombo = 0;
 
@@ -254,6 +255,8 @@ namespace RealTimePPDisplayer
             {
                 p.Value.Pp=ppTuple;
                 p.Value.HitCount=hitTuple;
+                p.Value.BeatmapTuple = beatmapTuple;
+                p.Value.Playtime = time;
                 p.Value.Display();
             }
 

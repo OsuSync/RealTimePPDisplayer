@@ -5,6 +5,12 @@ using RealTimePPDisplayer.Expression;
 
 namespace RealTimePPDisplayer.Displayer
 {
+    public struct BeatmapTuple
+    {
+        public int ObjectsCount;
+        public double Duration;
+    }
+
     public struct PPTuple
     {
         public static readonly PPTuple Empty;
@@ -38,11 +44,6 @@ namespace RealTimePPDisplayer.Displayer
         public int PlayerMaxCombo;
         public int FullCombo;
         public int CurrentMaxCombo;
-
-        public int ObjectsCount;
-
-        public double PlayTime;
-        public double Duration;
     }
 
     public class DisplayerBase
@@ -79,6 +80,9 @@ namespace RealTimePPDisplayer.Displayer
         private object _mtx = new object();
         public HitCountTuple HitCount { get; set; } = new HitCountTuple();
         public PPTuple Pp { get; set; } = new PPTuple();
+        public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
+        public double Playtime { get; set; }
+        
 
         private readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(()=>new ExpressionContext(),true);
         private static readonly ThreadLocal<Dictionary<FormatArg, IAstNode>> s_ppAstDict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg, IAstNode>());
@@ -101,6 +105,12 @@ namespace RealTimePPDisplayer.Displayer
             ctx.Variables["maxpp"] = tuple.MaxPP;
         }
 
+        private void UpdateContextVariablesBeatmapTuple(ExpressionContext ctx, BeatmapTuple tuple)
+        {
+            ctx.Variables["duration"] = tuple.Duration;
+            ctx.Variables["objects_count"] = tuple.ObjectsCount;
+        }
+
         private void UpdateContextVariablesFromHitCountTuple(ExpressionContext ctx, HitCountTuple tuple)
         {
             ctx.Variables["n300g"] = tuple.CountGeki;
@@ -119,9 +129,6 @@ namespace RealTimePPDisplayer.Displayer
             ctx.Variables["player_maxcombo"] = tuple.PlayerMaxCombo;
             ctx.Variables["combo"] = tuple.Combo;
 
-            ctx.Variables["objects_count"] = tuple.ObjectsCount;
-            ctx.Variables["playtime"] = tuple.PlayTime;
-            ctx.Variables["duration"] = tuple.Duration;
         }
 
         public StringFormatter FormatPp(PPTuple? pp=null)
@@ -136,6 +143,8 @@ namespace RealTimePPDisplayer.Displayer
             {
                 UpdateContextVariablesFromPpTuple(ctx, tuple);
                 UpdateContextVariablesFromHitCountTuple(ctx, HitCount);
+                UpdateContextVariablesBeatmapTuple(ctx,BeatmapTuple);
+                ctx.Variables["playtime"] = Playtime;
             }
 
             foreach (var arg in formatter)
@@ -184,6 +193,8 @@ namespace RealTimePPDisplayer.Displayer
             {
                 UpdateContextVariablesFromPpTuple(ctx, Pp);
                 UpdateContextVariablesFromHitCountTuple(ctx, tuple);
+                UpdateContextVariablesBeatmapTuple(ctx,BeatmapTuple);
+                ctx.Variables["playtime"] = Playtime;
             }
 
             foreach (var arg in formatter)
