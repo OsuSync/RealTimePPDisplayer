@@ -29,6 +29,8 @@ The settings for this application are located in the config.ini<br>
 | PPFormat | ${rtpp}pp | You can choose **rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc** [more](https://github.com/KedamaOvO/RealTimePPDisplayer/wiki/How-to-customize-my-output-content%3F)|
 | HitCountFormat | ${n100}x100 ${n50}x50 ${nmiss}xMiss | You can choose **combo maxcombo fullcombo n300 n100 n50 nmiss** [more](https://github.com/KedamaOvO/RealTimePPDisplayer/wiki/How-to-customize-my-output-content%3F)|
 | FontName | Segoe UI | Font name |
+| IgnoreTouchScreenDecrease | False | Ignore TD Mod. |
+| RankingSendPerformanceToChat | False | Send pp to irc chat in the rank interface. (If IRC is connected)|
 
 # How to use MMF?
 1. Install [obs-text-rtpp-mmf](https://github.com/KedamaOvO/RealTimePPDisplayer/releases/download/v1.1.1/obs-text-rtpp-mmf.7z) to OBS (20.1.3).
@@ -42,6 +44,10 @@ The settings for this application are located in the config.ini<br>
 # Request 
 1. [osu!Sync](https://github.com/Deliay/osuSync)
 2. [osu!RTDataProvider](https://github.com/KedamaOvO/OsuRTDataProvider-Release)
+
+# Reference
+1. [oppai-ng](https://github.com/Francesco149/oppai-ng)
+2. [catch-the-pp](https://github.com/osufx/catch-the-pp)
 
 # Preview
 Here's the plugin in use on the [Tourney client](https://www.youtube.com/watch?v=begp3yimqaI)!
