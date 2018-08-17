@@ -1,16 +1,34 @@
 from osu_parser.beatmap import Beatmap
 from osu.ctb.difficulty import Difficulty
 from ppCalc import calculate_pp
+import os
+import threading
 import socket
 import struct
 import sys
 import traceback
 import time
 
-KEEP_SERVER_RUN = 0
-GET_PP = 1
+CMD_KEEP_ALIVE = 0
+CMD_KEEP_ALIVE_OK = 1
+CMD_CALCULATE_CTB = 2
 
 TIMEOUT = 3
+
+def process_exist(imagename):
+    p = os.popen('tasklist /FI "IMAGENAME eq %s"' % imagename).read()
+    if imagename in p:
+        return True
+    return False
+
+def check_process_exist():
+    if not process_exist('Sync.exe'):
+        os._exit(0)
+    timer = threading.Timer(3, check_process_exist)
+    timer.start()
+
+timer = threading.Timer(3, check_process_exist)
+timer.start()
 
 def read_string(sock,count,encoding='utf-8'):
     total_bytes = b""
@@ -27,18 +45,32 @@ def process_tcp(sock):
     content - string (string)
     mods - 4 bytes (int)
     """
-    content_count_bytes = sock.recv(4)
-    content_count = int.from_bytes(content_count_bytes,byteorder="little")
+    try:
+        while True:
+            cmd_bytes = sock.recv(4)
+            cmd = int.from_bytes(cmd_bytes,byteorder="little")
+            if cmd == CMD_KEEP_ALIVE:
+                sock.send(struct.pack("<i",CMD_KEEP_ALIVE_OK))
+                continue
 
-    content = read_string(sock,content_count)
+            content_count_bytes = sock.recv(4)
+            content_count = int.from_bytes(content_count_bytes,byteorder="little")
 
-    mods_bytes = sock.recv(4)
-    mods = int.from_bytes(mods_bytes,byteorder="little")
+            content = read_string(sock,content_count)
 
-    beatmap = Beatmap(content)
-    difficulty = Difficulty(beatmap, mods)
+            mods_bytes = sock.recv(4)
+            mods = int.from_bytes(mods_bytes,byteorder="little")
 
-    send_ctb_result(sock,beatmap,difficulty)
+            beatmap = Beatmap(content)
+            difficulty = Difficulty(beatmap, mods)
+
+            send_ctb_result(sock,beatmap,difficulty)
+    except Exception as identifier:
+        traceback.print_exc()
+        print("[ERROR]%s" % identifier,file=sys.stderr)
+    finally:
+        sock.close()
+
 
 def send_ctb_result(sock,beatmap,difficulty):
     """
@@ -58,23 +90,11 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 s.bind(('127.0.0.1', 11800))
 s.listen(5)
-s.settimeout(TIMEOUT)
 
 while not quit_self:
     sock,addr = s.accept()
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER,struct.pack('ii', 1, 0))
-    
-    cmd_type = int.from_bytes(sock.recv(4),byteorder="little")
-    if cmd_type == KEEP_SERVER_RUN:
-        sock.close()
-        continue
+    sock.settimeout(TIMEOUT)
+    t = threading.Thread(target=process_tcp,args=(sock,))
+    t.start()
 
-    try:
-        process_tcp(sock)
-    except Exception as identifier:
-        traceback.print_exc()
-        print("[ERROR]Type:%d" % cmd_type,file=sys.stderr)
-        print("[ERROR]%s" % identifier,file=sys.stderr)
-    finally:
-        sock.close()
 s.close()

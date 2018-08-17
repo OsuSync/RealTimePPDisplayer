@@ -13,14 +13,17 @@ using RealTimePPDisplayer.Displayer;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    public class CatchTheBeatPerformanceCalculator:PerformanceCalculatorBase
+    public class CatchTheBeatPerformanceCalculator : PerformanceCalculatorBase,IDisposable
     {
-        private const int c_keepServerRun = 0;
-        private const int c_getPp = 1;
+        private const int c_keepAlive = 0;
+        private const int c_keepAliveOk = 1;
+        private const int c_calculateCtb = 2;
+
         private const int c_fullCombo = int.MaxValue;
-        private static Timer _timer;
+        private static Thread _timer;
         private static Process _ctbServer;
         public static bool CtbServerRunning => !_ctbServer.HasExited;
+        private TcpClient _tcpClient;
 
         public int FullCombo { get; private set; }
         public int RealTimeMaxCombo { get; private set; }
@@ -32,17 +35,16 @@ namespace RealTimePPDisplayer.Calculator
             public double ApproachRate { get; set; }
         }
 
+        #region static
         static CatchTheBeatPerformanceCalculator()
         {
             if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"ctb-server\pypy3\pypy3-rtpp.exe")))
             {
-                Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::CTB]Please download ctb-server to the Sync root directory.",ConsoleColor.Red);
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::CTB]Please download ctb-server to the Sync root directory.", ConsoleColor.Red);
                 return;
             }
 
             StartCtbServer();
-
-            _timer = new Timer((_) => SendKeepServerRun(), null, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
         }
 
         private static void StartCtbServer()
@@ -69,8 +71,29 @@ namespace RealTimePPDisplayer.Calculator
             StopCtbServer();
             StartCtbServer();
         }
+        #endregion
 
-        private static void SendKeepServerRun()
+        public CatchTheBeatPerformanceCalculator()
+        {
+            ConnectCtbServer();
+        }
+
+        private void ConnectCtbServer()
+        {
+            _tcpClient = new TcpClient("127.0.0.1", 11800);
+            _timer = new Thread(() =>
+            {
+                while (true)
+                {
+                    SendKeepAlive();
+                    Thread.Sleep(1000);
+                }
+            });
+            _timer.Start();
+            //_tcpClient.ReceiveTimeout = 3 * 1000;
+        }
+
+        private void SendKeepAlive()
         {
             if (!CtbServerRunning)
             {
@@ -80,24 +103,31 @@ namespace RealTimePPDisplayer.Calculator
 
             try
             {
-                using (TcpClient client = new TcpClient("127.0.0.1", 11800))
+                lock (_tcpClient)
                 {
-                    using (var sw = new BinaryWriter(client.GetStream()))
+                    using (var sw = new BinaryWriter(_tcpClient.GetStream(), Encoding.UTF8, true))
                     {
-                        sw.Write(c_keepServerRun);
-                        sw.Flush();
+                        sw.Write(c_keepAlive);
+                    }
+
+                    using (var sr = new BinaryReader(_tcpClient.GetStream(), Encoding.UTF8, true))
+                    {
+                        int cmd = sr.ReadInt32();
+                        if (cmd != c_keepAliveOk)
+                            throw new SocketException();
                     }
                 }
             }
-            catch (SocketException)
+            catch (Exception)
             {
-                Sync.Tools.IO.CurrentIO.WriteColor("[RTPPD::CTB]Restart ctb-server",ConsoleColor.Green);
-                RestartCtbServer();
+                Sync.Tools.IO.CurrentIO.WriteColor("[RTPPD::CTB]Reconnect ctb-server", ConsoleColor.Green);
+                _tcpClient.Close();
+                ConnectCtbServer();
             }
 
         }
 
-        public static CtbServerResult SendGetPp(ArraySegment<byte> content,ModsInfo mods)
+        public CtbServerResult SendCalculateCtb(ArraySegment<byte> content, ModsInfo mods)
         {
             if (!CtbServerRunning)
             {
@@ -105,24 +135,22 @@ namespace RealTimePPDisplayer.Calculator
                 return new CtbServerResult();
             }
 
-            if(content.Count==0)return new CtbServerResult();
+            if (content.Count == 0) return new CtbServerResult();
 
             try
             {
-                using (TcpClient client = new TcpClient("127.0.0.1", 11800))
+                lock (_tcpClient)
                 {
-                    client.LingerState = new LingerOption(true,0);
-                    var stream = client.GetStream();
+                    var stream = _tcpClient.GetStream();
                     using (var sw = new BinaryWriter(stream, Encoding.UTF8, true))
                     {
-                        sw.Write(c_getPp);
+                        sw.Write(c_calculateCtb);
                         sw.Write(content.Count);
                         stream.Write(content.Array, content.Offset, content.Count);
                         sw.Write((int) mods.Mod); //mods
-                        sw.Flush();
                     }
 
-                    using (var br = new BinaryReader(stream))
+                    using (var br = new BinaryReader(stream, Encoding.UTF8, true))
                     {
                         var ret = new CtbServerResult();
                         ret.Stars = br.ReadDouble();
@@ -135,8 +163,10 @@ namespace RealTimePPDisplayer.Calculator
             catch (Exception e)
             {
 #if DEBUG
-                Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::CTB]:{e.Message}",ConsoleColor.Yellow);
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::CTB]:{e.Message}", ConsoleColor.Yellow);
 #endif
+                _tcpClient.Close();
+                ConnectCtbServer();
                 return null;
             }
         }
@@ -151,7 +181,7 @@ namespace RealTimePPDisplayer.Calculator
         /// <param name="maxCombo">The maximum combo.</param>
         /// <param name="nmiss">The nmiss.</param>
         /// <returns></returns>
-        public static double CalculatePp(CtbServerResult serverResult,ModsInfo mods,double acc,int maxCombo,int nmiss)
+        public static double CalculatePp(CtbServerResult serverResult, ModsInfo mods, double acc, int maxCombo, int nmiss)
         {
             acc /= 100.0;
 
@@ -197,10 +227,10 @@ namespace RealTimePPDisplayer.Calculator
 
             if (_cleared == true)
             {
-                _maxPpResult = SendGetPp(new ArraySegment<byte>(Beatmap.RawData), Mods);
+                _maxPpResult = SendCalculateCtb(new ArraySegment<byte>(Beatmap.RawData), Mods);
                 if (_maxPpResult != null)
                 {
-                    _ppTuple.MaxPP = CalculatePp(_maxPpResult,Mods,100,_maxPpResult.FullCombo,CountMiss);
+                    _ppTuple.MaxPP = CalculatePp(_maxPpResult, Mods, 100, _maxPpResult.FullCombo, CountMiss);
                     _ppTuple.MaxAccuracyPP = 0;
                     _ppTuple.MaxSpeedPP = 0;
                     _ppTuple.MaxAimPP = 0;
@@ -213,10 +243,10 @@ namespace RealTimePPDisplayer.Calculator
 
             if (_lastAcc != Accuracy)
             {
-                
+
                 if (_maxPpResult != null)
                 {
-                    double fcpp = CalculatePp(_maxPpResult, Mods, Accuracy, _maxPpResult.FullCombo,CountMiss);
+                    double fcpp = CalculatePp(_maxPpResult, Mods, Accuracy, _maxPpResult.FullCombo, CountMiss);
                     _ppTuple.FullComboPP = fcpp;
                     _ppTuple.FullComboAccuracyPP = 0;
                     _ppTuple.FullComboSpeedPP = 0;
@@ -226,7 +256,7 @@ namespace RealTimePPDisplayer.Calculator
 
             _lastAcc = Accuracy;
 
-            bool needUpdate = _last_max_combo!=MaxCombo;
+            bool needUpdate = _last_max_combo != MaxCombo;
             needUpdate |= _last_nmiss != CountMiss;
 
 
@@ -235,10 +265,10 @@ namespace RealTimePPDisplayer.Calculator
                 if (nobject > 0)
                 {
                     CtbServerResult ctbServerResult;
-                    ctbServerResult = SendGetPp(new ArraySegment<byte>(Beatmap.RawData, 0, pos), Mods);
+                    ctbServerResult = SendCalculateCtb(new ArraySegment<byte>(Beatmap.RawData, 0, pos), Mods);
                     if (ctbServerResult != null)
                     {
-                        _ppTuple.RealTimePP = CalculatePp(ctbServerResult,Mods,Accuracy,MaxCombo,CountMiss);
+                        _ppTuple.RealTimePP = CalculatePp(ctbServerResult, Mods, Accuracy, MaxCombo, CountMiss);
                         _ppTuple.RealTimeAccuracyPP = 0;
                         _ppTuple.RealTimeSpeedPP = 0;
                         _ppTuple.RealTimeAimPP = 0;
@@ -260,6 +290,11 @@ namespace RealTimePPDisplayer.Calculator
             _last_nmiss = 0;
         }
 
+        public void Dispose()
+        {
+            _timer.Abort();
+        }
+
         public override double Accuracy
         {
             get
@@ -267,7 +302,7 @@ namespace RealTimePPDisplayer.Calculator
                 int total = Count50 + Count100 + Count300 + CountMiss + CountKatu;
                 double acc = 1.0;
                 if (total > 0)
-                    acc = (double) (Count50 + Count100 + Count300) / total;
+                    acc = (double)(Count50 + Count100 + Count300) / total;
                 return acc * 100;
             }
         }
