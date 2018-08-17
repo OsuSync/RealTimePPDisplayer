@@ -81,6 +81,7 @@ namespace RealTimePPDisplayer.Calculator
         private void ConnectCtbServer()
         {
             _tcpClient = new TcpClient("127.0.0.1", 11800);
+            _timer?.Abort();
             _timer = new Thread(() =>
             {
                 while (true)
