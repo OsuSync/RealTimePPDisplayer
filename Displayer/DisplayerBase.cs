@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using RealTimePPDisplayer.Expression;
@@ -48,6 +49,15 @@ namespace RealTimePPDisplayer.Displayer
 
     public class DisplayerBase
     {
+        static DisplayerBase()
+        {
+            Setting.OnSettingChanged += () =>
+            {
+                s_ppAstDict.Clear();
+                s_hitCountExpressionDict.Clear();
+            };
+        }
+
         /// <summary>
         /// Clear Output
         /// </summary>
@@ -85,7 +95,8 @@ namespace RealTimePPDisplayer.Displayer
         
 
         private readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(()=>new ExpressionContext(),true);
-        private static readonly ThreadLocal<Dictionary<FormatArg, IAstNode>> s_ppAstDict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg, IAstNode>());
+
+        private static readonly ConcurrentDictionary<FormatArg, IAstNode> s_ppAstDict = new ConcurrentDictionary<FormatArg, IAstNode>();
 
         private void UpdateContextVariablesFromPpTuple(ExpressionContext ctx, PPTuple tuple)
         {
@@ -137,7 +148,7 @@ namespace RealTimePPDisplayer.Displayer
             var tuple = pp??Pp;
 
             var ctx = s_exprCtx.Value;
-            var ppExpressionDict = s_ppAstDict.Value;
+            var ppExpressionDict = s_ppAstDict;
 
             lock (_mtx)
             {
@@ -177,7 +188,7 @@ namespace RealTimePPDisplayer.Displayer
             return formatter;
         }
 
-        private static readonly ThreadLocal<Dictionary<FormatArg, IAstNode>> s_hitCountExpressionDict = new ThreadLocal<Dictionary<FormatArg, IAstNode>>(() => new Dictionary<FormatArg,IAstNode>());
+        private static readonly ConcurrentDictionary<FormatArg, IAstNode> s_hitCountExpressionDict = new ConcurrentDictionary<FormatArg, IAstNode>();
 
         public StringFormatter FormatHitCount(HitCountTuple? hitCount=null)
         {
@@ -187,7 +198,7 @@ namespace RealTimePPDisplayer.Displayer
             var tuple = hitCount ?? HitCount;
 
             var ctx = s_exprCtx.Value;
-            var hitCountExpressionDict = s_hitCountExpressionDict.Value;
+            var hitCountExpressionDict = s_hitCountExpressionDict;
 
             lock (_mtx)
             {
