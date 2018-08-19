@@ -21,7 +21,7 @@ namespace RealTimePPDisplayer.Calculator
 
         private const int c_fullCombo = int.MaxValue;
         private static Process s_ctbServer;
-        public  static bool CtbServerRunning => !s_ctbServer.HasExited;
+        public  static bool CtbServerRunning => !(s_ctbServer?.HasExited??true);
 
         private TcpClient _tcpClient;
         private Timer _timer;
@@ -39,17 +39,17 @@ namespace RealTimePPDisplayer.Calculator
         #region static
         static CatchTheBeatPerformanceCalculator()
         {
+            StartCtbServer();
+        }
+
+        private static void StartCtbServer()
+        {
             if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"ctb-server\pypy3\pypy3-rtpp.exe")))
             {
                 Sync.Tools.IO.CurrentIO.WriteColor($"[RTPPD::CTB]Please download ctb-server to the Sync root directory.", ConsoleColor.Red);
                 return;
             }
 
-            StartCtbServer();
-        }
-
-        private static void StartCtbServer()
-        {
             s_ctbServer = new Process();
             s_ctbServer.StartInfo.Arguments = @"/c .\run_ctb_server.bat";
             s_ctbServer.StartInfo.FileName = "cmd.exe";
@@ -81,6 +81,12 @@ namespace RealTimePPDisplayer.Calculator
 
         private void ConnectCtbServer()
         {
+            if (!CtbServerRunning)
+            {
+                RestartCtbServer();
+                return;
+            }
+
             _tcpClient = new TcpClient("127.0.0.1", 11800);
             _timer?.Dispose();
             _timer = new Timer((_) =>SendKeepAlive(),null,TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(1));
