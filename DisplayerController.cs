@@ -106,6 +106,9 @@ namespace RealTimePPDisplayer
                 var beatmap = cal.Beatmap.OrtdpBeatmap;
                 var mods = cal.Mods;
                 string songs = $"{beatmap.Artist} - {beatmap.Title}[{beatmap.Difficulty}]";
+                if (Setting.UseUnicodePerformanceInformation)
+                    if(!string.IsNullOrEmpty(beatmap.ArtistUnicode) && !string.IsNullOrEmpty(beatmap.TitleUnicode))
+                        songs = $"{beatmap.ArtistUnicode} - {beatmap.TitleUnicode}[{beatmap.Difficulty}]";
                 string acc = $"{cal.Accuracy:F2}%";
                 string modsStr = $"{(mods != ModsInfo.Mods.None ? "+" + mods.ShortName : "")}";
                 string pp = $"{cal.GetPerformance().RealTimePP:F2}pp";

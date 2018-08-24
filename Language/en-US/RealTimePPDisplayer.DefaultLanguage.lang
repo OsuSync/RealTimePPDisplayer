@@ -22,3 +22,4 @@ PPFormat=pp Format
 HitCountFormat=Hit Count Format
 RoundDigits=Digits
 IgnoreTouchScreenDecrease=Ignore Touchscreen Nerf
+UseUnicodePerformanceInformation=Perfer metadata in original language

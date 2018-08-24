@@ -257,6 +257,13 @@ namespace RealTimePPDisplayer
             get => Setting.RankingSendPerformanceToChat.ToString();
         }
 
+        [Bool]
+        public ConfigurationElement UseUnicodePerformanceInformation
+        {
+            set => Setting.UseUnicodePerformanceInformation = bool.Parse(value);
+            get => Setting.UseUnicodePerformanceInformation.ToString();
+        }
+
         public void onConfigurationLoad()
         {
         }
@@ -296,6 +303,7 @@ namespace RealTimePPDisplayer
         public static string HitCountFormat = "${n100@0}x100 ${n50@0}x50 ${nmiss@0}xMiss";
         public static bool IgnoreTouchScreenDecrease = false;
         public static bool RankingSendPerformanceToChat = false;
+        public static bool UseUnicodePerformanceInformation = false;
 
         public static event Action OnSettingChanged;
 
