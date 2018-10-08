@@ -138,6 +138,7 @@ namespace RealTimePPDisplayer.Gui
             "truncate(x)",
             "clamp(x,min,max)",
             "lerp(from,to,t)",
+            "mod(x,y)",
             "random()",
             "getTime()",
         };

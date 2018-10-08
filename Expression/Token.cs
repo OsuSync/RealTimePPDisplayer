@@ -18,7 +18,7 @@ namespace RealTimePPDisplayer.Expression
 
     static class TokenHelper
     {
-        private static readonly char[] _opSet = new[] { '+', '-', '*', '/', '^', '(', ')' ,','};
+        private static readonly char[] _opSet = new[] {'+', '-', '*', '/', '^', '(', ')', ',', '%'};
 
         public static Token ReadToken(this StringReader sr)
         {

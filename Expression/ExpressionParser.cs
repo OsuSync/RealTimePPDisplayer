@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 namespace RealTimePPDisplayer.Expression
 {
     /// <summary>
+    /// 
     /// E1 -> E1 + E2
     /// E1 -> E1 - E2
     ///
     /// E2 -> E2 * E3
     /// E2 -> E2 / E3
+    /// E2 -> E2 % E3
     ///
     /// E3 -> E3 ^ E4
     ///
@@ -106,7 +108,8 @@ namespace RealTimePPDisplayer.Expression
             if (expr != null)
             {
                 while ((LookToken().Type == TokenType.Op && LookToken().Data == "*") ||
-                       (LookToken().Type == TokenType.Op && LookToken().Data == "/"))
+                       (LookToken().Type == TokenType.Op && LookToken().Data == "/") ||
+                       (LookToken().Type == TokenType.Op && LookToken().Data == "%"))
                 {
                     Token token = GetToken();
                     AstOpNode op = new AstOpNode(token.Data)

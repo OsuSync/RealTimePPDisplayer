@@ -45,6 +45,7 @@ namespace RealTimePPDisplayer.Expression
                 args.Count >= 2 ? args[0] + _random.NextDouble() * (args[1] - args[0]) : _random.NextDouble();
             Functions["getTime"] = (args) =>
                 DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
+            Functions["mod"] = (args) => args[0] % args[1];
         }
 
         public double ExecAst(IAstNode root)
@@ -79,6 +80,8 @@ namespace RealTimePPDisplayer.Expression
                             return ExecAst(opNode.LNode) * ExecAst(opNode.RNode);
                         case "/":
                             return ExecAst(opNode.LNode) / ExecAst(opNode.RNode);
+                        case "%":
+                            return ExecAst(opNode.LNode) % ExecAst(opNode.RNode);
                         case "^":
                             return Math.Pow(ExecAst(opNode.LNode), ExecAst(opNode.RNode));
                     }
