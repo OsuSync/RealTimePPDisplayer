@@ -48,6 +48,11 @@ namespace RealTimePPDisplayer.Expression
             Functions["mod"] = (args) => args[0] % args[1];
         }
 
+        private bool IsNotZero(double a)
+        {
+            return (Math.Abs(a) > 1e-5);
+        }
+
         public double ExecAst(IAstNode root)
         {
             switch (root)
@@ -93,7 +98,15 @@ namespace RealTimePPDisplayer.Expression
                         case "<=":
                             return (ExecAst(opNode.LNode) <= ExecAst(opNode.RNode)) ? 1 : 0;
                         case "==":
-                            return (Math.Abs(ExecAst(opNode.LNode) - ExecAst(opNode.RNode))<1e-5) ? 1 : 0;
+                            return IsNotZero(ExecAst(opNode.LNode) - ExecAst(opNode.RNode)) ? 0 : 1;
+                        case "!=":
+                            return  IsNotZero(ExecAst(opNode.LNode) - ExecAst(opNode.RNode)) ? 1 : 0;
+                        case "!":
+                            return IsNotZero(ExecAst(opNode.LNode)) ? 0 : 1;
+                        case "&&":
+                            return (IsNotZero(ExecAst(opNode.LNode)) && IsNotZero(ExecAst(opNode.RNode))) ? 1 : 0;
+                        case "||":
+                            return (IsNotZero(ExecAst(opNode.LNode)) || IsNotZero(ExecAst(opNode.RNode))) ? 1 : 0;
                     }
                     break;
 

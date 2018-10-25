@@ -10,11 +10,15 @@ namespace RealTimePPDisplayer.Expression
 {
     /// <summary>
     ///
+    /// E_1 => E_1 && E0
+    /// E_1 => E_1 || E0
+    ///
     /// E0 -> E0 > E1
     /// E0 -> E0 < E1
     /// E0 -> E0 >= E1
     /// E0 -> E0 <= E1
     /// E0 -> E0 == E1
+    /// E0 -> E0 != E1
     /// 
     /// E1 -> E1 + E2
     /// E1 -> E1 - E2
@@ -25,9 +29,12 @@ namespace RealTimePPDisplayer.Expression
     ///
     /// E3 -> E3 ^ E4
     ///
-    /// E4 -> E5 | -E5 | +E5
+    /// E4 -> E5 | -E5 | +E5 | NotExpr
+    ///
+    /// NotExpr -> !E_1
     /// 
-    /// E5 -> (E0) | F | Func
+    /// E5 -> (E_1) | F | Func | !E_1
+    ///
     /// 
     ///
     /// Func -> Id(Args)
@@ -64,7 +71,7 @@ namespace RealTimePPDisplayer.Expression
                 _tokens.Add(token);
             } while (token.Type != TokenType.EOF);
 
-            var root = E0();
+            var root = E_1();
             if (LookToken().Type == TokenType.EOF)
             {
                 _tokens = null;
@@ -89,6 +96,26 @@ namespace RealTimePPDisplayer.Expression
             return token;
         }
 
+        private IAstNode E_1()
+        {
+            IAstNode expr = E0();
+            if (expr != null)
+            {
+                while ((LookToken().Type == TokenType.Op && LookToken().Data == "&&") ||
+                       (LookToken().Type == TokenType.Op && LookToken().Data == "||"))
+                {
+                    Token token = GetToken();
+                    AstOpNode op = new AstOpNode(token.Data)
+                    {
+                        LNode = expr,
+                        RNode = E0()
+                    };
+                    expr = op;
+                }
+            }
+
+            return expr;
+        }
 
         private IAstNode E0()
         {
@@ -99,7 +126,8 @@ namespace RealTimePPDisplayer.Expression
                        (LookToken().Type == TokenType.Op && LookToken().Data == ">") ||
                        (LookToken().Type == TokenType.Op && LookToken().Data == ">=") ||
                        (LookToken().Type == TokenType.Op && LookToken().Data == "<=") ||
-                       (LookToken().Type == TokenType.Op && LookToken().Data == "=="))
+                       (LookToken().Type == TokenType.Op && LookToken().Data == "==") ||
+                       (LookToken().Type == TokenType.Op && LookToken().Data == "!="))
                 {
                     Token token = GetToken();
                     AstOpNode op = new AstOpNode(token.Data)
@@ -206,6 +234,27 @@ namespace RealTimePPDisplayer.Expression
             }
             _pos = oldPos;
 
+            {
+                IAstNode node = NotExpr();
+                if (node != null)
+                    return node;
+            }
+            _pos = oldPos;
+
+            return null;
+        }
+
+        private IAstNode NotExpr()
+        {
+            int oldPos = _pos;
+            Token token = GetToken();
+            if (token.Type == TokenType.Op && token.Data == "!")
+            {
+                AstOpNode expr = new AstOpNode(token.Data);
+                expr.LNode = E_1();
+                return expr;
+            }
+            _pos = oldPos;
             return null;
         }
 
@@ -217,7 +266,7 @@ namespace RealTimePPDisplayer.Expression
 
             if (token.Type == TokenType.Op && token.Data == "(")
             {
-                node = E0();
+                node = E_1();
                 if (node!=null)
                 {
                     token = GetToken();

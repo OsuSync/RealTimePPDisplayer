@@ -18,8 +18,8 @@ namespace RealTimePPDisplayer.Expression
 
     static class TokenHelper
     {
-        private static readonly char[] s_opSet = new[] {'+', '-', '*', '/', '^', '(', ')', ',', '%','<','>'};
-        private static readonly string[] s_opSetTwoBytes = new[] {"<=",">=","=="};
+        private static readonly char[] s_opSet = new[] {'+', '-', '*', '/', '^', '(', ')', ',', '%','<','>','!'};
+        private static readonly string[] s_opSetTwoBytes = new[] {"<=",">=","==","!=","&&","||"};
         private const char EOF = (char)0xffff;
 
         private static char GetChar(this char[] chars, int pos)
