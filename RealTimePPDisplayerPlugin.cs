@@ -17,7 +17,7 @@ namespace RealTimePPDisplayer
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.5.0";
+        public const string VERSION= "1.5.1";
 
         private OsuRTDataProviderPlugin _ortdp;
         private readonly DisplayerController[] _osuPpControls = new DisplayerController[16];

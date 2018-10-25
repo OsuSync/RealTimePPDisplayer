@@ -18,25 +18,40 @@ namespace RealTimePPDisplayer.Expression
 
     static class TokenHelper
     {
-        private static readonly char[] _opSet = new[] {'+', '-', '*', '/', '^', '(', ')', ',', '%'};
+        private static readonly char[] s_opSet = new[] {'+', '-', '*', '/', '^', '(', ')', ',', '%','<','>'};
+        private static readonly string[] s_opSetTwoBytes = new[] {"<=",">=","=="};
+        private const char EOF = (char)0xffff;
 
-        public static Token ReadToken(this StringReader sr)
+        private static char GetChar(this char[] chars, int pos)
+        {
+            if (pos >= chars.Length) return EOF;
+            return chars[pos];
+        }
+
+        public static Token ReadToken(char[] chars,ref int pos)
         {
             StringBuilder sb = new StringBuilder();
-            int ch;
+            char ch;
             do
             {
-                ch = sr.Peek();
+                ch = chars.GetChar(pos);
                 if (ch == ' ')
-                    sr.Read();
+                    pos++;
             } while (ch == ' ');
+            if (ch == EOF) return new Token(TokenType.EOF);
 
-            if (ch == -1) return new Token(TokenType.Eof);
-
-
-            if (_opSet.Contains((char)ch))
+            int nextPos = pos + 1;
+            string op = s_opSetTwoBytes.FirstOrDefault(_op => _op[0] == ch && _op[1]== chars.GetChar(nextPos));
+            if (op != null)
             {
-                return new Token(TokenType.Op, ((char)sr.Read()).ToString());
+                pos += 2;
+                return new Token(TokenType.Op, op);
+            }
+
+            if (s_opSet.Contains(ch))
+            {
+                pos++;
+                return new Token(TokenType.Op, ch.ToString());
             }
 
             if (ch >= '0' && ch <= '9' || ch == '.')
@@ -46,8 +61,9 @@ namespace RealTimePPDisplayer.Expression
                 {
                     if (ch == '.')
                         dotExist = true;
-                    sb.Append((char)sr.Read());
-                    ch = sr.Peek();
+                    sb.Append(ch);
+                    pos++;
+                    ch = chars.GetChar(pos);
                 } while ((ch >= '0' && ch <= '9' || (ch == '.' && !dotExist)));
                 return new Token(TokenType.Number, sb.ToString());
             }
@@ -56,10 +72,15 @@ namespace RealTimePPDisplayer.Expression
             {
                 do
                 {
-                    sb.Append((char)sr.Read());
-                    ch = sr.Peek();
+                    sb.Append(ch);
+                    pos++;
+                    ch = chars.GetChar(pos);
                 } while (ch == '_' || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch >= '0' && ch <= '9');
-                return new Token(TokenType.Id, sb.ToString());
+
+                string id = sb.ToString();
+                if(id == "NaN")
+                    return new Token(TokenType.Number,id);
+                return new Token(TokenType.Id, id);
             }
 
             return new Token(TokenType.Unknown);
@@ -71,7 +92,7 @@ namespace RealTimePPDisplayer.Expression
         Op,
         Id,
         Number,
-        Eof,
+        EOF,
         Unknown
     }
 

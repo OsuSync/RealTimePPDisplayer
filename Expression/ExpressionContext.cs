@@ -84,6 +84,16 @@ namespace RealTimePPDisplayer.Expression
                             return ExecAst(opNode.LNode) % ExecAst(opNode.RNode);
                         case "^":
                             return Math.Pow(ExecAst(opNode.LNode), ExecAst(opNode.RNode));
+                        case ">":
+                            return (ExecAst(opNode.LNode) > ExecAst(opNode.RNode)) ? 1 : 0;
+                        case "<":
+                            return (ExecAst(opNode.LNode) < ExecAst(opNode.RNode)) ? 1 : 0;
+                        case ">=":
+                            return (ExecAst(opNode.LNode) >= ExecAst(opNode.RNode)) ? 1 : 0;
+                        case "<=":
+                            return (ExecAst(opNode.LNode) <= ExecAst(opNode.RNode)) ? 1 : 0;
+                        case "==":
+                            return (Math.Abs(ExecAst(opNode.LNode) - ExecAst(opNode.RNode))<1e-5) ? 1 : 0;
                     }
                     break;
 
@@ -98,6 +108,21 @@ namespace RealTimePPDisplayer.Expression
                             double varVal = ExecAst(funcNode.Args[1]);
                             Variables[varName] = varVal;
                             return 0;
+                        }
+                        else if (funcNode.Id == "if")
+                        {
+                            IAstNode condNode = funcNode.Args[0];
+                            double condNodeResult = ExecAst(condNode);
+                            if (Math.Abs(condNodeResult) <= 1e-5)
+                            {
+                                //false_expr
+                                return ExecAst(funcNode.Args[2]);
+                            }
+                            else
+                            {
+                                //true_expr
+                                return ExecAst(funcNode.Args[1]);
+                            }
                         }
                         else
                         {

@@ -27,7 +27,7 @@ namespace RealTimePPDisplayer
 
         private readonly object _mtx = new object();
         private readonly List<FormatArg> _args = new List<FormatArg>(16);
-        private static readonly Regex s_pattern = new Regex(@"\$\{(\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%)*(@\d+)?\}");
+        private static readonly Regex s_pattern = new Regex(@"\$\{(\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=)*(@\d+)?\}");
         private static readonly Regex s_newLinePattern = new Regex(@"(?<=[^\\])\\n");
 
         protected StringFormatter(string format)

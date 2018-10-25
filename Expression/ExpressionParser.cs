@@ -9,6 +9,12 @@ using System.Threading.Tasks;
 namespace RealTimePPDisplayer.Expression
 {
     /// <summary>
+    ///
+    /// E0 -> E0 > E1
+    /// E0 -> E0 < E1
+    /// E0 -> E0 >= E1
+    /// E0 -> E0 <= E1
+    /// E0 -> E0 == E1
     /// 
     /// E1 -> E1 + E2
     /// E1 -> E1 - E2
@@ -21,11 +27,12 @@ namespace RealTimePPDisplayer.Expression
     ///
     /// E4 -> E5 | -E5 | +E5
     /// 
-    /// E5 -> (E1) | F | Func
+    /// E5 -> (E0) | F | Func
+    /// 
     ///
     /// Func -> Id(Args)
     /// Args -> Args , Args
-    /// Args -> E1
+    /// Args -> E0
     /// Args -> ε
     ///
     /// F -> Id | Number
@@ -43,21 +50,22 @@ namespace RealTimePPDisplayer.Expression
         public IAstNode Parse(string expr)
         {
             _tokens = new List<Token>();
-            var sr = new StringReader(expr);
+            char[] exprChars = expr.Trim().ToCharArray();
+            int pos = 0;
 
             Token token;
             do
             {
-                token = sr.ReadToken();
+                token = TokenHelper.ReadToken(exprChars,ref pos);
                 if (token.Type == TokenType.Unknown)
                 {
                     throw new ExprssionTokenException($"Unkown Token. Data: {token.Data}");
                 }
                 _tokens.Add(token);
-            } while (token.Type != TokenType.Eof);
+            } while (token.Type != TokenType.EOF);
 
-            var root = E1();
-            if (LookToken().Type == TokenType.Eof)
+            var root = E0();
+            if (LookToken().Type == TokenType.EOF)
             {
                 _tokens = null;
                 return root;
@@ -69,16 +77,41 @@ namespace RealTimePPDisplayer.Expression
 
         private Token GetToken()
         {
-            if (_pos >= _tokens.Count) return new Token(TokenType.Eof);
+            if (_pos >= _tokens.Count) return new Token(TokenType.EOF);
             Token token = _tokens[_pos++];
             return token;
         }
 
         private Token LookToken()
         {
-            if (_pos >= _tokens.Count) return new Token(TokenType.Eof);
+            if (_pos >= _tokens.Count) return new Token(TokenType.EOF);
             Token token = _tokens[_pos];
             return token;
+        }
+
+
+        private IAstNode E0()
+        {
+            IAstNode expr = E1();
+            if (expr != null)
+            {
+                while ((LookToken().Type == TokenType.Op && LookToken().Data == "<") ||
+                       (LookToken().Type == TokenType.Op && LookToken().Data == ">") ||
+                       (LookToken().Type == TokenType.Op && LookToken().Data == ">=") ||
+                       (LookToken().Type == TokenType.Op && LookToken().Data == "<=") ||
+                       (LookToken().Type == TokenType.Op && LookToken().Data == "=="))
+                {
+                    Token token = GetToken();
+                    AstOpNode op = new AstOpNode(token.Data)
+                    {
+                        LNode = expr,
+                        RNode = E1()
+                    };
+                    expr = op;
+                }
+            }
+
+            return expr;
         }
 
         private IAstNode E1()
@@ -184,7 +217,7 @@ namespace RealTimePPDisplayer.Expression
 
             if (token.Type == TokenType.Op && token.Data == "(")
             {
-                node = E1();
+                node = E0();
                 if (node!=null)
                 {
                     token = GetToken();
@@ -237,7 +270,7 @@ namespace RealTimePPDisplayer.Expression
         private List<IAstNode> FuncArgs()
         {
             {
-                IAstNode node = E1();
+                IAstNode node = E0();
                 if (node != null)
                 {
                     List<IAstNode> args = new List<IAstNode>();
@@ -245,7 +278,7 @@ namespace RealTimePPDisplayer.Expression
                     while (LookToken().Type == TokenType.Op && LookToken().Data == ",")
                     {
                         GetToken();
-                        IAstNode expr = E1();
+                        IAstNode expr = E0();
                         if(expr!=null)
                             args.Add(expr);
                     }
