@@ -19,6 +19,7 @@ namespace RealTimePPDisplayer.Expression
         {
             Constants["pi"] = Math.PI;
             Constants["e"] = Math.E;
+            Constants["inf"] = double.PositiveInfinity;
 
             Functions["sin"] = (args) => Math.Sin(args[0]);
             Functions["cos"] = (args) => Math.Cos(args[0]);
@@ -46,9 +47,11 @@ namespace RealTimePPDisplayer.Expression
             Functions["getTime"] = (args) =>
                 DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1, 0, 0, 0)).TotalMilliseconds;
             Functions["mod"] = (args) => args[0] % args[1];
+            Functions["isnan"] = (args) => double.IsNaN(args[0]) ? 1 : 0;
+            Functions["isinf"] = (args) => double.IsInfinity(args[0]) ? 1 : 0;
         }
 
-        private bool IsNotZero(double a)
+        private static bool IsNotZero(double a)
         {
             return (Math.Abs(a) > 1e-5);
         }

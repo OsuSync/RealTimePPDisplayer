@@ -84,6 +84,7 @@ namespace RealTimePPDisplayer.Gui
         {
             "pi",
             "e",
+            "inf",
             "rtpp",
             "rtpp_aim",
             "rtpp_acc",
@@ -142,6 +143,8 @@ namespace RealTimePPDisplayer.Gui
             "mod(x,y)",
             "random()",
             "getTime()",
+            "isnan(a)",
+            "isinf(a)"
         };
 
         public FormatEditor(PropertyInfo prop, object configurationInstance)

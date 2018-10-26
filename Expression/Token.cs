@@ -78,8 +78,6 @@ namespace RealTimePPDisplayer.Expression
                 } while (ch == '_' || (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch >= '0' && ch <= '9');
 
                 string id = sb.ToString();
-                if(id == "NaN")
-                    return new Token(TokenType.Number,id);
                 return new Token(TokenType.Id, id);
             }
 
