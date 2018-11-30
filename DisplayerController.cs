@@ -22,7 +22,7 @@ namespace RealTimePPDisplayer
 
         private BeatmapReader _beatmapReader;
 
-        private Mutex _playStatusLocker = new Mutex();
+        private readonly Mutex _playStatusLocker = new Mutex();
         private OsuPlayMode _mode = OsuPlayMode.Osu;
         private PerformanceCalculatorBase _stdPpCalculator;
         private PerformanceCalculatorBase _taikoPpCalculator;
@@ -56,6 +56,7 @@ namespace RealTimePPDisplayer
             listenerManager.OnCount50Changed += c => _n50 = c;
             listenerManager.OnCountMissChanged += c => _nmiss = c;
             listenerManager.OnScoreChanged += s => _score = s;
+
             listenerManager.OnComboChanged += (combo) =>
             {
                 if (_status != OsuStatus.Playing) return;
@@ -187,7 +188,7 @@ namespace RealTimePPDisplayer
 
 
 
-            int totalhit = _n300 + _n100 + _n50 + _n50 + _nkatu + _ngeki + _nmiss;
+            int totalhit = _n300 + _n100 + _n50 + _nkatu + _ngeki + _nmiss;
             if (time > cal.Beatmap?.BeatmapDuration &&
                 totalhit == 0) return;
 
@@ -199,6 +200,7 @@ namespace RealTimePPDisplayer
                 _n100 = 0;
                 _n50 = 0;
                 _nmiss = 0;
+                _score = 0;
                 foreach (var p in _displayers)
                     p.Value.Clear();
             }
@@ -348,7 +350,4 @@ namespace RealTimePPDisplayer
         }
         #endregion
     }
-
-
-
 }

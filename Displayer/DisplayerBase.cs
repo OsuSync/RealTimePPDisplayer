@@ -96,7 +96,7 @@ namespace RealTimePPDisplayer.Displayer
 
         private readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(()=>new ExpressionContext(),true);
 
-        private static readonly ConcurrentDictionary<FormatArg, IAstNode> s_ppAstDict = new ConcurrentDictionary<FormatArg, IAstNode>();
+        private static readonly ConcurrentDictionary<FormatArgs, IAstNode> s_ppAstDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
 
         private void UpdateContextVariablesFromPpTuple(ExpressionContext ctx, PPTuple tuple)
         {
@@ -188,7 +188,7 @@ namespace RealTimePPDisplayer.Displayer
             return formatter;
         }
 
-        private static readonly ConcurrentDictionary<FormatArg, IAstNode> s_hitCountExpressionDict = new ConcurrentDictionary<FormatArg, IAstNode>();
+        private static readonly ConcurrentDictionary<FormatArgs, IAstNode> s_hitCountExpressionDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
 
         public StringFormatter FormatHitCount(HitCountTuple? hitCount=null)
         {

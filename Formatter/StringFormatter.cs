@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer
 {
-    public struct FormatArg
+    public struct FormatArgs
     {
         public string RawString { get; set; }
         public string ExprString { get; set; }
         public int Digits { get; set; }
     }
 
-    public class StringFormatter:IEnumerable<FormatArg>
+    public class StringFormatter:IEnumerable<FormatArgs>
     {
         private static readonly ThreadLocal<StringFormatter> s_ppFormatLocal = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
         private static readonly ThreadLocal<StringFormatter> s_hitCountFormatLocal = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
@@ -26,7 +26,7 @@ namespace RealTimePPDisplayer
         private readonly StringBuilder _builder=new StringBuilder(1024);
 
         private readonly object _mtx = new object();
-        private readonly List<FormatArg> _args = new List<FormatArg>(16);
+        private readonly List<FormatArgs> _args = new List<FormatArgs>(16);
         private static readonly Regex s_pattern = new Regex(@"\$\{(\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*(@\d+)?\}");
         private static readonly Regex s_newLinePattern = new Regex(@"(?<=[^\\])\\n");
 
@@ -47,21 +47,21 @@ namespace RealTimePPDisplayer
                 foreach (Match match in result)
                 {
                     string rawExpr =  match.Value.TrimStart('$','{').TrimEnd('}');
-                    FormatArg arg = new FormatArg
+                    FormatArgs args = new FormatArgs
                     {
                         RawString = rawExpr,
                         ExprString = rawExpr,
                         Digits = Int32.MinValue
                     };
 
-                    if (arg.RawString.Contains('@'))
+                    if (args.RawString.Contains('@'))
                     {
-                        var pair = arg.RawString.Split('@');
-                        arg.ExprString = pair[0];
-                        arg.Digits = int.Parse(pair[1]);
+                        var pair = args.RawString.Split('@');
+                        args.ExprString = pair[0];
+                        args.Digits = int.Parse(pair[1]);
                     }
 
-                    _args.Add(arg);
+                    _args.Add(args);
                 }
             }
         }
@@ -83,24 +83,24 @@ namespace RealTimePPDisplayer
             return _builder.ToString();
         }
 
-        public void Fill(FormatArg arg,string val)
+        public void Fill(FormatArgs args,string val)
         {
-            _builder.Replace($"${{{arg.RawString}}}", val);
+            _builder.Replace($"${{{args.RawString}}}", val);
         }
 
-        public void Fill(FormatArg arg, int n)
+        public void Fill(FormatArgs args, int n)
         {
-            Fill(arg, n.ToString());
+            Fill(args, n.ToString());
         }
 
-        public void Fill(FormatArg arg, double n)
+        public void Fill(FormatArgs args, double n)
         {
-            int digits = arg.Digits == Int32.MinValue?Setting.RoundDigits:arg.Digits;
+            int digits = args.Digits == Int32.MinValue?Setting.RoundDigits:args.Digits;
 
-            Fill(arg, string.Format($"{{0:F{digits}}}",n));
+            Fill(args, string.Format($"{{0:F{digits}}}",n));
         }
 
-        public IEnumerator<FormatArg> GetEnumerator()
+        public IEnumerator<FormatArgs> GetEnumerator()
         {
             lock (_mtx)
             {
