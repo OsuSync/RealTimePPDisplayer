@@ -83,7 +83,7 @@ namespace RealTimePPDisplayer
             get => Setting.HitCountFontSize.ToString();
         }
 
-        [Color]
+        [CustomColor]
         public ConfigurationElement PPFontColor
         {
             set
@@ -94,7 +94,7 @@ namespace RealTimePPDisplayer
             get => ColorConverter.ColorToString(Setting.PPFontColor);
         }
 
-        [Color]
+        [CustomColor]
         public ConfigurationElement HitCountFontColor
         {
             set
@@ -105,7 +105,7 @@ namespace RealTimePPDisplayer
             get => ColorConverter.ColorToString(Setting.HitCountFontColor);
         }
 
-        [Color]
+        [CustomColor]
         public ConfigurationElement BackgroundColor
         {
             set
