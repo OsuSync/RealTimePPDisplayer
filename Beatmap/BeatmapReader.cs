@@ -1,7 +1,4 @@
-﻿using OsuRTDataProvider.Listen;
-using OsuRTDataProvider.Mods;
-using RealTimePPDisplayer.Calculator;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
@@ -9,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OsuRTDataProvider.Listen;
 
 namespace RealTimePPDisplayer.Beatmap
 {
@@ -31,14 +29,14 @@ namespace RealTimePPDisplayer.Beatmap
         public int ObjectsCount => Objects.Count;
         public int BeatmapDuration => Objects.LastOrDefault()?.StartTime??-1;
 
-        public OsuPlayMode Mode { get; set; }
+        public int Mode { get; set; }
         public double ApproachRate { get; set; } = -1;
         public double OverallDifficulty { get; private set; }
         public double HpDrainRate { get; private set; }
         public double CircleSize { get; private set; }
         public int KeyCount { get; private set; }
 
-        public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap,OsuPlayMode mode=OsuPlayMode.Unknown)
+        public BeatmapReader(OsuRTDataProvider.BeatmapInfo.Beatmap beatmap,int mode)
         {
             OrtdpBeatmap = beatmap;
             _beatmapHeaderSpan.Offset = 0;
@@ -88,14 +86,14 @@ namespace RealTimePPDisplayer.Beatmap
                             {
                                 case "Mode":
                                     OsuPlayMode mode = (OsuPlayMode)int.Parse(val);
-                                    if (mode != OsuPlayMode.Mania && Mode == OsuPlayMode.Mania)
+                                    if (mode != OsuPlayMode.Mania && Mode == (int)OsuPlayMode.Mania)
                                     {
                                         Sync.Tools.IO.CurrentIO.WriteColor("[RTPPD::Beatmap]Only support mania beatmap.", ConsoleColor.Yellow);
-                                        Mode = mode;
+                                        Mode = (int)mode;
                                     }
-                                    else if (mode == OsuPlayMode.Mania && Mode != OsuPlayMode.Mania)
+                                    else if (mode == OsuPlayMode.Mania && Mode != (int)OsuPlayMode.Mania)
                                     {
-                                        Mode = mode;
+                                        Mode = (int)mode;
                                     }
                                     break;
                                 case "ApproachRate":
@@ -109,7 +107,7 @@ namespace RealTimePPDisplayer.Beatmap
                                     break;
                                 case "CircleSize":
                                     CircleSize = double.Parse(val,CultureInfo.InvariantCulture);
-                                    if (Mode == OsuPlayMode.Mania)
+                                    if (Mode == (int)OsuPlayMode.Mania)
                                         KeyCount = int.Parse(val);
                                     break;
                             }
@@ -120,12 +118,12 @@ namespace RealTimePPDisplayer.Beatmap
 
                             switch (Mode)
                             {
-                                case OsuPlayMode.Mania:
+                                case (int)OsuPlayMode.Mania:
                                     obj = new ManiaBeatmapObject(line, pos, rawLineLen, this);
                                     break;
-                                case OsuPlayMode.CatchTheBeat:
-                                case OsuPlayMode.Osu:
-                                case OsuPlayMode.Taiko:
+                                case (int)OsuPlayMode.CatchTheBeat:
+                                case (int)OsuPlayMode.Osu:
+                                case (int)OsuPlayMode.Taiko:
                                     obj =  new BeatmapObject(line, pos, rawLineLen, this);
                                     break;
                                 default:
@@ -141,7 +139,7 @@ namespace RealTimePPDisplayer.Beatmap
                 }
             }
 
-            if (Mode == OsuPlayMode.Mania)
+            if (Mode == (int)OsuPlayMode.Mania)
                 Objects.Sort((a,b)=>a.StartTime-b.StartTime);
         }
 

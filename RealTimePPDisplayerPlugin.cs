@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Sync.Plugins;
+using Sync.Tools;
 using OsuRTDataProvider;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Gui;
-using Sync.Plugins;
-using Sync.Tools;
 
 namespace RealTimePPDisplayer
 {
@@ -17,18 +17,17 @@ namespace RealTimePPDisplayer
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.6.1";
+        public const string VERSION= "1.6.2";
 
-        private OsuRTDataProviderPlugin _ortdp;
         private readonly DisplayerController[] _osuPpControls = new DisplayerController[16];
 
         private PluginConfigurationManager _configManager;
 
-        public int TourneyWindowCount => _ortdp.TourneyListenerManagersCount;
-        public bool TourneyMode => _ortdp.TourneyListenerManagers != null;
+        public int TourneyWindowCount { get; private set; }
+        public bool TourneyMode { get; private set; }
 
         #region FixedDisplay Field
-        public static RealTimePPDisplayerPlugin Instance;
+        public static RealTimePPDisplayerPlugin Instance { get; private set; }
         public IEnumerable<string> DisplayerNames => _displayerCreators.Select(d=>d.Key);
 
         private bool _stopFixedUpdate;
@@ -56,7 +55,7 @@ namespace RealTimePPDisplayer
             _configManager = new PluginConfigurationManager(this);
             _configManager.AddItem(new SettingIni());
 
-            _ortdp = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "OsuRTDataProvider") as OsuRTDataProviderPlugin;
+            var ortdp = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "OsuRTDataProvider") as OsuRTDataProviderPlugin;
             var gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
 
             if (gui != null)
@@ -64,20 +63,16 @@ namespace RealTimePPDisplayer
                 GuiRegisterHelper.RegisterFormatEditorWindow(gui);
             }
 
-            if (_ortdp == null)
-            {
-                IO.CurrentIO.WriteColor("No found OsuRTDataProvider!", ConsoleColor.Red);
-                return;
-            }
-
-            int size = TourneyMode ? _ortdp.TourneyListenerManagersCount : 1;
+            TourneyMode = ortdp.TourneyListenerManagers != null;
+            TourneyWindowCount = ortdp.TourneyListenerManagersCount;
+            int size = TourneyMode ? TourneyWindowCount : 1;
 
             for (int i = 0; i < size; i++)
             {
-                var manager = _ortdp.ListenerManager;
+                var manager = ortdp.ListenerManager;
                 if (TourneyMode)
                 {
-                    manager = _ortdp.TourneyListenerManagers[i];
+                    manager = ortdp.TourneyListenerManagers[i];
                 }
                 _osuPpControls[i] = new DisplayerController(manager);
             }
@@ -137,7 +132,7 @@ namespace RealTimePPDisplayer
                 foreach (var p in _allDisplayers)
                     if (p.Key == name) return;
 
-                int size = TourneyMode ? _ortdp.TourneyListenerManagersCount : 1;
+                int size = TourneyMode ? TourneyWindowCount : 1;
 
                 for (int i = 0; i < size; i++)
                 {
@@ -159,7 +154,7 @@ namespace RealTimePPDisplayer
                 {
                     if (node.Value.Key == name)
                     {
-                        int size = TourneyMode ? _ortdp.TourneyListenerManagersCount : 1;
+                        int size = TourneyMode ? TourneyWindowCount : 1;
                         for (int i = 0; i < size; i++)
                         {
                             _osuPpControls[i].RemoveDisplayer(name);

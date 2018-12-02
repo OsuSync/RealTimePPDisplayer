@@ -4,22 +4,22 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using RealTimePPDisplayer.Displayer;
+using RealTimePPDisplayer.Utility;
 using static OsuRTDataProvider.Mods.ModsInfo;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    public class ManiaPerformanceCalculator : PerformanceCalculatorBase
+    public sealed class ManiaPerformanceCalculator : PerformanceCalculatorBase
     {
-        private const OsuPlayMode c_mode = OsuPlayMode.Mania;
+        private const int c_mode = 3;//Mania
         private const double c_strainStep = 400;
         private const double c_decayWeight = 0.9;
         private const double c_starScalingFactor = 0.018;
 
-        private ModsInfo _mods;
+        private uint _mods;
         private double _beatmapStars;
         private PPTuple _tuple = PPTuple.Empty;
 
@@ -32,14 +32,14 @@ namespace RealTimePPDisplayer.Calculator
             {
                 var curObject = Beatmap.Objects[i] as ManiaBeatmapObject;
                 Debug.Assert(curObject != null, nameof(curObject) + " != null");
-                curObject.ManiaCalculateStrains(prevObject, _mods.TimeRate);
+                curObject.ManiaCalculateStrains(prevObject, ModsUtils.GetTimeRate(_mods));
                 prevObject = curObject;
             }
         }
 
         private double CalculateDifficulty(int nobjects)
         {
-            double actualStrainStep = c_strainStep * _mods.TimeRate;
+            double actualStrainStep = c_strainStep * ModsUtils.GetTimeRate(_mods);
 
             List<double> highestStrains = new List<double>();
             double intervalEndTime = actualStrainStep;
@@ -93,7 +93,7 @@ namespace RealTimePPDisplayer.Calculator
         public override PPTuple GetPerformance()
         {
             if (Beatmap == null) return PPTuple.Empty;
-            if (Beatmap.Mode != c_mode) return PPTuple.Empty;
+            if (Beatmap.Mode != (int)c_mode) return PPTuple.Empty;
 
 
             //Calculate Max PP
@@ -131,7 +131,7 @@ namespace RealTimePPDisplayer.Calculator
 
         private void ReinitializeObjects()
         {
-            if (Beatmap.Mode != c_mode) return;
+            if (Beatmap.Mode != (int)c_mode) return;
             foreach (var o in Beatmap.Objects)
             {
                 var obj = (ManiaBeatmapObject) o;

@@ -8,6 +8,7 @@ using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Calculator;
+using RealTimePPDisplayer.Utility;
 using Sync.MessageFilter;
 using Sync;
 using Sync.Source;
@@ -111,7 +112,9 @@ namespace RealTimePPDisplayer
                     if(!string.IsNullOrEmpty(beatmap.ArtistUnicode) && !string.IsNullOrEmpty(beatmap.TitleUnicode))
                         songs = $"{beatmap.ArtistUnicode} - {beatmap.TitleUnicode}[{beatmap.Difficulty}]";
                 string acc = $"{cal.Accuracy:F2}%";
-                string modsStr = $"{(mods != ModsInfo.Mods.None ? "+" + mods.ShortName : "")}";
+                
+                ModsInfo m = mods.ToModsInfo();
+                string modsStr = $"{(m != ModsInfo.Mods.None ? "+" + m.ShortName : "")}";
                 string pp = $"{cal.GetPerformance().RealTimePP:F2}pp";
                 string msg = $"[RTPPD]{songs} {modsStr} | {acc} => {pp} ({_mode})";
 
@@ -175,7 +178,7 @@ namespace RealTimePPDisplayer
 
             if (Setting.DebugMode)
                 CurrentIO.WriteColor($"[RealTimePPDisplayer]File:{file}", ConsoleColor.Blue);
-            _beatmapReader = new BeatmapReader(beatmap,_mode);
+            _beatmapReader = new BeatmapReader(beatmap,(int)_mode);
             GetCalculator(_mode).ClearCache();
         }
 
@@ -221,7 +224,7 @@ namespace RealTimePPDisplayer
             cal.CountGeki = _ngeki;
             cal.CountKatu= _nkatu;
             cal.Score = _score;
-            cal.Mods = _curMods;
+            cal.Mods = (uint)_curMods.Mod;
 
             var ppTuple = cal.GetPerformance();
 

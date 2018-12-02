@@ -1,5 +1,4 @@
 ﻿using OsuRTDataProvider.Listen;
-using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using RealTimePPDisplayer.Displayer;
 using System;
@@ -22,7 +21,8 @@ namespace RealTimePPDisplayer.Calculator
         public int Time { get; set; }
         public int MaxCombo { get; set; }
         public int Score { get; set; }
-        public ModsInfo Mods { get; set; }
+        
+        public uint Mods { get; set; }
 
         public abstract PPTuple GetPerformance();
 

@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OsuRTDataProvider.Listen;
-using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using RealTimePPDisplayer.Displayer;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    public class StdPerformanceCalculator : OppaiPerformanceCalculator
+    public sealed class StdPerformanceCalculator : OppaiPerformanceCalculator
     {
-        private const OsuPlayMode s_mode = OsuPlayMode.Osu;
+        private const int s_mode = 0;//Std
 
         public override PPTuple GetPerformance()
         {

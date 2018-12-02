@@ -79,6 +79,7 @@
     <Compile Include="Gui\OpenFormatEditorCreator.cs" />
     <Compile Include="Attribute\PerformanceFormatAttribute.cs" />
     <Compile Include="Formatter\StringFormatter.cs" />
+    <Compile Include="Utility\ModsUtils.cs" />
     <Compile Include="Utility\SmoothMath.cs" />
     <Compile Include="DisplayerController.cs" />
     <Compile Include="Calculator\Oppai.cs" />

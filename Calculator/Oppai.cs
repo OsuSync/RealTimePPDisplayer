@@ -1,5 +1,4 @@
-﻿using OsuRTDataProvider.Listen;
-using OsuRTDataProvider.Mods;
+﻿using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using System;
 using System.Collections.Generic;
@@ -20,20 +19,20 @@ namespace RealTimePPDisplayer.Calculator
 
         public BeatmapReader Beatmap { get; set; }
 
-        private ModsInfo _maxMods = ModsInfo.Empty;
+        private uint _lastMods = 0;
         private pp_calc _maxResult;
 
-        public pp_calc GetMaxPP(ModsInfo mods, OsuPlayMode mode)
+        public pp_calc GetMaxPP(uint mods, int mode)
         {
-            bool needUpdate = mods != _maxMods;
+            bool needUpdate = mods != _lastMods;
 
             if (needUpdate)
             {
-                _maxMods = mods;
+                _lastMods = mods;
 
                 rtpp_params args;
                 args.combo = FULL_COMBO;
-                args.mods = (uint)mods.Mod;
+                args.mods = mods;
                 args.n100 = 0;
                 args.n50 = 0;
                 args.nmiss = 0;
@@ -49,7 +48,7 @@ namespace RealTimePPDisplayer.Calculator
         private int _fcN50 = -1;
         private pp_calc _fcResult;
 
-        public pp_calc GetIfFcPP(ModsInfo mods, int n300, int n100, int n50, OsuPlayMode mode)
+        public pp_calc GetIfFcPP(uint mods, int n300, int n100, int n50, int mode)
         {
             var needUpdate = _fcN100 != n100;
             needUpdate = needUpdate || _fcN50 != n50;
@@ -62,7 +61,7 @@ namespace RealTimePPDisplayer.Calculator
 
                 rtpp_params args;
                 args.combo = FULL_COMBO;
-                args.mods = (uint)mods.Mod;
+                args.mods = mods;
                 args.n100 = n100;
                 args.n50 = n50;
                 args.nmiss = 0;
@@ -81,7 +80,7 @@ namespace RealTimePPDisplayer.Calculator
         private int _maxCombo = -1;
         private pp_calc _rtppResult;
 
-        public pp_calc GetRealTimePP(int endTime, ModsInfo mods, int n100, int n50, int nmiss, int maxCombo, OsuPlayMode mode)
+        public pp_calc GetRealTimePP(int endTime, uint mods, int n100, int n50, int nmiss, int maxCombo, int mode)
         {
             int pos = Beatmap.GetPosition(endTime, out int nobject);
 
@@ -102,7 +101,7 @@ namespace RealTimePPDisplayer.Calculator
 
                 rtpp_params args;
                 args.combo = maxCombo;
-                args.mods = (uint)mods.Mod;
+                args.mods = mods;
                 args.n100 = n100;
                 args.n50 = n50;
                 args.nmiss = nmiss;
@@ -132,7 +131,7 @@ namespace RealTimePPDisplayer.Calculator
             _fcN50 = -1;
             _fcResult = pp_calc.Empty;
 
-            _maxMods = ModsInfo.Empty;
+            _lastMods = 0;
             _maxResult = pp_calc.Empty;
         }
 

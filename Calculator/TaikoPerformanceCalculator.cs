@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Beatmap;
 using RealTimePPDisplayer.Displayer;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    public class TaikoPerformanceCalculator : OppaiPerformanceCalculator
+    public sealed class TaikoPerformanceCalculator : OppaiPerformanceCalculator
     {
-        private const OsuPlayMode s_mode = OsuPlayMode.Taiko;
+        private const int s_mode = 1;//taiko
 
         public override PPTuple GetPerformance()
         {

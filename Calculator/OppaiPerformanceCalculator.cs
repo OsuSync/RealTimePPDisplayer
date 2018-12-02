@@ -1,5 +1,5 @@
-﻿using OsuRTDataProvider.Listen;
-using OsuRTDataProvider.Mods;
+﻿using OsuRTDataProvider.Mods;
+using RealTimePPDisplayer.Beatmap;
 using RealTimePPDisplayer.Displayer;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ namespace RealTimePPDisplayer.Calculator
             Oppai.Clear();
         }
 
-        protected PPTuple GetPPFromOppai(ModsInfo mods,OsuPlayMode mode)
+        protected PPTuple GetPPFromOppai(uint mods,int mode)
         {
             if (Beatmap == null) return PPTuple.Empty;
 

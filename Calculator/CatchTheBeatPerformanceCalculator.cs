@@ -10,10 +10,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Displayer;
+using RealTimePPDisplayer.Utility;
 
 namespace RealTimePPDisplayer.Calculator
 {
-    public class CatchTheBeatPerformanceCalculator : PerformanceCalculatorBase
+    public sealed class CatchTheBeatPerformanceCalculator : PerformanceCalculatorBase
     {
         private const int c_keepAlive = 0;
         private const int c_keepAliveOk = 1;
@@ -127,7 +128,7 @@ namespace RealTimePPDisplayer.Calculator
 
         }
 
-        public CtbServerResult SendCalculateCtb(ArraySegment<byte> content, ModsInfo mods)
+        public CtbServerResult SendCalculateCtb(ArraySegment<byte> content, uint mods)
         {
             if (!CtbServerRunning)
             {
@@ -147,7 +148,7 @@ namespace RealTimePPDisplayer.Calculator
                         sw.Write(c_calculateCtb);
                         sw.Write(content.Count);
                         stream.Write(content.Array, content.Offset, content.Count);
-                        sw.Write((int) mods.Mod); //mods
+                        sw.Write(mods); //mods
                     }
 
                     using (var br = new BinaryReader(stream, Encoding.UTF8, true))
@@ -181,7 +182,7 @@ namespace RealTimePPDisplayer.Calculator
         /// <param name="maxCombo">The maximum combo.</param>
         /// <param name="nmiss">The nmiss.</param>
         /// <returns></returns>
-        public static double CalculatePp(CtbServerResult serverResult, ModsInfo mods, double acc, int maxCombo, int nmiss)
+        public static double CalculatePp(CtbServerResult serverResult, uint mods, double acc, int maxCombo, int nmiss)
         {
             acc /= 100.0;
 
