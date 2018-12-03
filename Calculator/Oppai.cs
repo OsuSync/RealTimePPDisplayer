@@ -11,6 +11,8 @@ namespace RealTimePPDisplayer.Calculator
 {
     public class Oppai
     {
+        private const uint c_unknown_mods = 0xffffffffu;
+
         private pp_params _realTimeData = new pp_params();
         private readonly pp_params _cache = new pp_params();
 
@@ -19,7 +21,7 @@ namespace RealTimePPDisplayer.Calculator
 
         public BeatmapReader Beatmap { get; set; }
 
-        private uint _lastMods = 0;
+        private uint _lastMods = c_unknown_mods;
         private pp_calc _maxResult;
 
         public pp_calc GetMaxPP(uint mods, int mode)
@@ -131,7 +133,7 @@ namespace RealTimePPDisplayer.Calculator
             _fcN50 = -1;
             _fcResult = pp_calc.Empty;
 
-            _lastMods = 0;
+            _lastMods = c_unknown_mods;
             _maxResult = pp_calc.Empty;
         }
 
