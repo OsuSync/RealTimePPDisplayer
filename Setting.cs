@@ -296,7 +296,7 @@ namespace RealTimePPDisplayer
         public static bool Topmost = true;
         public static bool WindowTextShadow = true;
         public static bool DebugMode = false;
-        public static int RoundDigits = 2;
+        public static int RoundDigits = 1;
         //rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc
         public static string PPFormat = "${rtpp}pp";
         //combo maxcombo fullcombo n300 n100 n50 nmiss
