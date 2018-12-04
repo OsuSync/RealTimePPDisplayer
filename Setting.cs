@@ -292,7 +292,7 @@ namespace RealTimePPDisplayer
         public static int WindowWidth = 280;
         public static int WindowHeight = 172;
         public static int SmoothTime = 200;
-        public static int FPS = 60;
+        public static int FPS = 30;
         public static bool Topmost = true;
         public static bool WindowTextShadow = true;
         public static bool DebugMode = false;
