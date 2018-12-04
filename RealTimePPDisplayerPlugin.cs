@@ -154,17 +154,23 @@ namespace RealTimePPDisplayer
                 {
                     if (node.Value.Key == name)
                     {
-                        int size = TourneyMode ? TourneyWindowCount : 1;
-                        for (int i = 0; i < size; i++)
+                        try
                         {
-                            _osuPpControls[i].RemoveDisplayer(name);
+                            int size = TourneyMode ? TourneyWindowCount : 1;
+                            for (int i = 0; i < size; i++)
+                            {
+                                _osuPpControls[i].RemoveDisplayer(name);
 
+                            }
+
+                            node.Value.Value.OnDestroy();
+                            var nnode = node.Next;
+                            _allDisplayers.Remove(node);
+                            node = nnode;
+                            continue;
                         }
-                        node.Value.Value.OnDestroy();
-                        var nnode = node.Next;
-                        _allDisplayers.Remove(node);
-                        node = nnode;
-                        continue;
+                        catch (TaskCanceledException)
+                        { }
                     }
                     node = node.Next;
                 }
