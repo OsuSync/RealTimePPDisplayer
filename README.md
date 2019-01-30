@@ -4,6 +4,11 @@ This is a Sync! plugin for displaying the current beatmap's pp in real-time when
 # Notice!
 Please read the README about [osu!RTDP](https://github.com/KedamaOvO/OsuRTDataProvider-Release) and read the [osu! forum post](https://osu.ppy.sh/community/forums/topics/685031) before you use this.
 
+# Request 
+1. [osu!Sync](https://github.com/Deliay/osuSync)
+2. [osu!RTDataProvider](https://github.com/KedamaOvO/OsuRTDataProvider-Release)
+3. [ctb-server(option)](https://github.com/OsuSync/RealTimePPDisplayer/releases/download/v1.5.0/ctb-server.7z)
+
 # Settings
 The settings for this application are located in the config.ini<br>
 
@@ -40,10 +45,6 @@ The settings for this application are located in the config.ini<br>
 5. Add **mmf** to **OutputMethods** in **config.ini**, save config.ini.
 
 **Memory mapping file name** = **内存映射文件名** = **記憶體對應檔案** = **MMF.Name**
-
-# Request 
-1. [osu!Sync](https://github.com/Deliay/osuSync)
-2. [osu!RTDataProvider](https://github.com/KedamaOvO/OsuRTDataProvider-Release)
 
 # Reference
 1. [oppai-ng](https://github.com/Francesco149/oppai-ng)
