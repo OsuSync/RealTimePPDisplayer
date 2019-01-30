@@ -7,7 +7,7 @@ Please read the README about [osu!RTDP](https://github.com/KedamaOvO/OsuRTDataPr
 # Request 
 1. [osu!Sync](https://github.com/Deliay/osuSync)
 2. [osu!RTDataProvider](https://github.com/KedamaOvO/OsuRTDataProvider-Release)
-3. [ctb-server(option)](https://github.com/OsuSync/RealTimePPDisplayer/releases/download/v1.5.0/ctb-server.7z)
+3. [ctb-server(optional)](https://github.com/OsuSync/RealTimePPDisplayer/releases/download/v1.5.0/ctb-server.7z)
 
 # Settings
 The settings for this application are located in the config.ini<br>
