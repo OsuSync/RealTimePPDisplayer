@@ -144,28 +144,28 @@ namespace RealTimePPDisplayer.Calculator
         public class pp_params
         {
             /* required parameters */
-            public double aim, speed;
+            public float aim, speed;
             public float base_ar, base_od;
-            public Int32 max_combo;
-            public UInt16 nsliders; /* required for scorev1 only */
-            public UInt16 ncircles; /* ^ */
-            public UInt16 nobjects;
+            public int max_combo;
+            public int nsliders; /* required for scorev1 only */
+            public int ncircles; /* ^ */
+            public int nobjects;
 
             /* optional parameters */
-            public UInt32 mode; /* defaults to MODE_STD */
-            public UInt32 mods; /* defaults to MODS_NOMOD */
-            public Int32 combo; /* defaults to FC */
-            public UInt16 n300, n100, n50; /* defaults to SS */
-            public UInt16 nmiss; /* defaults to 0 */
-            public UInt16 score_version; /* defaults to PP_DEFAULT_SCORING */
+            public int mode;            /* defaults to MODE_STD */
+            public int mods;            /* defaults to MODS_NOMOD */
+            public int combo;           /* defaults to FC */
+            public int n300, n100, n50; /* defaults to SS */
+            public int nmiss;           /* defaults to 0 */
+            public int score_version;   /* defaults to PP_DEFAULT_SCORING */
         }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct pp_calc
         {
             /* ppv2 will store results here */
-            public double total, aim, speed, acc;
-            public double accuracy; /* 0.0 - 1.0 */
+            public float total, aim, speed, acc;
+            public float accuracy; /* 0.0f - 1.0f */
             public static pp_calc Empty;
         };
 
