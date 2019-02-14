@@ -44,8 +44,8 @@ namespace RealTimePPDisplayer
             try
             {
                 string data = GetHttpData(RtppVersionURL);
-                Regex regex = new Regex(@"string\s*VERSION\s*=\s*""\w\.\w.\w""");
-                string version = regex.Match(data).Value.Split('=')[1].Replace("\"", "");
+                Regex regex = new Regex(@"string\s*VERSION\s*=\s*""(\d+\.\d+\.\d+)""");
+                string version = regex.Match(data).Groups[1].Value;
                 Version ver = Version.Parse(version);
                 Version selfVer = Version.Parse(RealTimePPDisplayerPlugin.VERSION);
                 if (ver > selfVer)
