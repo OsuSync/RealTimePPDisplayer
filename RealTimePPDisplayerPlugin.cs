@@ -17,7 +17,7 @@ namespace RealTimePPDisplayer
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.6.4";
+        public const string VERSION= "1.6.5";
 
         private readonly DisplayerController[] _osuPpControls = new DisplayerController[16];
 
@@ -43,6 +43,11 @@ namespace RealTimePPDisplayer
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
             EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
+            EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((e) =>
+            {
+                CheckUpdater.CheckRtppUpdate();
+                CheckUpdater.CheckOppaiUpdate();
+            });
 
             Instance = this;
         }

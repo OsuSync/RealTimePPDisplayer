@@ -59,6 +59,7 @@
     <Compile Include="Calculator\StdPerformanceCalculator.cs" />
     <Compile Include="Calculator\PerformanceCalculatorBase.cs" />
     <Compile Include="Calculator\TaikoPerformanceCalculator.cs" />
+    <Compile Include="CheckUpdater.cs" />
     <Compile Include="DefaultLanguage.cs" />
     <Compile Include="Displayer\ConsoleDisplayer.cs" />
     <Compile Include="Displayer\DisplayerBase.cs" />
