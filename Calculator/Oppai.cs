@@ -109,9 +109,12 @@ namespace RealTimePPDisplayer.Calculator
                 args.nmiss = nmiss;
                 args.mode = (uint)mode;
 
-                if (!get_ppv2(Beatmap.RawData, (uint)pos, ref args, false, _realTimeData, ref _rtppResult))
+                if (nobject != 0)
                 {
-                    return pp_calc.Empty;
+                    if (!get_ppv2(Beatmap.RawData, (uint)pos, ref args, false, _realTimeData, ref _rtppResult))
+                    {
+                        return pp_calc.Empty;
+                    }
                 }
             }
 
