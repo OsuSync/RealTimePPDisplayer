@@ -13,16 +13,24 @@ namespace RealTimePPDisplayer.Calculator
     {
         private const uint c_unknown_mods = 0xffffffffu;
 
-        private pp_params _realTimeData = new pp_params();
-        private readonly pp_params _cache = new pp_params();
+        private IntPtr handle = ezpp_new();
 
-        public int RealTimeMaxCombo => _realTimeData.max_combo;
-        public int FullCombo => _cache.max_combo;
+        public int RealTimeMaxCombo => ezpp_combo(handle);
+        public int FullCombo => ezpp_max_combo(handle);
 
         public BeatmapReader Beatmap { get; set; }
 
         private uint _lastMods = c_unknown_mods;
         private pp_calc _maxResult;
+
+        private void CopyResultsFromHandle(ref pp_calc pp)
+        {
+            pp.total = ezpp_pp(handle);
+            pp.aim = ezpp_aim_pp(handle);
+            pp.speed = ezpp_speed_pp(handle);
+            pp.acc = ezpp_acc_pp(handle);
+            pp.accuracy = ezpp_accuracy_percent(handle) / 100.0f;
+        }
 
         public pp_calc GetMaxPP(uint mods, int mode)
         {
@@ -32,16 +40,14 @@ namespace RealTimePPDisplayer.Calculator
             {
                 _lastMods = mods;
 
-                rtpp_params args;
-                args.combo = FULL_COMBO;
-                args.mods = mods;
-                args.n100 = 0;
-                args.n50 = 0;
-                args.nmiss = 0;
-                args.mode = (uint)mode;
+                ezpp_set_mods(handle, (int)mods);
+                ezpp_set_mode_override(handle, mode);
+                ezpp_set_accuracy(handle, 0, 0);
+                ezpp_set_nmiss(handle, 0);
+                ezpp_set_combo(handle, FULL_COMBO);
+                ezpp_data(handle, Beatmap.RawData, Beatmap.RawData.Length);
 
-                //Cache Beatmap
-                get_ppv2(Beatmap.RawData, (uint)Beatmap.RawData.Length, ref args, false, _cache, ref _maxResult);
+                CopyResultsFromHandle(ref _maxResult);
             }
             return _maxResult;
         }
@@ -61,15 +67,14 @@ namespace RealTimePPDisplayer.Calculator
                 _fcN100 = n100;
                 _fcN50 = n50;
 
-                rtpp_params args;
-                args.combo = FULL_COMBO;
-                args.mods = mods;
-                args.n100 = n100;
-                args.n50 = n50;
-                args.nmiss = 0;
-                args.mode = (uint)mode;
+                ezpp_set_mods(handle, (int)mods);
+                ezpp_set_mode_override(handle, mode);
+                ezpp_set_accuracy(handle, n100, n50);
+                ezpp_set_nmiss(handle, 0);
+                ezpp_set_combo(handle, FULL_COMBO);
+                ezpp_data(handle, Beatmap.RawData, Beatmap.RawData.Length);
 
-                get_ppv2(Beatmap.RawData, (uint)Beatmap.RawData.Length, ref args, true, _cache, ref _fcResult);
+                CopyResultsFromHandle(ref _fcResult);
             }
 
             return _fcResult;
@@ -101,20 +106,20 @@ namespace RealTimePPDisplayer.Calculator
                 _nmiss = nmiss;
                 _maxCombo = maxCombo;
 
-                rtpp_params args;
-                args.combo = maxCombo;
-                args.mods = mods;
-                args.n100 = n100;
-                args.n50 = n50;
-                args.nmiss = nmiss;
-                args.mode = (uint)mode;
+                ezpp_set_mods(handle, (int)mods);
+                ezpp_set_mode_override(handle, mode);
+                ezpp_set_accuracy(handle, n100, n50);
+                ezpp_set_nmiss(handle, nmiss);
+                ezpp_set_combo(handle, maxCombo);
 
                 if (nobject != 0)
                 {
-                    if (!get_ppv2(Beatmap.RawData, (uint)pos, ref args, false, _realTimeData, ref _rtppResult))
+                    if (ezpp_data(handle, Beatmap.RawData, pos) < 0)
                     {
                         return pp_calc.Empty;
                     }
+
+                    CopyResultsFromHandle(ref _rtppResult);
                 }
             }
 
@@ -123,8 +128,6 @@ namespace RealTimePPDisplayer.Calculator
 
         public void Clear()
         {
-            _realTimeData = new pp_params();
-
             _pos = -1;
             _n100 = -1;
             _n50 = -1;
@@ -138,32 +141,16 @@ namespace RealTimePPDisplayer.Calculator
 
             _lastMods = c_unknown_mods;
             _maxResult = pp_calc.Empty;
+
+            // force map re-parse without reallocating handle
+            ezpp_set_base_cs(handle, 0);
+            ezpp_set_base_ar(handle, 0);
+            ezpp_set_base_od(handle, 0);
+            ezpp_set_base_hp(handle, 0);
         }
 
         public const Int32 FULL_COMBO = -1;
 
-        #region oppai struct
-        [StructLayout(LayoutKind.Sequential)]
-        public class pp_params
-        {
-            /* required parameters */
-            public float aim, speed;
-            public float base_ar, base_od;
-            public int max_combo;
-            public int nsliders; /* required for scorev1 only */
-            public int ncircles; /* ^ */
-            public int nobjects;
-
-            /* optional parameters */
-            public int mode;            /* defaults to MODE_STD */
-            public int mods;            /* defaults to MODS_NOMOD */
-            public int combo;           /* defaults to FC */
-            public int n300, n100, n50; /* defaults to SS */
-            public int nmiss;           /* defaults to 0 */
-            public int score_version;   /* defaults to PP_DEFAULT_SCORING */
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
         public struct pp_calc
         {
             /* ppv2 will store results here */
@@ -172,19 +159,26 @@ namespace RealTimePPDisplayer.Calculator
             public static pp_calc Empty;
         };
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct rtpp_params
-        {
-            public UInt32 mods;
-            public int n50,n100,nmiss;
-            public int combo;
-            public UInt32 mode;
-        }
-        #endregion
-
-        #region oppai P/Ivoke
-        [DllImport(@"oppai.dll")]
-        public static extern bool get_ppv2(byte[] data, UInt32 dataSize,ref rtpp_params args, Boolean useCache,pp_params cache,ref pp_calc result);
+        #region oppai P/Invoke
+        [DllImport(@"oppai.dll")] public static extern IntPtr ezpp_new();
+        [DllImport(@"oppai.dll")] public static extern void ezpp_free(IntPtr handle);
+        [DllImport(@"oppai.dll")] public static extern int ezpp_data(IntPtr handle, byte[] data, int data_size);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_base_cs(IntPtr handle, float cs);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_base_od(IntPtr handle, float cs);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_base_ar(IntPtr handle, float cs);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_base_hp(IntPtr handle, float cs);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_mods(IntPtr handle, int mods);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_accuracy(IntPtr handle, int n100, int n50);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_nmiss(IntPtr handle, int mods);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_combo(IntPtr handle, int combo);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_mode_override(IntPtr handle, int mode);
+        [DllImport(@"oppai.dll")] public static extern float ezpp_pp(IntPtr handle);
+        [DllImport(@"oppai.dll")] public static extern float ezpp_aim_pp(IntPtr handle);
+        [DllImport(@"oppai.dll")] public static extern float ezpp_speed_pp(IntPtr handle);
+        [DllImport(@"oppai.dll")] public static extern float ezpp_acc_pp(IntPtr handle);
+        [DllImport(@"oppai.dll")] public static extern float ezpp_accuracy_percent(IntPtr handle);
+        [DllImport(@"oppai.dll")] public static extern int ezpp_combo(IntPtr handle);
+        [DllImport(@"oppai.dll")] public static extern int ezpp_max_combo(IntPtr handle);
         #endregion
 
         #region oppai-ng function
