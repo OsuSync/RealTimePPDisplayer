@@ -15,7 +15,7 @@ namespace RealTimePPDisplayer
         private const string RtppVersionURL = "https://raw.githubusercontent.com/OsuSync/RealTimePPDisplayer/master/RealTimePPDisplayerPlugin.cs";
         private const string OppaiVersionURL = "https://raw.githubusercontent.com/OsuSync/RealTimePPDisplayer/master/oppai_version";
 
-        [DllImport("oppai.dll",EntryPoint = "get_oppai_version")]
+        [DllImport("oppai.dll",EntryPoint = "oppai_version")]
         static extern void GetOppaiVersion(out int major, out int minor, out int patch);
 
         public static void CheckOppaiUpdate()
