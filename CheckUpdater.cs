@@ -12,25 +12,25 @@ namespace RealTimePPDisplayer
 {
     static class CheckUpdater
     {
-        private const string RtppVersionURL = "https://raw.githubusercontent.com/OsuSync/RealTimePPDisplayer/master/RealTimePPDisplayerPlugin.cs";
-        private const string OppaiVersionURL = "https://raw.githubusercontent.com/OsuSync/RealTimePPDisplayer/master/oppai_version";
+        private static readonly Regex NAME_REGEX = new Regex(@"""name"":\s*""v(\d+\.\d+\.\d+)(?:\((\d+\.\d+\.\d+)\))?""");
+
+        private const string LATEST_RELEASE_URL = "https://api.github.com/repos/OsuSync/RealTimePPDisplayer/releases/latest";
 
         [DllImport("oppai.dll",EntryPoint = "oppai_version")]
         static extern void GetOppaiVersion(out int major, out int minor, out int patch);
 
-        public static void CheckOppaiUpdate()
+        public static void CheckUpdate()
         {
             try
             {
-                string version = GetHttpData(OppaiVersionURL);
-                Version ver = Version.Parse(version);
-                GetOppaiVersion(out int major, out int minor, out int patch);
-                Version selfVer = new Version(major, minor, patch);
-                if (ver > selfVer)
+                string data = GetHttpData(LATEST_RELEASE_URL);
+                var groups = NAME_REGEX.Match(data).Groups;
+                string rtpp_version = groups[1].Value;
+                CheckRtppUpdate(rtpp_version);
+                if (groups.Count > 2)
                 {
-                    Sync.Tools.IO.DefaultIO.WriteColor(
-                        string.Format(DefaultLanguage.CHECK_OPPAI_UPDATE, ver),
-                        ConsoleColor.Yellow);
+                    string oppai_version = groups[2].Value;
+                    CheckOppaiUpdate(oppai_version);
                 }
             }
             catch (Exception e)
@@ -39,34 +39,39 @@ namespace RealTimePPDisplayer
             }
         }
 
-        public static void CheckRtppUpdate()
+        private static void CheckOppaiUpdate(string version)
         {
-            try
+            Version ver = Version.Parse(version);
+            GetOppaiVersion(out int major, out int minor, out int patch);
+            Version selfVer = new Version(major, minor, patch);
+            if (ver > selfVer)
             {
-                string data = GetHttpData(RtppVersionURL);
-                Regex regex = new Regex(@"string\s*VERSION\s*=\s*""(\d+\.\d+\.\d+)""");
-                string version = regex.Match(data).Groups[1].Value;
-                Version ver = Version.Parse(version);
-                Version selfVer = Version.Parse(RealTimePPDisplayerPlugin.VERSION);
-                if (ver > selfVer)
-                {
-                    Sync.Tools.IO.DefaultIO.WriteColor(
-                        string.Format(DefaultLanguage.CHECK_RTPPD_UPDATE, ver),
-                        ConsoleColor.Yellow);
-                }
+                Sync.Tools.IO.DefaultIO.WriteColor(
+                    string.Format(DefaultLanguage.CHECK_OPPAI_UPDATE, ver),
+                    ConsoleColor.Yellow);
             }
-            catch (Exception e)
+        }
+
+        private static void CheckRtppUpdate(string tag)
+        {
+            Version ver = Version.Parse(tag);
+            Version selfVer = Version.Parse(RealTimePPDisplayerPlugin.VERSION);
+            if (ver > selfVer)
             {
-                Sync.Tools.IO.DefaultIO.WriteColor(e.ToString(),ConsoleColor.Red);
+                Sync.Tools.IO.DefaultIO.WriteColor(
+                    string.Format(DefaultLanguage.CHECK_RTPPD_UPDATE, ver),
+                    ConsoleColor.Yellow);
             }
         }
 
         private static string GetHttpData(string url)
         {
-            WebRequest wReq = WebRequest.Create(url);
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls | SecurityProtocolType.Ssl3;
+            HttpWebRequest wReq = (HttpWebRequest)WebRequest.Create(url);
+            wReq.UserAgent = "OsuSync";
             WebResponse wResp = wReq.GetResponse();
             Stream respStream = wResp.GetResponseStream();
-            // Dim reader As StreamReader = New StreamReader(respStream)
+
             using (StreamReader reader = new StreamReader(respStream, Encoding.UTF8))
             {
                 return reader.ReadToEnd();

@@ -45,8 +45,7 @@ namespace RealTimePPDisplayer
             EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
             EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((e) =>
             {
-                CheckUpdater.CheckRtppUpdate();
-                CheckUpdater.CheckOppaiUpdate();
+                CheckUpdater.CheckUpdate();
             });
 
             Instance = this;
