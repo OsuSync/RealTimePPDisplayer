@@ -27,7 +27,7 @@ namespace RealTimePPDisplayer
                 var groups = NAME_REGEX.Match(data).Groups;
                 string rtpp_version = groups[1].Value;
                 CheckRtppUpdate(rtpp_version);
-                if (groups.Count > 2)
+                if (!string.IsNullOrEmpty(groups[2].Value))
                 {
                     string oppai_version = groups[2].Value;
                     CheckOppaiUpdate(oppai_version);
