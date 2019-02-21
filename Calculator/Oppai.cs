@@ -142,11 +142,6 @@ namespace RealTimePPDisplayer.Calculator
             _lastMods = c_unknown_mods;
             _maxResult = pp_calc.Empty;
 
-            // force map re-parse without reallocating handle
-            ezpp_set_base_cs(handle, 0);
-            ezpp_set_base_ar(handle, 0);
-            ezpp_set_base_od(handle, 0);
-            ezpp_set_base_hp(handle, 0);
         }
 
         public const Int32 FULL_COMBO = -1;
