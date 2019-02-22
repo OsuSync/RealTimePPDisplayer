@@ -190,6 +190,7 @@ namespace RealTimePPDisplayer
             if (_curMods == ModsInfo.Mods.Unknown) return;
 
 
+
             int totalhit = _n300 + _n100 + _n50 + _nkatu + _ngeki + _nmiss;
             if (time > cal.Beatmap?.BeatmapDuration &&
                 totalhit == 0) return;
