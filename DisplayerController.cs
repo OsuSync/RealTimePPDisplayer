@@ -136,7 +136,7 @@ namespace RealTimePPDisplayer
 
             cal.ClearCache();
 
-            if (OsuStatusHelper.IsListening(cur) || cur == OsuStatus.Editing)//Clear Output and reset
+            if (OsuStatusHelper.IsListening(cur) || cur == OsuStatus.Editing)//Clear output and reset
             {
                 _combo = 0;
                 _maxCombo = 0;
@@ -188,7 +188,6 @@ namespace RealTimePPDisplayer
             if (cal == null) return;
             if (_status != OsuStatus.Playing) return;
             if (_curMods == ModsInfo.Mods.Unknown) return;
-
 
 
             int totalhit = _n300 + _n100 + _n50 + _nkatu + _ngeki + _nmiss;
