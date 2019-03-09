@@ -62,7 +62,7 @@ namespace RealTimePPDisplayer
             {
                 if (_status != OsuStatus.Playing) return;
                 int fullCombo = GetFullCombo(GetCalculator(_mode));
-                if(combo<= (fullCombo == 0?20000:fullCombo))
+                if(combo <= (fullCombo == 0 ? 20000 : fullCombo))
                 {
                     _combo = combo;
                     _maxCombo = Math.Max(_maxCombo, _combo);

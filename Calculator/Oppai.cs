@@ -45,6 +45,7 @@ namespace RealTimePPDisplayer.Calculator
                 ezpp_set_accuracy(handle, 0, 0);
                 ezpp_set_nmiss(handle, 0);
                 ezpp_set_combo(handle, FULL_COMBO);
+                ezpp_set_end(handle, Beatmap.RawData.Length);
                 ezpp_data(handle, Beatmap.RawData, Beatmap.RawData.Length);
 
                 CopyResultsFromHandle(ref _maxResult);
@@ -72,6 +73,7 @@ namespace RealTimePPDisplayer.Calculator
                 ezpp_set_accuracy(handle, n100, n50);
                 ezpp_set_nmiss(handle, 0);
                 ezpp_set_combo(handle, FULL_COMBO);
+                ezpp_set_end(handle, Beatmap.RawData.Length);
                 ezpp_data(handle, Beatmap.RawData, Beatmap.RawData.Length);
 
                 CopyResultsFromHandle(ref _fcResult);
@@ -111,10 +113,11 @@ namespace RealTimePPDisplayer.Calculator
                 ezpp_set_accuracy(handle, n100, n50);
                 ezpp_set_nmiss(handle, nmiss);
                 ezpp_set_combo(handle, maxCombo);
+                ezpp_set_end(handle, pos);
 
                 if (nobject != 0)
                 {
-                    if (ezpp_data(handle, Beatmap.RawData, pos) < 0)
+                    if (ezpp_data(handle, Beatmap.RawData, Beatmap.RawData.Length) < 0)
                     {
                         return pp_calc.Empty;
                     }
@@ -172,6 +175,7 @@ namespace RealTimePPDisplayer.Calculator
         [DllImport(@"oppai.dll")] public static extern void ezpp_set_nmiss(IntPtr handle, int mods);
         [DllImport(@"oppai.dll")] public static extern void ezpp_set_combo(IntPtr handle, int combo);
         [DllImport(@"oppai.dll")] public static extern void ezpp_set_mode_override(IntPtr handle, int mode);
+        [DllImport(@"oppai.dll")] public static extern void ezpp_set_end(IntPtr ez, int end);
         [DllImport(@"oppai.dll")] public static extern float ezpp_pp(IntPtr handle);
         [DllImport(@"oppai.dll")] public static extern float ezpp_aim_pp(IntPtr handle);
         [DllImport(@"oppai.dll")] public static extern float ezpp_speed_pp(IntPtr handle);

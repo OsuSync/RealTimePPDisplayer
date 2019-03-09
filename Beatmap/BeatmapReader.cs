@@ -150,7 +150,7 @@ namespace RealTimePPDisplayer.Beatmap
             foreach (var obj in Objects)
             {
                 if (obj.StartTime > endTime) break;
-                pos += (obj.Length);
+                pos += obj.Length;
                 nobject++;
             }
 
