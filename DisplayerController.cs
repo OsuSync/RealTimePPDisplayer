@@ -156,12 +156,17 @@ namespace RealTimePPDisplayer
             {
                 bool @lock = _time > _beatmapReader?.BeatmapDuration / 4;
                 if (@lock)
-                    _playStatusLocker.WaitOne();
+                    _playStatusLocker.WaitOne(5000);
 
                 _mode = mode;
 
-                if (@lock)
-                    _playStatusLocker.ReleaseMutex();
+                try
+                {
+                    if (@lock)
+                        _playStatusLocker.ReleaseMutex();
+                }
+                catch (ApplicationException)
+                { }
             });
 
         }
