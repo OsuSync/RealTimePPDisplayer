@@ -13,17 +13,18 @@ namespace RealTimePPDisplayer.Calculator
     {
         private const uint c_unknown_mods = 0xffffffffu;
 
-        private IntPtr handle = ezpp_new();
+        private IntPtr fc_handle = ezpp_new();
+        private IntPtr rt_handle = ezpp_new();
 
-        public int RealTimeMaxCombo => ezpp_combo(handle);
-        public int FullCombo => ezpp_max_combo(handle);
+        public int RealTimeMaxCombo => ezpp_combo(rt_handle);
+        public int FullCombo => ezpp_max_combo(fc_handle);
 
         public BeatmapReader Beatmap { get; set; }
 
         private uint _lastMods = c_unknown_mods;
         private pp_calc _maxResult;
 
-        private void CopyResultsFromHandle(ref pp_calc pp)
+        private static void CopyResultsFromHandle(IntPtr handle,ref pp_calc pp)
         {
             pp.total = ezpp_pp(handle);
             pp.aim = ezpp_aim_pp(handle);
@@ -40,15 +41,14 @@ namespace RealTimePPDisplayer.Calculator
             {
                 _lastMods = mods;
 
-                ezpp_set_mods(handle, (int)mods);
-                ezpp_set_mode_override(handle, mode);
-                ezpp_set_accuracy(handle, 0, 0);
-                ezpp_set_nmiss(handle, 0);
-                ezpp_set_combo(handle, FULL_COMBO);
-                ezpp_set_end(handle, Beatmap.RawData.Length);
-                ezpp_data(handle, Beatmap.RawData, Beatmap.RawData.Length);
+                ezpp_set_mods(fc_handle, (int)mods);
+                ezpp_set_mode_override(fc_handle, mode);
+                ezpp_set_accuracy(fc_handle, 0, 0);
+                ezpp_set_nmiss(fc_handle, 0);
+                ezpp_set_combo(fc_handle, FULL_COMBO);
+                ezpp_data(fc_handle, Beatmap.RawData, Beatmap.RawData.Length);
 
-                CopyResultsFromHandle(ref _maxResult);
+                CopyResultsFromHandle(fc_handle,ref _maxResult);
             }
             return _maxResult;
         }
@@ -68,15 +68,14 @@ namespace RealTimePPDisplayer.Calculator
                 _fcN100 = n100;
                 _fcN50 = n50;
 
-                ezpp_set_mods(handle, (int)mods);
-                ezpp_set_mode_override(handle, mode);
-                ezpp_set_accuracy(handle, n100, n50);
-                ezpp_set_nmiss(handle, 0);
-                ezpp_set_combo(handle, FULL_COMBO);
-                ezpp_set_end(handle, Beatmap.RawData.Length);
-                ezpp_data(handle, Beatmap.RawData, Beatmap.RawData.Length);
+                ezpp_set_mods(fc_handle, (int)mods);
+                ezpp_set_mode_override(fc_handle, mode);
+                ezpp_set_accuracy(fc_handle, n100, n50);
+                ezpp_set_nmiss(fc_handle, 0);
+                ezpp_set_combo(fc_handle, FULL_COMBO);
+                ezpp_data(fc_handle, Beatmap.RawData, Beatmap.RawData.Length);
 
-                CopyResultsFromHandle(ref _fcResult);
+                CopyResultsFromHandle(fc_handle,ref _fcResult);
             }
 
             return _fcResult;
@@ -108,21 +107,20 @@ namespace RealTimePPDisplayer.Calculator
                 _nmiss = nmiss;
                 _maxCombo = maxCombo;
 
-                ezpp_set_mods(handle, (int)mods);
-                ezpp_set_mode_override(handle, mode);
-                ezpp_set_accuracy(handle, n100, n50);
-                ezpp_set_nmiss(handle, nmiss);
-                ezpp_set_combo(handle, maxCombo);
-                ezpp_set_end(handle, pos);
+                ezpp_set_mods(rt_handle, (int)mods);
+                ezpp_set_mode_override(rt_handle, mode);
+                ezpp_set_accuracy(rt_handle, n100, n50);
+                ezpp_set_nmiss(rt_handle, nmiss);
+                ezpp_set_combo(rt_handle, maxCombo);
 
                 if (nobject != 0)
                 {
-                    if (ezpp_data(handle, Beatmap.RawData, Beatmap.RawData.Length) < 0)
+                    if (ezpp_data(rt_handle, Beatmap.RawData, pos) < 0)
                     {
                         return pp_calc.Empty;
                     }
 
-                    CopyResultsFromHandle(ref _rtppResult);
+                    CopyResultsFromHandle(rt_handle,ref _rtppResult);
                 }
             }
 
@@ -145,6 +143,12 @@ namespace RealTimePPDisplayer.Calculator
             _lastMods = c_unknown_mods;
             _maxResult = pp_calc.Empty;
 
+            ClearOppai(fc_handle);
+            ClearOppai(rt_handle);
+        }
+
+        private static void ClearOppai(IntPtr handle)
+        {
             // force map re-parse without reallocating handle	
             ezpp_set_base_cs(handle, -1);
             ezpp_set_base_ar(handle, -1);
