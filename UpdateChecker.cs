@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer
 {
-    static class CheckUpdater
+    static class UpdateChecker
     {
         private static readonly Regex NAME_REGEX = new Regex(@"""name"":\s*""v(\d+\.\d+\.\d+)(?:\((\d+\.\d+\.\d+)\))?""");
 
@@ -26,11 +26,16 @@ namespace RealTimePPDisplayer
                 string data = GetHttpData(LATEST_RELEASE_URL);
                 var groups = NAME_REGEX.Match(data).Groups;
                 string rtpp_version = groups[1].Value;
-                CheckRtppUpdate(rtpp_version);
+                bool has_update = CheckRtppUpdate(rtpp_version);
                 if (!string.IsNullOrEmpty(groups[2].Value))
                 {
                     string oppai_version = groups[2].Value;
-                    CheckOppaiUpdate(oppai_version);
+                    has_update = has_update || CheckOppaiUpdate(oppai_version);
+                }
+
+                if(has_update)
+                {
+                    Sync.Tools.IO.DefaultIO.WriteColor(DefaultLanguage.CHECK_GOTO_RELEASE_PAGE_HINT,ConsoleColor.Yellow);
                 }
             }
             catch (Exception e)
@@ -39,7 +44,7 @@ namespace RealTimePPDisplayer
             }
         }
 
-        private static void CheckOppaiUpdate(string version)
+        private static bool CheckOppaiUpdate(string version)
         {
             Version ver = Version.Parse(version);
             GetOppaiVersion(out int major, out int minor, out int patch);
@@ -49,10 +54,12 @@ namespace RealTimePPDisplayer
                 Sync.Tools.IO.DefaultIO.WriteColor(
                     string.Format(DefaultLanguage.CHECK_OPPAI_UPDATE, ver),
                     ConsoleColor.Yellow);
+                return true;
             }
+            return false;
         }
 
-        private static void CheckRtppUpdate(string tag)
+        private static bool CheckRtppUpdate(string tag)
         {
             Version ver = Version.Parse(tag);
             Version selfVer = Version.Parse(RealTimePPDisplayerPlugin.VERSION);
@@ -61,7 +68,9 @@ namespace RealTimePPDisplayer
                 Sync.Tools.IO.DefaultIO.WriteColor(
                     string.Format(DefaultLanguage.CHECK_RTPPD_UPDATE, ver),
                     ConsoleColor.Yellow);
+                return true;
             }
+            return false;
         }
 
         private static string GetHttpData(string url)

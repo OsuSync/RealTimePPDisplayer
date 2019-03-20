@@ -45,7 +45,7 @@ namespace RealTimePPDisplayer
             EventBus.BindEvent<PluginEvents.InitCommandEvent>(InitCommand);
             EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((e) =>
             {
-                CheckUpdater.CheckUpdate();
+                UpdateChecker.CheckUpdate();
             });
 
             Instance = this;
@@ -103,7 +103,7 @@ namespace RealTimePPDisplayer
             RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
             RegisterDisplayer("console", id => new ConsoleDisplayer());
 
-            IO.CurrentIO.WriteColor(PLUGIN_NAME + " By " + PLUGIN_AUTHOR, ConsoleColor.DarkCyan);
+            IO.CurrentIO.WriteColor($"{PLUGIN_NAME} By {PLUGIN_AUTHOR} Ver.{VERSION}", ConsoleColor.DarkCyan);
         }
 
         #region Displayer operation
@@ -200,6 +200,11 @@ namespace RealTimePPDisplayer
         {
             e.Commands.Dispatch.bind("rtpp", args =>
             {
+                if(args[0] == "releases")
+                {
+                    System.Diagnostics.Process.Start("https://github.com/OsuSync/RealTimePPDisplayer/releases");
+                }
+
                 if(args.Count>=2)
                 {
                     switch(args[0])
@@ -213,7 +218,6 @@ namespace RealTimePPDisplayer
                         case "remove":
                             if (!_displayerCreators.ContainsKey(args[1])) return false;
                             RemoveDisplayer(args[1]);
-
                             break;
                     }
                     return true;

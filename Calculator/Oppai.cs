@@ -11,17 +11,17 @@ namespace RealTimePPDisplayer.Calculator
 {
     public class Oppai
     {
-        private const uint c_unknown_mods = 0xffffffffu;
+        private const uint UNKNOWN_MODS = 0xffffffffu;
 
         private IntPtr fc_handle = ezpp_new();
         private IntPtr rt_handle = ezpp_new();
 
-        public int RealTimeMaxCombo => ezpp_combo(rt_handle);
+        public int RealTimeMaxCombo => ezpp_max_combo(rt_handle);
         public int FullCombo => ezpp_max_combo(fc_handle);
 
         public BeatmapReader Beatmap { get; set; }
 
-        private uint _lastMods = c_unknown_mods;
+        private uint _lastMods = UNKNOWN_MODS;
         private pp_calc _maxResult;
 
         private static void CopyResultsFromHandle(IntPtr handle,ref pp_calc pp)
@@ -140,7 +140,7 @@ namespace RealTimePPDisplayer.Calculator
             _fcN50 = -1;
             _fcResult = pp_calc.Empty;
 
-            _lastMods = c_unknown_mods;
+            _lastMods = UNKNOWN_MODS;
             _maxResult = pp_calc.Empty;
 
             ClearOppai(fc_handle);

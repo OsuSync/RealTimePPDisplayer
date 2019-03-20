@@ -10,6 +10,7 @@ namespace RealTimePPDisplayer
         public static LanguageElement MMF_MODE_OUTPUT_PATH_FORMAT = "[RealTimePPDisplayer]Memory Mapping File: {0}";
         public static LanguageElement CHECK_RTPPD_UPDATE = "[RealTimePPDisplayer]Found a new version of RealTimePPDisplayer({0})";
         public static LanguageElement CHECK_OPPAI_UPDATE = "[RealTimePPDisplayer]Found a new version of oppai-ng({0})";
+        public static LanguageElement CHECK_GOTO_RELEASE_PAGE_HINT= "[RealTimePPDisplayer]Enter \"rtpp releases\" to open the releases page in your browser.";
 
         public static GuiLanguageElement FPS = "FPS";
         public static GuiLanguageElement TextOutputPath = "Text output path";
