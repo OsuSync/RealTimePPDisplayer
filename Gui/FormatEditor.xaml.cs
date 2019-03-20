@@ -18,6 +18,8 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using RealTimePPDisplayer.Attribute;
 using static RealTimePPDisplayer.Gui.OpenFormatEditorCreator;
+using RealTimePPDisplayer.Expression;
+using System.Collections.Concurrent;
 
 namespace RealTimePPDisplayer.Gui
 {
@@ -79,6 +81,12 @@ namespace RealTimePPDisplayer.Gui
             FullCombo = 1854,
             CurrentMaxCombo = 1256
         };
+
+        private static readonly BeatmapTuple s_perviewBeatmapTuple = new BeatmapTuple
+        {
+            ObjectsCount=1358,
+            Duration = 135000
+    };
 
         private static readonly List<string> s_variables = new List<string>()
         {
@@ -147,26 +155,31 @@ namespace RealTimePPDisplayer.Gui
             "isinf(a)"
         };
 
-        public FormatEditor(PropertyInfo prop, object configurationInstance)
+        private bool _not_close;
+
+        public FormatEditor(PropertyInfo prop, object configurationInstance,bool not_close = true)
         {
             var item = new ConfigItemProxy(prop, configurationInstance);
-
+            _not_close = not_close;
             InitializeComponent();
 
             FormatEditBox.DataContext = item;
             var displayer = new DisplayerBase()
             {
                 HitCount = s_perviewHitcountTuple,
-                Pp = s_perviewPpTuple
+                Pp = s_perviewPpTuple,
+                BeatmapTuple = s_perviewBeatmapTuple,
+                Playtime = 51000
             };
+
+            StringFormatter formatter = new StringFormatter(item.Format);
+            ConcurrentDictionary<FormatArgs, IAstNode> astDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
 
             FormatEditBox.TextChanged += (s, e) =>
             {
-                string formated;
-                if(prop.CustomAttributes.FirstOrDefault(attr=>attr.AttributeType == typeof(PerformanceFormatAttribute)) != null)
-                    formated = displayer.FormatPp().ToString();
-                else
-                    formated = displayer.FormatHitCount().ToString();
+                formatter.Format = FormatEditBox.Text;
+                formatter.Clear();
+                string formated = displayer.Format(formatter, astDict).ToString();
                 FormatPreviewBox.Text = formated;
             };
 
@@ -211,8 +224,11 @@ namespace RealTimePPDisplayer.Gui
 
         private void FormatEditor_OnClosing(object sender, CancelEventArgs e)
         {
-            e.Cancel = true;
-            Hide();
+            if (_not_close)
+            {
+                e.Cancel = true;
+                Hide();
+            }
         }
     }
 }

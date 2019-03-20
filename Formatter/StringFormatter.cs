@@ -22,7 +22,15 @@ namespace RealTimePPDisplayer
         private static readonly ThreadLocal<StringFormatter> s_ppFormatLocal = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
         private static readonly ThreadLocal<StringFormatter> s_hitCountFormatLocal = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
 
-        public string Format { get; private set; }
+        private string _format;
+        public string Format {
+            get =>_format;
+            set
+            {
+                _format = value;
+                ReplaceFormat(_format);
+            }
+        }
         private readonly StringBuilder _builder=new StringBuilder(1024);
 
         private readonly object _mtx = new object();
@@ -30,9 +38,10 @@ namespace RealTimePPDisplayer
         private static readonly Regex s_pattern = new Regex(@"\$\{(\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*(@\d+)?\}");
         private static readonly Regex s_newLinePattern = new Regex(@"(?<=[^\\])\\n");
 
-        protected StringFormatter(string format)
+        public StringFormatter(string format)
         {
             ReplaceFormat(format);
+            Clear();
         }
 
         protected void ReplaceFormat(string format)
@@ -40,7 +49,7 @@ namespace RealTimePPDisplayer
             lock (_mtx)
             {
                 _args.Clear();
-                Format = s_newLinePattern.Replace(format, Environment.NewLine);
+                _format = s_newLinePattern.Replace(format, Environment.NewLine);
 
                 var result = s_pattern.Matches(format);
 
@@ -69,7 +78,7 @@ namespace RealTimePPDisplayer
         public void Clear()
         {
             _builder.Clear();
-            _builder.Append(Format);
+            _builder.Append(_format);
         }
 
         public int CopyTo(int srcIndex,char[] dst,int dstIndex)

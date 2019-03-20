@@ -1,9 +1,14 @@
-﻿using RealTimePPDisplayer.Attribute;
+﻿using Newtonsoft.Json;
+using RealTimePPDisplayer.Attribute;
+using RealTimePPDisplayer.MultiOutput;
 using Sync.Tools;
 using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Windows.Media;
 
 namespace RealTimePPDisplayer
@@ -264,6 +269,41 @@ namespace RealTimePPDisplayer
             get => Setting.UseUnicodePerformanceInformation.ToString();
         }
 
+        [String(Hide = true)]
+        public ConfigurationElement MultiOutputItems
+        {
+            get
+            {
+                using (MemoryStream ms = new MemoryStream())
+                {
+                    using (var gzip = new GZipStream(ms, CompressionLevel.Optimal, true))
+                    {
+                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Setting.MultiOutputItems));
+                        gzip.Write(bytes, 0, bytes.Length);
+                    }
+                    return Convert.ToBase64String(ms.ToArray());
+                }
+            }
+
+            set
+            {
+                try
+                {
+                    using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(value)))
+                    using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
+                    using (var sr = new StreamReader(gzip))
+                    {
+                        string json = sr.ReadToEnd();
+                        Setting.MultiOutputItems = JsonConvert.DeserializeObject<List<MultiOutputItem>>(json);
+                    }
+                }
+                catch (Exception)
+                {
+                    Setting.MultiOutputItems = JsonConvert.DeserializeObject<List<MultiOutputItem>>(value);
+                }
+            }
+        }
+
         public void onConfigurationLoad()
         {
         }
@@ -280,7 +320,8 @@ namespace RealTimePPDisplayer
 
     internal static class Setting
     {
-        public static IEnumerable<string> OutputMethods = new[]{ "wpf" };
+        public static IEnumerable<string> OutputMethods = new[] { "wpf" };
+        public static List<MultiOutputItem> MultiOutputItems = new List<MultiOutputItem>();
         public static string TextOutputPath = @"rtpp{0}.txt";
         public static bool DisplayHitObject = true;
         public static string FontName = "Segoe UI";

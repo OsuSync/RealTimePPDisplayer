@@ -1,4 +1,6 @@
-﻿using System;
+﻿using RealTimePPDisplayer.Expression;
+using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.IO.MemoryMappedFiles;
 
@@ -6,28 +8,60 @@ namespace RealTimePPDisplayer.Displayer
 {
     class MmfDisplayer : DisplayerBase
     {
-        private readonly string _mmfName;
+        private int? _id;
+        private string _mmfName;
+        public string MmfName
+        {
+            get => _mmfName;
+            set => SetMmfName(value);
+        }
 
-        private readonly char[] _ppBuffer = new char[1024];
-        private readonly char[] _hitBuffer = new char[1024];
+        private char[] _ppBuffer = new char[1024];
+        private char[] _hitBuffer = new char[1024];
         private int _hitStrLen;
-        private readonly MemoryMappedFile[] _mmfs=new MemoryMappedFile[2];
+        private MemoryMappedFile[] _mmfs=new MemoryMappedFile[2];
 
         private bool _output;
 
         private PPTuple _currentPp;
         private PPTuple _speed;
 
-        private readonly bool _splited;
+        private bool _split;
 
-        public MmfDisplayer(int? id,bool splited = false)
+        private StringFormatter ppFormatter = new PPStringFormatter();
+        private StringFormatter hitCountFormatter = new HitCountStringFormatter();
+        private ConcurrentDictionary<FormatArgs, IAstNode> astDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
+
+        public MmfDisplayer(
+            int? id,
+            string name,
+            StringFormatter ppfmt,
+            StringFormatter hitfmt ,
+            bool split = false)
         {
+            ppFormatter = ppfmt;
+            hitCountFormatter = hitfmt;
+            Initialize(id, name, split);
+        }
+
+        public MmfDisplayer(int? id,string name, bool split = false)
+        {
+            Initialize(id, name, split);
+        }
+
+        private void Initialize(int? id,string name,bool split)
+        {
+            _id = id;
             _init = false;
             _output = false;
-            _splited = splited;
-            _mmfName = id == null ? "rtpp" : $"rtpp{id}";
+            _split = split;
+            SetMmfName(name);
+        }
 
-            if (_splited)
+        private void SetMmfName(string name)
+        {
+            _mmfName = _id == null ? $"{name}" : $"{name}{_id}";
+            if (_split)
             {
                 _mmfs[0] = MemoryMappedFile.CreateOrOpen($"{_mmfName}-pp", 1024);
                 _mmfs[1] = MemoryMappedFile.CreateOrOpen($"{_mmfName}-hit", 1024);
@@ -59,7 +93,7 @@ namespace RealTimePPDisplayer.Displayer
         {
             if (!_init)
             {
-                if(_splited)
+                if(_split)
                 {
                     Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, $"{_mmfName}-pp"), ConsoleColor.DarkGreen);
                     Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.MMF_MODE_OUTPUT_PATH_FORMAT, $"{_mmfName}-hit"), ConsoleColor.DarkGreen);
@@ -70,7 +104,10 @@ namespace RealTimePPDisplayer.Displayer
             }
 
             _output = true;
-            _hitStrLen= FormatHitCount().CopyTo(0,_hitBuffer,0);
+            if (hitCountFormatter != null)
+            {
+                _hitStrLen = Format(hitCountFormatter, astDict).CopyTo(0, _hitBuffer, 0);
+            }
         }
 
         public override void FixedDisplay(double time)
@@ -83,13 +120,8 @@ namespace RealTimePPDisplayer.Displayer
 
             _currentPp = SmoothMath.SmoothDampPPTuple(_currentPp, Pp, ref _speed, time);
 
-            var formatter = FormatPp(_currentPp);
-
-            int len= formatter.CopyTo(0,_ppBuffer,0);
-
             StreamWriter[] streamWriters = new StreamWriter[2];
-
-            if (_splited)
+            if (_split)
             {
                 streamWriters[0] = new StreamWriter(_mmfs[0].CreateViewStream());
                 streamWriters[1] = new StreamWriter(_mmfs[1].CreateViewStream());
@@ -100,8 +132,15 @@ namespace RealTimePPDisplayer.Displayer
                 streamWriters[1] = streamWriters[0];
             }
 
-            streamWriters[0].Write(_ppBuffer, 0, len);
-            streamWriters[0].Write(!_splited ? '\n' : '\0');
+            if (ppFormatter!=null)
+            {
+                var formatter = Format(ppFormatter, astDict, _currentPp, HitCount, BeatmapTuple);
+
+                int len = formatter.CopyTo(0, _ppBuffer, 0);
+
+                streamWriters[0].Write(_ppBuffer, 0, len);
+                streamWriters[0].Write(!_split ? '\n' : '\0');
+            }
 
             streamWriters[1].Write(_hitBuffer, 0, _hitStrLen);
             streamWriters[1].Write('\0');

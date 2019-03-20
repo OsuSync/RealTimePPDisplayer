@@ -1,4 +1,6 @@
 ﻿using RealTimePPDisplayer.Displayer.View;
+using RealTimePPDisplayer.Expression;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Windows;
@@ -8,14 +10,29 @@ namespace RealTimePPDisplayer.Displayer
     class WpfDisplayer : DisplayerBase
     {
         private PPWindow _win;
-        private bool _output;
+        private bool _output = false;
 
-        PPTuple _currentPp;
-        PPTuple _speed;
+        private PPTuple _currentPp;
+        private PPTuple _speed;
+
+        private StringFormatter ppFormatter = new PPStringFormatter();
+        private StringFormatter hitCountFormatter = new HitCountStringFormatter();
+        private ConcurrentDictionary<FormatArgs, IAstNode> astDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
+
+        public WpfDisplayer(int? id, StringFormatter ppFmt, StringFormatter hitFmt)
+        {
+            ppFormatter = ppFmt;
+            hitCountFormatter = hitFmt;
+            Initialize(id);
+        }
 
         public WpfDisplayer(int? id)
         {
-            _output = false;
+            Initialize(id);
+        }
+
+        public void Initialize(int? id)
+        {
             if (Application.Current == null)
             {
                 var winThread = new Thread(() => new Application().Run())
@@ -48,7 +65,8 @@ namespace RealTimePPDisplayer.Displayer
         public override void Display()
         {
             if (_win != null)
-                _win.HitCountContext = FormatHitCount().ToString();
+                if(hitCountFormatter!=null)
+                    _win.HitCountContext = Format(hitCountFormatter,astDict).ToString();
             _output = true;
             _win.Refresh();
         }
@@ -59,11 +77,18 @@ namespace RealTimePPDisplayer.Displayer
 
             _currentPp=SmoothMath.SmoothDampPPTuple(_currentPp, Pp, ref _speed, time);
 
-            var formatter = FormatPp(_currentPp);
+            if (ppFormatter != null)
+            {
+                var formatter = Format(ppFormatter, astDict, _currentPp, HitCount, BeatmapTuple);
 
-            if (_win != null)
-                _win.PpContext = formatter.ToString();
-            _win.Refresh();
+                if (_win != null)
+                    _win.PpContext = formatter.ToString();
+                _win.Refresh();
+            }
+            else
+            {
+                _win.PpContext = "";
+            }
         }
 
         private void ShowPPWindow(int? id)

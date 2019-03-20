@@ -8,6 +8,7 @@ using Sync.Tools;
 using OsuRTDataProvider;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Gui;
+using RealTimePPDisplayer.MultiOutput;
 
 namespace RealTimePPDisplayer
 {
@@ -97,8 +98,9 @@ namespace RealTimePPDisplayer
             });
 
             RegisterDisplayer("wpf", id => new WpfDisplayer(id));
-            RegisterDisplayer("mmf", id => new MmfDisplayer(id));
-            RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,true));
+            RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
+            RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
+            RegisterDisplayer("multi-output", id => new MultiOutputDisplayer(id));
             RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
             RegisterDisplayer("console", id => new ConsoleDisplayer());

@@ -54,7 +54,7 @@ namespace RealTimePPDisplayer.Displayer
             Setting.OnSettingChanged += () =>
             {
                 s_ppAstDict.Clear();
-                s_hitCountExpressionDict.Clear();
+                s_hitCountAstDict.Clear();
             };
         }
 
@@ -142,25 +142,34 @@ namespace RealTimePPDisplayer.Displayer
 
         }
 
-        public StringFormatter FormatPp(PPTuple? pp=null)
+        public StringFormatter Format(
+            StringFormatter fmt,
+            ConcurrentDictionary<FormatArgs, IAstNode> astDict)
         {
-            var formatter = StringFormatter.GetPPFormatter();
-            var tuple = pp??Pp;
+            return Format(fmt, astDict, Pp, HitCount,BeatmapTuple);
+        }
 
+        public StringFormatter Format(
+            StringFormatter formatter,
+            ConcurrentDictionary<FormatArgs, IAstNode> astDict,
+            PPTuple pp,
+            HitCountTuple hitcount,
+            BeatmapTuple beatmap)
+        {
+            formatter.Clear();
             var ctx = s_exprCtx.Value;
-            var ppExpressionDict = s_ppAstDict;
 
             lock (_mtx)
             {
-                UpdateContextVariablesFromPpTuple(ctx, tuple);
-                UpdateContextVariablesFromHitCountTuple(ctx, HitCount);
-                UpdateContextVariablesBeatmapTuple(ctx,BeatmapTuple);
+                UpdateContextVariablesFromPpTuple(ctx, pp);
+                UpdateContextVariablesFromHitCountTuple(ctx, hitcount);
+                UpdateContextVariablesBeatmapTuple(ctx, beatmap);
                 ctx.Variables["playtime"] = Playtime;
             }
 
             foreach (var arg in formatter)
             {
-                if (!ppExpressionDict.TryGetValue(arg,out var root))
+                if (!astDict.TryGetValue(arg, out var root))
                 {
                     var parser = new ExpressionParser();
                     try
@@ -169,10 +178,10 @@ namespace RealTimePPDisplayer.Displayer
                     }
                     catch (ExprssionTokenException e)
                     {
-                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}",ConsoleColor.Yellow);
+                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}", ConsoleColor.Yellow);
                     }
 
-                    ppExpressionDict[arg]=root;
+                    astDict[arg] = root;
                 }
 
                 try
@@ -188,54 +197,25 @@ namespace RealTimePPDisplayer.Displayer
             return formatter;
         }
 
-        private static readonly ConcurrentDictionary<FormatArgs, IAstNode> s_hitCountExpressionDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
+        public StringFormatter FormatPp(PPTuple? pp=null)
+        {
+            var formatter = StringFormatter.GetPPFormatter();
+            Pp = pp??Pp;
+
+            return Format(formatter,s_ppAstDict);
+        }
+
+        private static readonly ConcurrentDictionary<FormatArgs, IAstNode> s_hitCountAstDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
 
         public StringFormatter FormatHitCount(HitCountTuple? hitCount=null)
         {
             var formatter = StringFormatter.GetHitCountFormatter();
+            var hitCountAstDict = s_hitCountAstDict;
             if (!Setting.DisplayHitObject) return formatter;
 
-            var tuple = hitCount ?? HitCount;
+            HitCount = hitCount??HitCount;
 
-            var ctx = s_exprCtx.Value;
-            var hitCountExpressionDict = s_hitCountExpressionDict;
-
-            lock (_mtx)
-            {
-                UpdateContextVariablesFromPpTuple(ctx, Pp);
-                UpdateContextVariablesFromHitCountTuple(ctx, tuple);
-                UpdateContextVariablesBeatmapTuple(ctx,BeatmapTuple);
-                ctx.Variables["playtime"] = Playtime;
-            }
-
-            foreach (var arg in formatter)
-            {
-                if (!hitCountExpressionDict.TryGetValue(arg,out var root))
-                {
-                    var parser = new ExpressionParser();
-                    try
-                    {
-                        root = parser.Parse(arg.ExprString);
-                    }
-                    catch (ExprssionTokenException e)
-                    {
-                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}",ConsoleColor.Yellow);
-                    }
-
-                    hitCountExpressionDict[arg]=root;
-                }
-
-                try
-                {
-                    formatter.Fill(arg, ctx.ExecAst(root));
-                }
-                catch (ExpressionException e)
-                {
-                    Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}",ConsoleColor.Yellow);
-                }
-            }
-
-            return formatter;
+            return Format(formatter,hitCountAstDict);
         }
     }
 }
