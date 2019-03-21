@@ -138,6 +138,11 @@ namespace RealTimePPDisplayer.Displayer.View
         {
             Setting.OnSettingChanged -= ReloadSetting;
         }
+
+        public void HideRow(int row)
+        {
+            Dispatcher.Invoke(()=>grid.RowDefinitions[row].Height = new GridLength(0));
+        }
     }
 
     static class ExtensionMethods

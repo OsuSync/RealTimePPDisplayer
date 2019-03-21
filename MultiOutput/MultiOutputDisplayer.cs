@@ -28,10 +28,7 @@ namespace RealTimePPDisplayer.MultiOutput
             _id = id;
 
             MultiOutputEditor.OnDisplayerRemove += (name) => RemoveDisplayer(name);
-            MultiOutputEditor.OnDisplayerNew += () =>
-            {
-                return AddDisplayer(null, "${rtpp}", MultiOutputType.MMF,false);
-            };
+            MultiOutputEditor.OnDisplayerNew += (item) => AddDisplayer(item);
             MultiOutputEditor.OnDisplayerTypeChange += (name, type) => ChangeType(name, type);
             MultiOutputEditor.OnNameChange += (last_name, name) =>
             {
@@ -97,7 +94,9 @@ namespace RealTimePPDisplayer.MultiOutput
                 case MultiOutputType.MMF:
                     displayer = new MmfDisplayer(_id, item.name, item.smooth ? ctx.fmt : null, !item.smooth ? ctx.fmt : null);break;
                 case MultiOutputType.WPF:
-                    displayer = new WpfDisplayer(_id, item.smooth ? ctx.fmt : null, !item.smooth ? ctx.fmt : null);break;
+                    displayer = new WpfDisplayer(_id, item.smooth ? ctx.fmt : null, !item.smooth ? ctx.fmt : null);
+                    (displayer as WpfDisplayer).HideRow(item.smooth ? 2 : 1);
+                    break;
             }
 
             ctx.displayer = displayer;

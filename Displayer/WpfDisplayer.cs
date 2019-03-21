@@ -48,6 +48,11 @@ namespace RealTimePPDisplayer.Displayer
             Application.Current.Dispatcher.Invoke(() => ShowPPWindow(id));
         }
 
+        public void HideRow(int row)
+        {
+            _win?.HideRow(row);
+        }
+
         public override void Clear()
         {
             base.Clear();

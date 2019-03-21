@@ -1,4 +1,5 @@
-﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
+﻿using ConfigGUI;
+using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using ConfigGUI.MultiSelect;
 using Sync.Tools.ConfigurationAttribute;
 using System;
@@ -25,6 +26,7 @@ namespace RealTimePPDisplayer.Gui
             Button multi_mmf_btn = new Button()
             {
                 Content = "Multi Output Editor",
+                IsEnabled = !ConfigWindow.RequireRestart,
                 Margin = new Thickness(1),
                 Visibility = Setting.OutputMethods.Any(om => om == "multi-output") ? Visibility.Visible : Visibility.Hidden
             };

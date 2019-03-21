@@ -97,7 +97,15 @@ namespace RealTimePPDisplayer
                 }
             });
 
-            RegisterDisplayer("wpf", id => new WpfDisplayer(id));
+            RegisterDisplayer("wpf", id => 
+            {
+                var d = new WpfDisplayer(id);
+                if (!TourneyMode)
+                    d.HideRow(0);
+                if (Setting.DisplayHitObject)
+                    d.HideRow(2);
+                return d;
+            });
             RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
             RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
             RegisterDisplayer("multi-output", id => new MultiOutputDisplayer(id));

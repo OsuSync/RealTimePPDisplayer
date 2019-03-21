@@ -174,7 +174,7 @@ namespace RealTimePPDisplayer.Gui
         }
 
         public static event Action<string> OnDisplayerRemove;
-        public static event Func<MultiOutputItem> OnDisplayerNew;
+        public static event Action<MultiOutputItem> OnDisplayerNew;
         public static event Action<string, MultiOutputType> OnDisplayerTypeChange;
         public static event Action<string,string> OnNameChange;
         public static event Action<string,string> OnFormatChange;
@@ -196,12 +196,34 @@ namespace RealTimePPDisplayer.Gui
             Hide();
         }
 
+        private int FindMaxNumber()
+        {
+            Regex regex = new Regex(@"multi-(\d)*");
+            int max = 0;
+            foreach(var item in Setting.MultiOutputItems)
+            {
+                string ns = regex.Match(item.name).Groups[1].Value;
+                if(int.TryParse(ns,out int n)){
+                    max = Math.Max(max, n);
+                }
+            }
+            return max;
+        }
+
         private void AddNewItemButton_Click(object sender, RoutedEventArgs e)
         {
-            var item = OnDisplayerNew?.Invoke();
+            string name = $"multi-{FindMaxNumber()+1}";
+
+            var item = new MultiOutputItem()
+            {
+                name = name,
+                format = "${rtpp}",
+                type = MultiOutputType.MMF,
+                smooth = false
+            };
+            OnDisplayerNew?.Invoke(item);
             var proxy = new MultiOutputItemProxy(item, this);
             _observableCollection.Add(proxy);
-
             Setting.MultiOutputItems.Add(item);
         }
     }
