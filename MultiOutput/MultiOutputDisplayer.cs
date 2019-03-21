@@ -22,22 +22,36 @@ namespace RealTimePPDisplayer.MultiOutput
         }
 
         private ConcurrentDictionary<string,DisplayerContext> _displayers = new ConcurrentDictionary<string, DisplayerContext>();
+        private Dictionary<string, Func<int?, MultiOutputItem,StringFormatter, DisplayerBase>> _creators;
 
-        public MultiOutputDisplayer(int? id)
+        static MultiOutputDisplayer()
+        {
+            RealTimePPDisplayerPlugin.Instance.RegisterMultiDisplayer("mmf", (id, item, fmt) => new MmfDisplayer(id, item.name, item.smooth ? fmt : null, !item.smooth ? fmt : null));
+            RealTimePPDisplayerPlugin.Instance.RegisterMultiDisplayer("wpf", (id, item, fmt) =>
+            {
+                var displayer = new WpfDisplayer(id, item.smooth ? fmt : null, !item.smooth ? fmt : null);
+                displayer.HideRow(item.smooth ? 2 : 1);
+                return displayer;
+            });
+        }
+
+        public MultiOutputDisplayer(int? id, Dictionary<string, Func<int?,MultiOutputItem, StringFormatter, DisplayerBase>> creators)
         {
             _id = id;
+            _creators = creators;
 
             MultiOutputEditor.OnDisplayerRemove += (name) => RemoveDisplayer(name);
             MultiOutputEditor.OnDisplayerNew += (item) => AddDisplayer(item);
             MultiOutputEditor.OnDisplayerTypeChange += (name, type) => ChangeType(name, type);
             MultiOutputEditor.OnNameChange += (last_name, name) =>
             {
-                var ctx = _displayers[last_name];
+                _displayers.TryRemove(last_name, out var ctx);
                 ctx.item.name = name;
                 if (ctx.displayer is MmfDisplayer mmf)
                 {
                     mmf.MmfName = name;
                 }
+                _displayers.TryAdd(name, ctx);
             };
             MultiOutputEditor.OnFormatChange += (name, format) =>
             {
@@ -65,7 +79,7 @@ namespace RealTimePPDisplayer.MultiOutput
             }
         }
 
-        private MultiOutputItem AddDisplayer(string name,string format,MultiOutputType type,bool smooth)
+        private MultiOutputItem AddDisplayer(string name,string format,string type,bool smooth)
         {
             name = string.IsNullOrEmpty(name) ? $"multi-{Setting.MultiOutputItems.Count}" : name;
             var item = new MultiOutputItem()
@@ -89,14 +103,9 @@ namespace RealTimePPDisplayer.MultiOutput
             };
 
             DisplayerBase displayer=null;
-            switch (item.type)
+            if(_creators.TryGetValue(item.type,out var creator))
             {
-                case MultiOutputType.MMF:
-                    displayer = new MmfDisplayer(_id, item.name, item.smooth ? ctx.fmt : null, !item.smooth ? ctx.fmt : null);break;
-                case MultiOutputType.WPF:
-                    displayer = new WpfDisplayer(_id, item.smooth ? ctx.fmt : null, !item.smooth ? ctx.fmt : null);
-                    (displayer as WpfDisplayer).HideRow(item.smooth ? 2 : 1);
-                    break;
+                displayer = creator(_id, item, ctx.fmt);
             }
 
             ctx.displayer = displayer;
@@ -111,7 +120,7 @@ namespace RealTimePPDisplayer.MultiOutput
             _displayers.TryRemove(name,out _);
         }
 
-        private void ChangeType(string name, MultiOutputType type)
+        private void ChangeType(string name, string type)
         {
             var ctx = _displayers[name];
             RemoveDisplayer(name);
@@ -122,6 +131,7 @@ namespace RealTimePPDisplayer.MultiOutput
         {
             foreach(var kv in _displayers)
             {
+                if (kv.Value.item.mode != Mode) continue;
                 kv.Value.displayer.HitCount = HitCount;
                 kv.Value.displayer.Pp = Pp;
                 kv.Value.displayer.BeatmapTuple = BeatmapTuple;
@@ -134,6 +144,7 @@ namespace RealTimePPDisplayer.MultiOutput
         {
             foreach (var kv in _displayers)
             {
+                if (kv.Value.item.mode != Mode) continue;
                 kv.Value.displayer.HitCount = HitCount;
                 kv.Value.displayer.Pp = Pp;
                 kv.Value.displayer.BeatmapTuple = BeatmapTuple;

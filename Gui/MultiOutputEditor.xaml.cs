@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
+using OsuRTDataProvider.Listen;
 using RealTimePPDisplayer.MultiOutput;
 using Sync.Tools;
 
@@ -17,6 +18,9 @@ namespace RealTimePPDisplayer.Gui
     /// </summary>
     partial class MultiOutputEditor : Window
     {
+        public static IEnumerable<string> OsuModes => typeof(OsuPlayMode).GetEnumNames().Where((s) => s != "Unknown");
+        public static IEnumerable<string> MultiDisplayerTypes => RealTimePPDisplayerPlugin.Instance.MultiDisplayerTypes;
+
         class MultiOutputItemProxy : INotifyPropertyChanged
         {
             private MultiOutputItem _object;
@@ -44,7 +48,7 @@ namespace RealTimePPDisplayer.Gui
                 }
             }
 
-            public MultiOutputType Type
+            public string Type
             {
                 get => _object.type;
                 set
@@ -62,6 +66,18 @@ namespace RealTimePPDisplayer.Gui
                     _object.smooth = value;
                     OnPropertyChanged(nameof(Smooth));
                     OnSmoothChange?.Invoke(_object.name, value); 
+                }
+            }
+
+            public string Mode
+            {
+                get => _object.mode.ToString();
+                set {
+                    if (Enum.TryParse<OsuPlayMode>(value,out var mode))
+                    {
+                        _object.mode = mode;
+                        OnPropertyChanged(nameof(Mode));
+                    }
                 }
             }
 
@@ -175,7 +191,7 @@ namespace RealTimePPDisplayer.Gui
 
         public static event Action<string> OnDisplayerRemove;
         public static event Action<MultiOutputItem> OnDisplayerNew;
-        public static event Action<string, MultiOutputType> OnDisplayerTypeChange;
+        public static event Action<string, string> OnDisplayerTypeChange;
         public static event Action<string,string> OnNameChange;
         public static event Action<string,string> OnFormatChange;
         public static event Action<string, bool> OnSmoothChange;
@@ -218,8 +234,9 @@ namespace RealTimePPDisplayer.Gui
             {
                 name = name,
                 format = "${rtpp}",
-                type = MultiOutputType.MMF,
-                smooth = false
+                type = RealTimePPDisplayerPlugin.Instance.MultiDisplayerTypes.FirstOrDefault(),
+                smooth = false,
+                mode = OsuPlayMode.Osu
             };
             OnDisplayerNew?.Invoke(item);
             var proxy = new MultiOutputItemProxy(item, this);

@@ -270,6 +270,7 @@ namespace RealTimePPDisplayer
                 p.Value.HitCount=hitTuple;
                 p.Value.BeatmapTuple = beatmapTuple;
                 p.Value.Playtime = time;
+                p.Value.Mode = _mode;
                 p.Value.Display();
             }
 

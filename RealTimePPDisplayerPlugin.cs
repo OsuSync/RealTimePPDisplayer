@@ -29,10 +29,13 @@ namespace RealTimePPDisplayer
 
         #region FixedDisplay Field
         public static RealTimePPDisplayerPlugin Instance { get; private set; }
-        public IEnumerable<string> DisplayerNames => _displayerCreators.Select(d=>d.Key);
+        public IEnumerable<string> DisplayerNames => _displayerCreators.Keys;
 
         private bool _stopFixedUpdate;
         private readonly Dictionary<string, Func<int?, DisplayerBase>> _displayerCreators = new Dictionary<string,Func<int?, DisplayerBase>>();
+        private readonly Dictionary<string, Func<int?, MultiOutputItem, StringFormatter, DisplayerBase>> _multiDisplayerCreators = new Dictionary<string, Func<int?,MultiOutputItem, StringFormatter, DisplayerBase>>();
+        public IEnumerable<string> MultiDisplayerTypes => _multiDisplayerCreators.Keys;
+
         private readonly object _allDisplayerMtx = new object();
         private readonly LinkedList<KeyValuePair<string,DisplayerBase>> _allDisplayers = new LinkedList<KeyValuePair<string,DisplayerBase>>();
         private TimeSpan _fixedInterval;
@@ -108,7 +111,7 @@ namespace RealTimePPDisplayer
             });
             RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
             RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
-            RegisterDisplayer("multi-output", id => new MultiOutputDisplayer(id));
+            RegisterDisplayer("multi-output", id => new MultiOutputDisplayer(id,_multiDisplayerCreators));
             RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
             RegisterDisplayer("console", id => new ConsoleDisplayer());
@@ -136,6 +139,24 @@ namespace RealTimePPDisplayer
             if (Setting.OutputMethods.Contains(name))
                 AddDisplayer(name, creator);
 
+            return true;
+        }
+
+        /// <summary>
+        /// Register Displayer
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="creator"></param>
+        /// <returns></returns>
+        public bool RegisterMultiDisplayer(string name, Func<int?,MultiOutputItem,StringFormatter, DisplayerBase> creator)
+        {
+            if (_multiDisplayerCreators.ContainsKey(name))
+            {
+                IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
+                return false;
+            }
+
+            _multiDisplayerCreators[name] = creator;
             return true;
         }
 

@@ -43,6 +43,7 @@ namespace RealTimePPDisplayer.Gui
             multi_combo.Click += (s, e) =>
             {
                 multi_mmf_btn.Visibility = Setting.OutputMethods.Any(om => om == "multi-output") ? Visibility.Visible : Visibility.Hidden;
+                multi_mmf_btn.IsEnabled = !ConfigWindow.RequireRestart;
             };
             panel.Children.Add(multi_mmf_btn);
             return panel;

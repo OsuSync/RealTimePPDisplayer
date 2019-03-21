@@ -4,20 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:System="clr-namespace:System;assembly=mscorlib"
-             xmlns:StyleAlias="clr-namespace:RealTimePPDisplayer.MultiOutput"
+             xmlns:rtpp="clr-namespace:RealTimePPDisplayer"
+             xmlns:local="clr-namespace:RealTimePPDisplayer.Gui"
              mc:Ignorable="d" 
              Width="850" Height="600"
              Closing="OverlayEditor_OnClosing"
              Title="Multi Output Editor"
              ResizeMode="NoResize">
     <Window.Resources>
-        <ObjectDataProvider x:Key="MultiOutputType" MethodName="GetValues"
-                            ObjectType="{x:Type System:Enum}">
-            <ObjectDataProvider.MethodParameters>
-                <x:Type TypeName="StyleAlias:MultiOutputType"/>
-            </ObjectDataProvider.MethodParameters>
-        </ObjectDataProvider>
-        
+
         <DataTemplate x:Key="FormatOutputTemplate">
             <Border Margin="2" BorderThickness="1" BorderBrush="#FFB4A1A1" >
                 <Grid>
@@ -30,7 +25,7 @@
                     <StackPanel Orientation="Horizontal" Grid.Row="0">
                         <Label Width="80" Content="Name:"/>
                         <TextBox Width="400" Text="{Binding Name}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
-                        <ComboBox Margin="2" Width="80" ItemsSource="{Binding Source={StaticResource MultiOutputType}}" SelectedItem="{Binding Type}"></ComboBox>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.MultiDisplayerTypes}" SelectedItem="{Binding Type}"></ComboBox>
                         <StackPanel Orientation="Horizontal">
                             <Button Margin="2" Width="80" Content="Delete THIS" Command="{Binding DeleteItem}" CommandParameter="{Binding}"/>
                         </StackPanel>
@@ -42,6 +37,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Button Margin="2" Width="80" Content="Format Editor" Command="{Binding OpenFormatEditor}" CommandParameter="{Binding}"/>
                         </StackPanel>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.OsuModes}" SelectedItem="{Binding Mode}"></ComboBox>
                         <CheckBox Margin="0,5,0,0" Content="Smooth" IsChecked="{Binding Smooth}"/>
                     </StackPanel>
                 </Grid>
