@@ -136,6 +136,9 @@ namespace RealTimePPDisplayer.MultiOutput
                 kv.Value.displayer.Pp = Pp;
                 kv.Value.displayer.BeatmapTuple = BeatmapTuple;
                 kv.Value.displayer.Playtime = Playtime;
+                kv.Value.displayer.Mode = Mode;
+                kv.Value.displayer.Mods = Mods;
+                kv.Value.displayer.Status = Status;
                 kv.Value.displayer.Display();
             }
         }
@@ -149,6 +152,9 @@ namespace RealTimePPDisplayer.MultiOutput
                 kv.Value.displayer.Pp = Pp;
                 kv.Value.displayer.BeatmapTuple = BeatmapTuple;
                 kv.Value.displayer.Playtime = Playtime;
+                kv.Value.displayer.Mode = Mode;
+                kv.Value.displayer.Mods = Mods;
+                kv.Value.displayer.Status = Status;
                 kv.Value.displayer.FixedDisplay(time);
             }
         }

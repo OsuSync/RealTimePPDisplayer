@@ -3,7 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using OsuRTDataProvider.Listen;
+using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Expression;
+using static OsuRTDataProvider.Listen.OsuListenerManager;
 
 namespace RealTimePPDisplayer.Displayer
 {
@@ -93,7 +95,9 @@ namespace RealTimePPDisplayer.Displayer
         public PPTuple Pp { get; set; } = new PPTuple();
         public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
         public double Playtime { get; set; }
+        public OsuStatus Status { get; set; }
         public OsuPlayMode Mode { get; set; }
+        public ModsInfo Mods { get; set; }
         
 
         private readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(()=>new ExpressionContext(),true);
@@ -167,7 +171,6 @@ namespace RealTimePPDisplayer.Displayer
                 UpdateContextVariablesFromHitCountTuple(ctx, hitcount);
                 UpdateContextVariablesBeatmapTuple(ctx, beatmap);
                 ctx.Variables["playtime"] = Playtime;
-                ctx.Variables["mode"] = (double)Mode;
             }
 
             foreach (var arg in formatter)

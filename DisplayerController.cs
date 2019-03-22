@@ -271,6 +271,8 @@ namespace RealTimePPDisplayer
                 p.Value.BeatmapTuple = beatmapTuple;
                 p.Value.Playtime = time;
                 p.Value.Mode = _mode;
+                p.Value.Mods = _curMods;
+                p.Value.Status = _status;
                 p.Value.Display();
             }
 
