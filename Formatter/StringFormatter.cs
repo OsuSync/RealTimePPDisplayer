@@ -1,5 +1,10 @@
-﻿using System;
+﻿using OsuRTDataProvider.Listen;
+using OsuRTDataProvider.Mods;
+using RealTimePPDisplayer.Displayer;
+using RealTimePPDisplayer.Expression;
+using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,23 +12,35 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using static OsuRTDataProvider.Listen.OsuListenerManager;
 
 namespace RealTimePPDisplayer
 {
-    public struct FormatArgs
+    public class FormatArgs
     {
         public string RawString { get; set; }
-        public string ExprString { get; set; }
         public int Digits { get; set; }
+        public IAstNode AstRoot { get; set; }
     }
 
-    public class StringFormatter:IEnumerable<FormatArgs>
+    public abstract class StringFormatterBase
     {
-        private static readonly ThreadLocal<StringFormatter> s_ppFormatLocal = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
-        private static readonly ThreadLocal<StringFormatter> s_hitCountFormatLocal = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
+        public HitCountTuple HitCount { get; set; } = new HitCountTuple();
+        public PPTuple Pp { get; set; } = new PPTuple();
+        public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
+        public double Playtime { get; set; }
+        public OsuStatus Status { get; set; }
+        public OsuPlayMode Mode { get; set; }
+        public ModsInfo Mods { get; set; }
 
+        public abstract string Format { get; set; }
+        public abstract string GetFormattedString();
+    }
+
+    public class StringFormatter: StringFormatterBase
+    {
         private string _format;
-        public string Format {
+        public override string Format {
             get =>_format;
             set
             {
@@ -31,17 +48,18 @@ namespace RealTimePPDisplayer
                 ReplaceFormat(_format);
             }
         }
+
         private readonly StringBuilder _builder=new StringBuilder(1024);
 
         private readonly object _mtx = new object();
-        private readonly List<FormatArgs> _args = new List<FormatArgs>(16);
-        private static readonly Regex s_pattern = new Regex(@"\$\{(\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*(@\d+)?\}");
+        private readonly List<FormatArgs> _args = new List<FormatArgs>(32);
+        private static readonly Regex s_pattern = new Regex(@"\$\{(((?:\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*)(?:@(\d+))?)\}");
         private static readonly Regex s_newLinePattern = new Regex(@"(?<=[^\\])\\n");
+        private static readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(() => new ExpressionContext(), true);
 
         public StringFormatter(string format)
         {
             ReplaceFormat(format);
-            Clear();
         }
 
         protected void ReplaceFormat(string format)
@@ -55,19 +73,17 @@ namespace RealTimePPDisplayer
 
                 foreach (Match match in result)
                 {
-                    string rawExpr =  match.Value.TrimStart('$','{').TrimEnd('}');
+                    var exprParser = new ExpressionParser();
                     FormatArgs args = new FormatArgs
                     {
-                        RawString = rawExpr,
-                        ExprString = rawExpr,
-                        Digits = Int32.MinValue
+                        RawString = match.Groups[1].Value.Trim(),
+                        AstRoot = exprParser.Parse(match.Groups[2].Value.Trim()),//Exprssion String
+                        Digits = int.MinValue
                     };
 
-                    if (args.RawString.Contains('@'))
+                    if(int.TryParse(match.Groups[3].Value.Trim(),out int digits))
                     {
-                        var pair = args.RawString.Split('@');
-                        args.ExprString = pair[0];
-                        args.Digits = int.Parse(pair[1]);
+                        args.Digits = digits;
                     }
 
                     _args.Add(args);
@@ -75,66 +91,94 @@ namespace RealTimePPDisplayer
             }
         }
 
-        public void Clear()
+        private void ProcessFormat()
         {
+            var ctx = s_exprCtx.Value;
+
+            UpdateContextVariablesFromPpTuple(ctx, Pp);
+            UpdateContextVariablesFromHitCountTuple(ctx, HitCount);
+            UpdateContextVariablesBeatmapTuple(ctx, BeatmapTuple);
+            ctx.Variables["playtime"] = Playtime;
+
             _builder.Clear();
             _builder.Append(_format);
+            
+            foreach (var arg in _args)
+            {
+                int digits = arg.Digits == int.MinValue ? Setting.RoundDigits : arg.Digits;
+
+                string s = string.Format($"{{0:F{digits}}}", ctx.ExecAst(arg.AstRoot));
+                _builder.Replace($"${{{arg.RawString}}}", s);
+            }
         }
 
-        public int CopyTo(int srcIndex,char[] dst,int dstIndex)
+        public override string GetFormattedString()
         {
-            _builder.CopyTo(srcIndex,dst,dstIndex,_builder.Length);
-            return _builder.Length;
+            ProcessFormat();
+            return _builder.ToString();
         }
 
         public override string ToString()
         {
-            return _builder.ToString();
+            return GetFormattedString();
         }
 
-        public void Fill(FormatArgs args,string val)
+        private void UpdateContextVariablesFromPpTuple(ExpressionContext ctx, PPTuple tuple)
         {
-            _builder.Replace($"${{{args.RawString}}}", val);
+            ctx.Variables["rtpp_speed"] = tuple.RealTimeSpeedPP;
+            ctx.Variables["rtpp_aim"] = tuple.RealTimeAimPP;
+            ctx.Variables["rtpp_acc"] = tuple.RealTimeAccuracyPP;
+            ctx.Variables["rtpp"] = tuple.RealTimePP;
+
+            ctx.Variables["fcpp_speed"] = tuple.FullComboSpeedPP;
+            ctx.Variables["fcpp_aim"] = tuple.FullComboAimPP;
+            ctx.Variables["fcpp_acc"] = tuple.FullComboAccuracyPP;
+            ctx.Variables["fcpp"] = tuple.FullComboPP;
+
+            ctx.Variables["maxpp_speed"] = tuple.MaxSpeedPP;
+            ctx.Variables["maxpp_aim"] = tuple.MaxAimPP;
+            ctx.Variables["maxpp_acc"] = tuple.MaxAccuracyPP;
+            ctx.Variables["maxpp"] = tuple.MaxPP;
         }
 
-        public void Fill(FormatArgs args, int n)
+        private void UpdateContextVariablesBeatmapTuple(ExpressionContext ctx, BeatmapTuple tuple)
         {
-            Fill(args, n.ToString());
+            ctx.Variables["duration"] = tuple.Duration;
+            ctx.Variables["objects_count"] = tuple.ObjectsCount;
         }
 
-        public void Fill(FormatArgs args, double n)
+        private void UpdateContextVariablesFromHitCountTuple(ExpressionContext ctx, HitCountTuple tuple)
         {
-            int digits = args.Digits == Int32.MinValue?Setting.RoundDigits:args.Digits;
+            ctx.Variables["n300g"] = tuple.CountGeki;
+            ctx.Variables["n300"] = tuple.Count300;
+            ctx.Variables["n200"] = tuple.CountKatu;
+            ctx.Variables["n100"] = tuple.Count100;
+            ctx.Variables["n150"] = tuple.Count100;
+            ctx.Variables["n50"] = tuple.Count50;
+            ctx.Variables["nmiss"] = tuple.CountMiss;
+            ctx.Variables["ngeki"] = tuple.CountGeki;
+            ctx.Variables["nkatu"] = tuple.CountKatu;
 
-            Fill(args, string.Format($"{{0:F{digits}}}",n));
+            ctx.Variables["current_maxcombo"] = tuple.CurrentMaxCombo;
+            ctx.Variables["fullcombo"] = tuple.FullCombo;
+            ctx.Variables["maxcombo"] = tuple.PlayerMaxCombo;
+            ctx.Variables["player_maxcombo"] = tuple.PlayerMaxCombo;
+            ctx.Variables["combo"] = tuple.Combo;
         }
 
-        public IEnumerator<FormatArgs> GetEnumerator()
-        {
-            lock (_mtx)
-            {
-                foreach (var p in _args)
-                    yield return p;
-            }
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            foreach (var p in _args)
-                yield return p;
-        }
+        private static readonly ThreadLocal<StringFormatter> s_hitCountFormatLocal = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
 
         public static StringFormatter GetPPFormatter()
         {
             var t = s_ppFormatLocal.Value;
-            t.Clear();
             return t;
         }
+
+        private static readonly ThreadLocal<StringFormatter> s_ppFormatLocal = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
 
         public static StringFormatter GetHitCountFormatter()
         {
             var t = s_hitCountFormatLocal.Value;
-            t.Clear();
             return t;
         }
     }

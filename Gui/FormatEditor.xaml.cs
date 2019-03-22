@@ -164,7 +164,8 @@ namespace RealTimePPDisplayer.Gui
             InitializeComponent();
 
             FormatEditBox.DataContext = item;
-            var displayer = new DisplayerBase()
+
+            StringFormatter formatter = new StringFormatter(item.Format)
             {
                 HitCount = s_perviewHitcountTuple,
                 Pp = s_perviewPpTuple,
@@ -172,14 +173,10 @@ namespace RealTimePPDisplayer.Gui
                 Playtime = 51000
             };
 
-            StringFormatter formatter = new StringFormatter(item.Format);
-            ConcurrentDictionary<FormatArgs, IAstNode> astDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
-
             FormatEditBox.TextChanged += (s, e) =>
             {
                 formatter.Format = FormatEditBox.Text;
-                formatter.Clear();
-                string formated = displayer.Format(formatter, astDict).ToString();
+                string formated = formatter.GetFormattedString();
                 FormatPreviewBox.Text = formated;
             };
 

@@ -52,27 +52,19 @@ namespace RealTimePPDisplayer.Displayer
 
     public class DisplayerBase
     {
-        static DisplayerBase()
-        {
-            Setting.OnSettingChanged += () =>
-            {
-                s_ppAstDict.Clear();
-                s_hitCountAstDict.Clear();
-            };
-        }
+        public HitCountTuple HitCount { get; set; } = new HitCountTuple();
+        public PPTuple Pp { get; set; } = new PPTuple();
+        public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
+        public double Playtime { get; set; }
+        public OsuStatus Status { get; set; }
+        public OsuPlayMode Mode { get; set; }
+        public ModsInfo Mods { get; set; }
 
         /// <summary>
         /// Clear Output
         /// </summary>
         public virtual void Clear()
         {
-            lock (_mtx)
-            {
-                foreach (var ctx in s_exprCtx.Values)
-                foreach (var k in ctx.Variables.Keys)
-                    ctx.Variables[k] = 0;
-            }
-
             HitCount = new HitCountTuple();
             Pp = new PPTuple();
         }
@@ -88,140 +80,40 @@ namespace RealTimePPDisplayer.Displayer
         /// <param name="time">1000/Setting.FPS</param>
         public virtual void FixedDisplay(double time) { }
 
+        /// <summary>
+        /// Called when the Displayer is destroyed.
+        /// </summary>
         public virtual void OnDestroy() { }
 
-        private object _mtx = new object();
-        public HitCountTuple HitCount { get; set; } = new HitCountTuple();
-        public PPTuple Pp { get; set; } = new PPTuple();
-        public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
-        public double Playtime { get; set; }
-        public OsuStatus Status { get; set; }
-        public OsuPlayMode Mode { get; set; }
-        public ModsInfo Mods { get; set; }
-        
-
-        private readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(()=>new ExpressionContext(),true);
-
-        private static readonly ConcurrentDictionary<FormatArgs, IAstNode> s_ppAstDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
-
-        private void UpdateContextVariablesFromPpTuple(ExpressionContext ctx, PPTuple tuple)
+        public void SetFormatterArgs(StringFormatterBase fmt)
         {
-            ctx.Variables["rtpp_speed"] = tuple.RealTimeSpeedPP;
-            ctx.Variables["rtpp_aim"] = tuple.RealTimeAimPP;
-            ctx.Variables["rtpp_acc"] = tuple.RealTimeAccuracyPP;
-            ctx.Variables["rtpp"] = tuple.RealTimePP;
-
-            ctx.Variables["fcpp_speed"] = tuple.FullComboSpeedPP;
-            ctx.Variables["fcpp_aim"] = tuple.FullComboAimPP;
-            ctx.Variables["fcpp_acc"] = tuple.FullComboAccuracyPP;
-            ctx.Variables["fcpp"] = tuple.FullComboPP;
-
-            ctx.Variables["maxpp_speed"] = tuple.MaxSpeedPP;
-            ctx.Variables["maxpp_aim"] = tuple.MaxAimPP;
-            ctx.Variables["maxpp_acc"] = tuple.MaxAccuracyPP;
-            ctx.Variables["maxpp"] = tuple.MaxPP;
+            fmt.HitCount = HitCount;
+            fmt.Pp = Pp;
+            fmt.BeatmapTuple = BeatmapTuple;
+            fmt.Playtime = Playtime;
+            fmt.Mode = Mode;
+            fmt.Mods = Mods;
+            fmt.Status = Status;
         }
 
-        private void UpdateContextVariablesBeatmapTuple(ExpressionContext ctx, BeatmapTuple tuple)
+        [Obsolete]
+        public StringFormatter FormatPp(PPTuple? pp=null)
         {
-            ctx.Variables["duration"] = tuple.Duration;
-            ctx.Variables["objects_count"] = tuple.ObjectsCount;
-        }
-
-        private void UpdateContextVariablesFromHitCountTuple(ExpressionContext ctx, HitCountTuple tuple)
-        {
-            ctx.Variables["n300g"] = tuple.CountGeki;
-            ctx.Variables["n300"] = tuple.Count300;
-            ctx.Variables["n200"] = tuple.CountKatu;
-            ctx.Variables["n100"] = tuple.Count100;
-            ctx.Variables["n150"] = tuple.Count100;
-            ctx.Variables["n50"] = tuple.Count50;
-            ctx.Variables["nmiss"] = tuple.CountMiss;
-            ctx.Variables["ngeki"] = tuple.CountGeki;
-            ctx.Variables["nkatu"] = tuple.CountKatu;
-
-            ctx.Variables["current_maxcombo"] = tuple.CurrentMaxCombo;
-            ctx.Variables["fullcombo"] = tuple.FullCombo;
-            ctx.Variables["maxcombo"] = tuple.PlayerMaxCombo;
-            ctx.Variables["player_maxcombo"] = tuple.PlayerMaxCombo;
-            ctx.Variables["combo"] = tuple.Combo;
-
-        }
-
-        public StringFormatter Format(
-            StringFormatter fmt,
-            ConcurrentDictionary<FormatArgs, IAstNode> astDict)
-        {
-            return Format(fmt, astDict, Pp, HitCount,BeatmapTuple);
-        }
-
-        public StringFormatter Format(
-            StringFormatter formatter,
-            ConcurrentDictionary<FormatArgs, IAstNode> astDict,
-            PPTuple pp,
-            HitCountTuple hitcount,
-            BeatmapTuple beatmap)
-        {
-            formatter.Clear();
-            var ctx = s_exprCtx.Value;
-
-            lock (_mtx)
-            {
-                UpdateContextVariablesFromPpTuple(ctx, pp);
-                UpdateContextVariablesFromHitCountTuple(ctx, hitcount);
-                UpdateContextVariablesBeatmapTuple(ctx, beatmap);
-                ctx.Variables["playtime"] = Playtime;
-            }
-
-            foreach (var arg in formatter)
-            {
-                if (!astDict.TryGetValue(arg, out var root))
-                {
-                    var parser = new ExpressionParser();
-                    try
-                    {
-                        root = parser.Parse(arg.ExprString);
-                    }
-                    catch (ExprssionTokenException e)
-                    {
-                        Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}", ConsoleColor.Yellow);
-                    }
-
-                    astDict[arg] = root;
-                }
-
-                try
-                {
-                    formatter.Fill(arg, ctx.ExecAst(root));
-                }
-                catch (ExpressionException e)
-                {
-                    Sync.Tools.IO.CurrentIO.WriteColor($"[RTPP:Expression]{e.Message}", ConsoleColor.Yellow);
-                }
-            }
+            var formatter = StringFormatter.GetPPFormatter();
+            SetFormatterArgs(formatter);
+            formatter.Pp = pp ?? Pp;
 
             return formatter;
         }
 
-        public StringFormatter FormatPp(PPTuple? pp=null)
-        {
-            var formatter = StringFormatter.GetPPFormatter();
-            Pp = pp??Pp;
-
-            return Format(formatter,s_ppAstDict);
-        }
-
-        private static readonly ConcurrentDictionary<FormatArgs, IAstNode> s_hitCountAstDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
-
+        [Obsolete]
         public StringFormatter FormatHitCount(HitCountTuple? hitCount=null)
         {
             var formatter = StringFormatter.GetHitCountFormatter();
-            var hitCountAstDict = s_hitCountAstDict;
-            if (!Setting.DisplayHitObject) return formatter;
+            SetFormatterArgs(formatter);
+            formatter.HitCount = hitCount??HitCount;
 
-            HitCount = hitCount??HitCount;
-
-            return Format(formatter,hitCountAstDict);
+            return formatter;
         }
     }
 }

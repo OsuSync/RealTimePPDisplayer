@@ -15,11 +15,10 @@ namespace RealTimePPDisplayer.Displayer
         private PPTuple _currentPp;
         private PPTuple _speed;
 
-        private StringFormatter ppFormatter = new PPStringFormatter();
-        private StringFormatter hitCountFormatter = new HitCountStringFormatter();
-        private ConcurrentDictionary<FormatArgs, IAstNode> astDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
+        private StringFormatterBase ppFormatter;
+        private StringFormatterBase hitCountFormatter;
 
-        public WpfDisplayer(int? id, StringFormatter ppFmt, StringFormatter hitFmt)
+        public WpfDisplayer(int? id, StringFormatterBase ppFmt, StringFormatterBase hitFmt)
         {
             ppFormatter = ppFmt;
             hitCountFormatter = hitFmt;
@@ -28,6 +27,8 @@ namespace RealTimePPDisplayer.Displayer
 
         public WpfDisplayer(int? id)
         {
+            ppFormatter = StringFormatter.GetPPFormatter();
+            hitCountFormatter = StringFormatter.GetHitCountFormatter();
             Initialize(id);
         }
 
@@ -70,8 +71,14 @@ namespace RealTimePPDisplayer.Displayer
         public override void Display()
         {
             if (_win != null)
-                if(hitCountFormatter!=null)
-                    _win.HitCountContext = Format(hitCountFormatter,astDict).ToString();
+            {
+                if (hitCountFormatter != null)
+                {
+                    SetFormatterArgs(hitCountFormatter);
+                    _win.HitCountContext = hitCountFormatter.GetFormattedString();
+                }
+            }
+                    
             _output = true;
             _win.Refresh();
         }
@@ -84,10 +91,11 @@ namespace RealTimePPDisplayer.Displayer
 
             if (ppFormatter != null)
             {
-                var formatter = Format(ppFormatter, astDict, _currentPp, HitCount, BeatmapTuple);
+                SetFormatterArgs(ppFormatter);
+                ppFormatter.Pp = _currentPp;
 
                 if (_win != null)
-                    _win.PpContext = formatter.ToString();
+                    _win.PpContext = ppFormatter.GetFormattedString();
                 _win.Refresh();
             }
             else

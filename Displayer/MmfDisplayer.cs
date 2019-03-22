@@ -28,15 +28,15 @@ namespace RealTimePPDisplayer.Displayer
 
         private bool _split;
 
-        private StringFormatter ppFormatter = new PPStringFormatter();
-        private StringFormatter hitCountFormatter = new HitCountStringFormatter();
+        private StringFormatterBase ppFormatter;
+        private StringFormatterBase hitCountFormatter;
         private ConcurrentDictionary<FormatArgs, IAstNode> astDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
 
         public MmfDisplayer(
             int? id,
             string name,
-            StringFormatter ppfmt,
-            StringFormatter hitfmt ,
+            StringFormatterBase ppfmt,
+            StringFormatterBase hitfmt ,
             bool split = false)
         {
             ppFormatter = ppfmt;
@@ -46,6 +46,8 @@ namespace RealTimePPDisplayer.Displayer
 
         public MmfDisplayer(int? id,string name, bool split = false)
         {
+            ppFormatter = StringFormatter.GetPPFormatter();
+            hitCountFormatter = StringFormatter.GetHitCountFormatter();
             Initialize(id, name, split);
         }
 
@@ -106,7 +108,10 @@ namespace RealTimePPDisplayer.Displayer
             _output = true;
             if (hitCountFormatter != null)
             {
-                _hitStrLen = Format(hitCountFormatter, astDict).CopyTo(0, _hitBuffer, 0);
+                SetFormatterArgs(hitCountFormatter);
+                var s = hitCountFormatter.GetFormattedString();
+                _hitStrLen = s.Length;
+                s.CopyTo(0, _hitBuffer, 0, _hitStrLen);
             }
         }
 
@@ -134,9 +139,13 @@ namespace RealTimePPDisplayer.Displayer
 
             if (ppFormatter!=null)
             {
-                var formatter = Format(ppFormatter, astDict, _currentPp, HitCount, BeatmapTuple);
+                SetFormatterArgs(ppFormatter);
+                ppFormatter.Pp = _currentPp;
 
-                int len = formatter.CopyTo(0, _ppBuffer, 0);
+                var s = ppFormatter.GetFormattedString();
+                int len = s.Length;
+                s.CopyTo(0, _hitBuffer, 0, len);
+                s.CopyTo(0, _ppBuffer, 0, len);
 
                 streamWriters[0].Write(_ppBuffer, 0, len);
                 streamWriters[0].Write(!_split ? '\n' : '\0');

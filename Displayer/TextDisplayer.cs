@@ -52,8 +52,14 @@ namespace RealTimePPDisplayer.Displayer
                         Sync.Tools.IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.TEXT_MODE_OUTPUT_PATH_FORMAT, filename), ConsoleColor.DarkGreen);
                 _init = true;
             }
-            _ppStrLen = FormatPp().CopyTo(0,_ppBuffer,0);
-            _hitStrLen = FormatHitCount().CopyTo(0, _hitBuffer, 0);
+
+            string s = FormatPp().GetFormattedString();
+            _ppStrLen = s.Length;
+            s.CopyTo(0,_ppBuffer,0, _ppStrLen);
+
+            s = FormatHitCount().GetFormattedString();
+            _hitStrLen = s.Length;
+            s.CopyTo(0, _hitBuffer, 0, _hitStrLen);
 
             StreamWriter[] streamWriters = new StreamWriter[2];
 
