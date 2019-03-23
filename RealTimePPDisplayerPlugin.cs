@@ -29,12 +29,15 @@ namespace RealTimePPDisplayer
 
         #region FixedDisplay Field
         public static RealTimePPDisplayerPlugin Instance { get; private set; }
-        public IEnumerable<string> DisplayerNames => _displayerCreators.Keys;
 
         private bool _stopFixedUpdate;
         private readonly Dictionary<string, Func<int?, DisplayerBase>> _displayerCreators = new Dictionary<string,Func<int?, DisplayerBase>>();
-        private readonly Dictionary<string, Func<int?, MultiOutputItem, StringFormatter, DisplayerBase>> _multiDisplayerCreators = new Dictionary<string, Func<int?,MultiOutputItem, StringFormatter, DisplayerBase>>();
+        private readonly Dictionary<string, Func<int?, MultiOutputItem, StringFormatterBase, DisplayerBase>> _multiDisplayerCreators = new Dictionary<string, Func<int?,MultiOutputItem, StringFormatterBase, DisplayerBase>>();
+        private readonly Dictionary<string, Func<string,StringFormatterBase>> _formatterCreators = new Dictionary<string, Func<string,StringFormatterBase>>();
+
+        public IEnumerable<string> DisplayerTypes => _displayerCreators.Keys;
         public IEnumerable<string> MultiDisplayerTypes => _multiDisplayerCreators.Keys;
+        public IEnumerable<string> FormatterTypes => _formatterCreators.Keys;
 
         private readonly object _allDisplayerMtx = new object();
         private readonly LinkedList<KeyValuePair<string,DisplayerBase>> _allDisplayers = new LinkedList<KeyValuePair<string,DisplayerBase>>();
@@ -50,6 +53,10 @@ namespace RealTimePPDisplayer
             EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((e) =>
             {
                 UpdateChecker.CheckUpdate();
+                foreach(var p in _allDisplayers)
+                {
+                    p.Value.OnReady();
+                }
             });
 
             Instance = this;
@@ -111,7 +118,7 @@ namespace RealTimePPDisplayer
             });
             RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
             RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
-            RegisterDisplayer("multi-output", id => new MultiOutputDisplayer(id,_multiDisplayerCreators));
+            RegisterDisplayer("multi-output", id => new MultiOutputDisplayer(id,_multiDisplayerCreators,_formatterCreators));
             RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
             RegisterDisplayer("console", id => new ConsoleDisplayer());
@@ -148,7 +155,7 @@ namespace RealTimePPDisplayer
         /// <param name="name"></param>
         /// <param name="creator"></param>
         /// <returns></returns>
-        public bool RegisterMultiDisplayer(string name, Func<int?,MultiOutputItem,StringFormatter, DisplayerBase> creator)
+        public bool RegisterMultiDisplayer(string name, Func<int?,MultiOutputItem,StringFormatterBase, DisplayerBase> creator)
         {
             if (_multiDisplayerCreators.ContainsKey(name))
             {
@@ -158,6 +165,28 @@ namespace RealTimePPDisplayer
 
             _multiDisplayerCreators[name] = creator;
             return true;
+        }
+
+        public bool RegisterFormatter(string name, Func<string,StringFormatterBase> creator)
+        {
+            if (_formatterCreators.ContainsKey(name))
+            {
+                IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Formatter exist!", ConsoleColor.Red);
+                return false;
+            }
+
+            _formatterCreators[name] = creator;
+            return true;
+        }
+
+        public StringFormatterBase NewFormatter(string formatterName,string format)
+        {
+            if (_formatterCreators.TryGetValue(formatterName, out var creator))
+            {
+                return creator(format);
+            }
+
+            return null;
         }
 
         private void AddDisplayer(string name,Func<int?, DisplayerBase> creator)

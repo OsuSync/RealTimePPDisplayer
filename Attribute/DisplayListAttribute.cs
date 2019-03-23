@@ -9,6 +9,6 @@ namespace RealTimePPDisplayer.Attribute
 {
     class DisplayListAttribute:ListAttribute
     {
-        public override string[] ValueList => RealTimePPDisplayerPlugin.Instance.DisplayerNames.ToArray();
+        public override string[] ValueList => RealTimePPDisplayerPlugin.Instance.DisplayerTypes.ToArray();
     }
 }

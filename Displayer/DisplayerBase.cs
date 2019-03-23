@@ -85,6 +85,8 @@ namespace RealTimePPDisplayer.Displayer
         /// </summary>
         public virtual void OnDestroy() { }
 
+        public virtual void OnReady() { }
+
         public void SetFormatterArgs(StringFormatterBase fmt)
         {
             fmt.HitCount = HitCount;

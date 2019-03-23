@@ -20,6 +20,7 @@ namespace RealTimePPDisplayer.Gui
     {
         public static IEnumerable<string> OsuModes => typeof(OsuPlayMode).GetEnumNames().Where((s) => s != "Unknown");
         public static IEnumerable<string> MultiDisplayerTypes => RealTimePPDisplayerPlugin.Instance.MultiDisplayerTypes;
+        public static IEnumerable<string> FormatterTypes => RealTimePPDisplayerPlugin.Instance.FormatterTypes;
 
         class MultiOutputItemProxy : INotifyPropertyChanged
         {
@@ -39,12 +40,12 @@ namespace RealTimePPDisplayer.Gui
 
             public string Format
             {
-                get => _object.format;
+                get => _object.format.Replace(Environment.NewLine, "&#10;").Replace("\n", "&#10;");
                 set
                 {
-                    _object.format = value;
+                    _object.format = value.Replace("&#10;", Environment.NewLine);
                     OnPropertyChanged(nameof(Format));
-                    OnFormatChange?.Invoke(_object.name,value);
+                    OnFormatChange?.Invoke(_object.name, _object.format);
                 }
             }
 
@@ -69,11 +70,23 @@ namespace RealTimePPDisplayer.Gui
                 }
             }
 
+            public string Formatter
+            {
+                get => _object.formatter;
+                set
+                {
+                    _object.formatter = value;
+                    OnPropertyChanged(nameof(Formatter));
+                    OnFormatterChange?.Invoke(_object.name, value);
+                }
+            }
+
             public string Mode
             {
                 get => _object.mode.ToString();
-                set {
-                    if (Enum.TryParse<OsuPlayMode>(value,out var mode))
+                set
+                {
+                    if (Enum.TryParse<OsuPlayMode>(value, out var mode))
                     {
                         _object.mode = mode;
                         OnPropertyChanged(nameof(Mode));
@@ -143,7 +156,7 @@ namespace RealTimePPDisplayer.Gui
                     public ConfigurationElement FormatElement
                     {
                         get => _object.Format;
-                        set => _object.Format = value.ToString();
+                        set => _object.Format = value.ToString().Replace("\\&#10;","\\n");
                     }
 
                     #region unused
@@ -183,7 +196,8 @@ namespace RealTimePPDisplayer.Gui
                     var proxy = parameter as MultiOutputItemProxy;
                     var elementInstance = new FormatProxy(proxy);
                     var prop = typeof(FormatProxy).GetProperty("FormatElement");
-                    var formatEditor = new FormatEditor(prop, elementInstance);
+                    var formatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(proxy._object.formatter, proxy._object.format);
+                    var formatEditor = new FormatEditor(prop, elementInstance,formatter);
                     formatEditor.ShowDialog();
                 }
             }
@@ -194,6 +208,7 @@ namespace RealTimePPDisplayer.Gui
         public static event Action<string, string> OnDisplayerTypeChange;
         public static event Action<string,string> OnNameChange;
         public static event Action<string,string> OnFormatChange;
+        public static event Action<string, string> OnFormatterChange;
         public static event Action<string, bool> OnSmoothChange;
 
         private ObservableCollection<MultiOutputItemProxy> _observableCollection;

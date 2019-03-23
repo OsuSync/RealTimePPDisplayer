@@ -22,7 +22,16 @@ namespace RealTimePPDisplayer.Gui
 
             btn.Click += (s, e) =>
             {
-                window = (window ?? new FormatEditor(prop, configuration_instance));
+                string format = "";
+                if(prop.GetCustomAttribute<PerformanceFormatAttribute>() != null)
+                {
+                    format = Setting.PPFormat;
+                }
+                else
+                {
+                    format = Setting.HitCountFormat;
+                }
+                window = (window ?? new FormatEditor(prop, configuration_instance,new StringFormatter(format)));
                 if (window.Visibility == Visibility.Visible)
                     window.Activate();
                 else

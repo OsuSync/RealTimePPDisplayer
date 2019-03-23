@@ -181,7 +181,7 @@ namespace RealTimePPDisplayer
             get => Setting.PPFormat;
             set
             {
-                Setting.PPFormat = value;
+                Setting.PPFormat = value.ToString().Replace("\\n", "&#10;");
                 Setting.SettingChanged();
             }
         }
@@ -192,7 +192,7 @@ namespace RealTimePPDisplayer
             get => Setting.HitCountFormat;
             set
             {
-                Setting.HitCountFormat = value;
+                Setting.HitCountFormat = value.ToString().Replace("\\n","&#10;");
                 Setting.SettingChanged();
             }
         }

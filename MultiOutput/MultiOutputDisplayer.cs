@@ -14,15 +14,16 @@ namespace RealTimePPDisplayer.MultiOutput
     {
         private int? _id;
 
-        struct DisplayerContext
+        class DisplayerContext
         {
             public MultiOutputItem item;
             public DisplayerBase displayer;
-            public StringFormatter fmt;
+            public StringFormatterBase fmtter;
         }
 
         private ConcurrentDictionary<string,DisplayerContext> _displayers = new ConcurrentDictionary<string, DisplayerContext>();
-        private Dictionary<string, Func<int?, MultiOutputItem,StringFormatter, DisplayerBase>> _creators;
+        private Dictionary<string, Func<int?, MultiOutputItem,StringFormatterBase, DisplayerBase>> _displayer_creators;
+        private Dictionary<string, Func<string,StringFormatterBase>> _fmt_creators;
 
         static MultiOutputDisplayer()
         {
@@ -33,12 +34,18 @@ namespace RealTimePPDisplayer.MultiOutput
                 displayer.HideRow(item.smooth ? 2 : 1);
                 return displayer;
             });
+
+            RealTimePPDisplayerPlugin.Instance.RegisterFormatter("rtpp-fmt", (fmt) => new StringFormatter(fmt));
         }
 
-        public MultiOutputDisplayer(int? id, Dictionary<string, Func<int?,MultiOutputItem, StringFormatter, DisplayerBase>> creators)
+        public MultiOutputDisplayer(int? id,
+            Dictionary<string, Func<int?, MultiOutputItem, StringFormatterBase, DisplayerBase>> displayer_creators,
+            Dictionary<string, Func<string, StringFormatterBase>> fmt_creator
+            )
         {
             _id = id;
-            _creators = creators;
+            _fmt_creators = fmt_creator;
+            _displayer_creators = displayer_creators;
 
             MultiOutputEditor.OnDisplayerRemove += (name) => RemoveDisplayer(name);
             MultiOutputEditor.OnDisplayerNew += (item) => AddDisplayer(item);
@@ -56,7 +63,7 @@ namespace RealTimePPDisplayer.MultiOutput
             MultiOutputEditor.OnFormatChange += (name, format) =>
             {
                 var ctx = _displayers[name];
-                ctx.fmt.Format = format;
+                ctx.fmtter.Format = format;
             };
             MultiOutputEditor.OnSmoothChange += (name, smooth) =>
             {
@@ -65,9 +72,24 @@ namespace RealTimePPDisplayer.MultiOutput
                 //Reload Displayer
                 ChangeType(name, ctx.item.type);
             };
+            MultiOutputEditor.OnFormatterChange += (name, fmtter) =>
+            {
+                var ctx = _displayers[name];
+                ctx.displayer.OnDestroy();
 
+                ctx.item.formatter = fmtter;
+                ctx.fmtter = RealTimePPDisplayerPlugin.Instance.NewFormatter(ctx.item.formatter,ctx.item.format);
+                ctx.displayer = _displayer_creators[ctx.item.type](_id,ctx.item,ctx.fmtter);
+            };
+        }
 
+        public override void OnReady()
+        {
             InitializeDisplayers();
+            foreach (var p in _displayers)
+            {
+                p.Value.displayer.OnReady();
+            }
         }
 
         private void InitializeDisplayers()
@@ -79,33 +101,20 @@ namespace RealTimePPDisplayer.MultiOutput
             }
         }
 
-        private MultiOutputItem AddDisplayer(string name,string format,string type,bool smooth)
-        {
-            name = string.IsNullOrEmpty(name) ? $"multi-{Setting.MultiOutputItems.Count}" : name;
-            var item = new MultiOutputItem()
-            {
-                name = name,
-                format = "${rtpp}",
-                type = type,
-                smooth = smooth
-            };
-            AddDisplayer(item);
-            return item;
-        }
-
         private void AddDisplayer(MultiOutputItem item)
         {
+            var fmt = RealTimePPDisplayerPlugin.Instance.NewFormatter(item.formatter,item.format);
             var ctx = new DisplayerContext()
             {
                 item = item,
                 displayer = null,
-                fmt = new StringFormatter(item.format),
+                fmtter = fmt
             };
 
             DisplayerBase displayer=null;
-            if(_creators.TryGetValue(item.type,out var creator))
+            if(_displayer_creators.TryGetValue(item.type,out var creator))
             {
-                displayer = creator(_id, item, ctx.fmt);
+                displayer = creator(_id, item, ctx.fmtter);
             }
 
             ctx.displayer = displayer;
@@ -124,7 +133,8 @@ namespace RealTimePPDisplayer.MultiOutput
         {
             var ctx = _displayers[name];
             RemoveDisplayer(name);
-            AddDisplayer(name, ctx.item.format, type,ctx.item.smooth);
+            ctx.item.type = type;
+            AddDisplayer(ctx.item);
         }
 
         public override void Display()

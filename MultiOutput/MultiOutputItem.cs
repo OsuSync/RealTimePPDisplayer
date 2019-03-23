@@ -9,6 +9,7 @@ namespace RealTimePPDisplayer.MultiOutput
         public string type { get; set; }
         public bool smooth { get; set; }
         public OsuPlayMode mode { get; set; }
+        public string formatter { get; set; } = "rtpp-fmt";
     }
 
 }

@@ -54,7 +54,7 @@ namespace RealTimePPDisplayer
         private readonly object _mtx = new object();
         private readonly List<FormatArgs> _args = new List<FormatArgs>(32);
         private static readonly Regex s_pattern = new Regex(@"\$\{(((?:\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*)(?:@(\d+))?)\}");
-        private static readonly Regex s_newLinePattern = new Regex(@"(?<=[^\\])\\n");
+        private static readonly Regex s_newLinePattern = new Regex(@"(?<=[^\\])&#10;");
         private static readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(() => new ExpressionContext(), true);
 
         public StringFormatter(string format)

@@ -20,6 +20,7 @@ using RealTimePPDisplayer.Attribute;
 using static RealTimePPDisplayer.Gui.OpenFormatEditorCreator;
 using RealTimePPDisplayer.Expression;
 using System.Collections.Concurrent;
+using static OsuRTDataProvider.Mods.ModsInfo;
 
 namespace RealTimePPDisplayer.Gui
 {
@@ -34,10 +35,10 @@ namespace RealTimePPDisplayer.Gui
 
             public string Format
             {
-                get => BaseConfigurationItemCreator.GetConfigValue(m_prop, m_instance).Replace("\\n", Environment.NewLine);
+                get => BaseConfigurationItemCreator.GetConfigValue(m_prop, m_instance).Replace("&#10;", Environment.NewLine);
                 set
                 {
-                    BaseConfigurationItemCreator.SetConfigValue(m_prop, m_instance, value.Replace(Environment.NewLine, "\\n").Replace("\n", "\\n"));
+                    BaseConfigurationItemCreator.SetConfigValue(m_prop, m_instance, value.Replace(Environment.NewLine, "&#10;").Replace("\n", "&#10;"));
                     PropertyChanged(this, new PropertyChangedEventArgs(nameof(Format)));
                 }
             }
@@ -157,7 +158,7 @@ namespace RealTimePPDisplayer.Gui
 
         private bool _not_close;
 
-        public FormatEditor(PropertyInfo prop, object configurationInstance,bool not_close = true)
+        public FormatEditor(PropertyInfo prop, object configurationInstance,StringFormatterBase fmt,bool not_close = true)
         {
             var item = new ConfigItemProxy(prop, configurationInstance);
             _not_close = not_close;
@@ -165,18 +166,28 @@ namespace RealTimePPDisplayer.Gui
 
             FormatEditBox.DataContext = item;
 
-            StringFormatter formatter = new StringFormatter(item.Format)
+            if(!(fmt is StringFormatter))
             {
-                HitCount = s_perviewHitcountTuple,
-                Pp = s_perviewPpTuple,
-                BeatmapTuple = s_perviewBeatmapTuple,
-                Playtime = 51000
+                grid.RowDefinitions[4].Height = new GridLength(0);
+                grid.RowDefinitions[5].Height = new GridLength(0);
+                Height = 520;
+            }
+
+            fmt.Format = item.Format;
+            fmt.HitCount = s_perviewHitcountTuple;
+            fmt.Pp = s_perviewPpTuple;
+            fmt.BeatmapTuple = s_perviewBeatmapTuple;
+            fmt.Playtime = 51000;
+            fmt.Mode = OsuRTDataProvider.Listen.OsuPlayMode.Osu;
+            fmt.Mods = new OsuRTDataProvider.Mods.ModsInfo()
+            {
+                Mod = Mods.DoubleTime | Mods.Hidden | Mods.HardRock | Mods.Perfect
             };
 
             FormatEditBox.TextChanged += (s, e) =>
             {
-                formatter.Format = FormatEditBox.Text;
-                string formated = formatter.GetFormattedString();
+                fmt.Format = FormatEditBox.Text;
+                string formated = fmt.GetFormattedString();
                 FormatPreviewBox.Text = formated;
             };
 

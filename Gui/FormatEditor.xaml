@@ -8,7 +8,7 @@
              Width="800" Height="600"
              Closing="FormatEditor_OnClosing"
              ResizeMode="NoResize" Title="Format Editor">
-    <Grid>
+    <Grid Name="grid">
         <Grid.RowDefinitions>
             <RowDefinition Height="1.3*"/>
             <RowDefinition Height="7*"/>

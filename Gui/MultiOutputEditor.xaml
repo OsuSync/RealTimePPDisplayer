@@ -26,6 +26,7 @@
                         <Label Width="80" Content="Name:"/>
                         <TextBox Width="400" Text="{Binding Name}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
                         <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.MultiDisplayerTypes}" SelectedItem="{Binding Type}"></ComboBox>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.FormatterTypes}" SelectedItem="{Binding Formatter}"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Margin="2" Width="80" Content="Delete THIS" Command="{Binding DeleteItem}" CommandParameter="{Binding}"/>
                         </StackPanel>
@@ -37,7 +38,7 @@
                         <StackPanel Orientation="Horizontal">
                             <Button Margin="2" Width="80" Content="Format Editor" Command="{Binding OpenFormatEditor}" CommandParameter="{Binding}"/>
                         </StackPanel>
-                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.OsuModes}" SelectedItem="{Binding Mode}"></ComboBox>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.OsuModes}" SelectedItem="{Binding Mode}"/>
                         <CheckBox Margin="0,5,0,0" Content="Smooth" IsChecked="{Binding Smooth}"/>
                     </StackPanel>
                 </Grid>
