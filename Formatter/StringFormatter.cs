@@ -68,16 +68,27 @@ namespace RealTimePPDisplayer
             {
                 _args.Clear();
                 _format = s_newLinePattern.Replace(format, Environment.NewLine);
-
                 var result = s_pattern.Matches(format);
+
+                var exprParser = new ExpressionParser();
 
                 foreach (Match match in result)
                 {
-                    var exprParser = new ExpressionParser();
+                    IAstNode astRoot = null;
+
+                    try
+                    {
+                        astRoot = exprParser.Parse(match.Groups[2].Value.Trim());//Exprssion String
+                    }
+                    catch(Exception e)
+                    {
+                        Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{e.Message}", ConsoleColor.Yellow);
+                    }
+
                     FormatArgs args = new FormatArgs
                     {
                         RawString = match.Groups[1].Value.Trim(),
-                        AstRoot = exprParser.Parse(match.Groups[2].Value.Trim()),//Exprssion String
+                        AstRoot = astRoot,
                         Digits = int.MinValue
                     };
 
@@ -102,13 +113,18 @@ namespace RealTimePPDisplayer
 
             _builder.Clear();
             _builder.Append(_format);
-            
-            foreach (var arg in _args)
+            try
             {
-                int digits = arg.Digits == int.MinValue ? Setting.RoundDigits : arg.Digits;
+                foreach (var arg in _args)
+                {
+                    int digits = arg.Digits == int.MinValue ? Setting.RoundDigits : arg.Digits;
 
-                string s = string.Format($"{{0:F{digits}}}", ctx.ExecAst(arg.AstRoot));
-                _builder.Replace($"${{{arg.RawString}}}", s);
+                    string s = string.Format($"{{0:F{digits}}}", ctx.ExecAst(arg.AstRoot));
+                    _builder.Replace($"${{{arg.RawString}}}", s);
+                }
+            }catch(Exception e)
+            {
+                Sync.Tools.IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{e.Message}",ConsoleColor.Yellow);
             }
         }
 

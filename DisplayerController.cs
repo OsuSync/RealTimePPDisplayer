@@ -210,7 +210,7 @@ namespace RealTimePPDisplayer
                 _nmiss = 0;
                 _score = 0;
                 foreach (var p in _displayers)
-                    p.Value.Clear();
+                    p.Value?.Clear();
             }
 
             if (Setting.DebugMode && _beatmapReader == null)
@@ -266,6 +266,7 @@ namespace RealTimePPDisplayer
 
             foreach(var p in _displayers)
             {
+                if (p.Value == null) continue;
                 p.Value.Pp=ppTuple;
                 p.Value.HitCount=hitTuple;
                 p.Value.BeatmapTuple = beatmapTuple;
