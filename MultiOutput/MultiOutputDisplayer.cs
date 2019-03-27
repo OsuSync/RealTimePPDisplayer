@@ -171,6 +171,7 @@ namespace RealTimePPDisplayer.MultiOutput
 
         public override void Clear()
         {
+            base.Clear();
             foreach (var kv in _displayers)
             {
                 kv.Value.displayer.Clear();
