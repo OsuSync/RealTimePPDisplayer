@@ -102,8 +102,18 @@ namespace RealTimePPDisplayer
             }
         }
 
+        private void ResetAllVariables()
+        {
+            var ctx = s_exprCtx.Value;
+            foreach (var kv in ctx.Variables)
+            {
+                ctx.Variables[kv.Key] = 0.0;
+            }
+        }
+
         private void ProcessFormat()
         {
+            ResetAllVariables();
             var ctx = s_exprCtx.Value;
 
             UpdateContextVariablesFromPpTuple(ctx, Pp);
