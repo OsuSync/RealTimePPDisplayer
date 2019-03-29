@@ -34,7 +34,7 @@
 
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
                         <Label Width="80" Content="Format:"/>
-                        <TextBox Width="400" Text="{Binding Format}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
+                        <TextBox Width="400" Height="22" Text="{Binding Format}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Margin="2" Width="80" Content="Format Editor" Command="{Binding OpenFormatEditor}" CommandParameter="{Binding}"/>
                         </StackPanel>

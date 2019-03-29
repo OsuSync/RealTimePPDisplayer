@@ -118,7 +118,7 @@ namespace RealTimePPDisplayer
             });
             RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
             RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
-            RegisterDisplayer("multi-output", id => new MultiOutputDisplayer(id,_multiDisplayerCreators,_formatterCreators));
+            RegisterDisplayer(MultiOutputDisplayer.METHOD_NAME, id => new MultiOutputDisplayer(id,_multiDisplayerCreators,_formatterCreators));
             RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
             RegisterDisplayer("console", id => new ConsoleDisplayer());

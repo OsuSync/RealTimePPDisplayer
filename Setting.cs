@@ -178,10 +178,10 @@ namespace RealTimePPDisplayer
         [PerformanceFormat]
         public ConfigurationElement PPFormat
         {
-            get => Setting.PPFormat;
+            get => Setting.PPFormat.Replace(Environment.NewLine, "\n").Replace("\n", "\\n");
             set
             {
-                Setting.PPFormat = value.ToString().Replace("\\n", "&#10;");
+                Setting.PPFormat = value.ToString().Replace("\\n", Environment.NewLine);
                 Setting.SettingChanged();
             }
         }
@@ -189,10 +189,10 @@ namespace RealTimePPDisplayer
         [HitCountFormat]
         public ConfigurationElement HitCountFormat
         {
-            get => Setting.HitCountFormat;
+            get => Setting.HitCountFormat.Replace(Environment.NewLine, "\n").Replace("\n", "\\n");
             set
             {
-                Setting.HitCountFormat = value.ToString().Replace("\\n","&#10;");
+                Setting.HitCountFormat = value.ToString().Replace("\\n", Environment.NewLine);
                 Setting.SettingChanged();
             }
         }

@@ -54,7 +54,6 @@ namespace RealTimePPDisplayer
         private readonly object _mtx = new object();
         private readonly List<FormatArgs> _args = new List<FormatArgs>(32);
         private static readonly Regex s_pattern = new Regex(@"\$\{(((?:\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*)(?:@(\d+))?)\}");
-        private static readonly Regex s_newLinePattern = new Regex(@"(?<=[^\\])&#10;");
         private static readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(() => new ExpressionContext(), true);
 
         public StringFormatter(string format)
@@ -64,11 +63,11 @@ namespace RealTimePPDisplayer
 
         protected void ReplaceFormat(string format)
         {
+            _format = format;
             lock (_mtx)
             {
                 _args.Clear();
-                _format = s_newLinePattern.Replace(format, Environment.NewLine);
-                var result = s_pattern.Matches(format);
+                var result = s_pattern.Matches(_format);
 
                 var exprParser = new ExpressionParser();
 

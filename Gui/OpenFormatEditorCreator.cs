@@ -1,5 +1,6 @@
 ﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using RealTimePPDisplayer.Attribute;
+using Sync.Tools;
 using Sync.Tools.ConfigurationAttribute;
 using System.Reflection;
 using System.Windows;
@@ -7,6 +8,49 @@ using System.Windows.Controls;
 
 namespace RealTimePPDisplayer.Gui
 {
+    class SettingFormatProxy : IConfigurable
+    {
+        private bool _is_pp = false;
+
+        public SettingFormatProxy(bool is_pp)
+        {
+            _is_pp = is_pp;
+        }
+
+        public ConfigurationElement FormatElement
+        {
+            get => _is_pp ? Setting.PPFormat : Setting.HitCountFormat;
+            set {
+                if (_is_pp)
+                {
+                    Setting.PPFormat = value;
+                }
+                else
+                {
+                    Setting.HitCountFormat = value;
+                }
+            }
+        }
+
+        #region unused
+        public void onConfigurationLoad()
+        {
+
+        }
+
+        public void onConfigurationReload()
+        {
+
+        }
+
+        public void onConfigurationSave()
+        {
+
+        }
+
+        #endregion
+    }
+
     class OpenFormatEditorCreator: BaseConfigurationItemCreator
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
@@ -22,16 +66,16 @@ namespace RealTimePPDisplayer.Gui
 
             btn.Click += (s, e) =>
             {
-                string format = "";
+                SettingFormatProxy elementInstance = null;
                 if(prop.GetCustomAttribute<PerformanceFormatAttribute>() != null)
                 {
-                    format = Setting.PPFormat;
+                    elementInstance = new SettingFormatProxy(true);
                 }
                 else
                 {
-                    format = Setting.HitCountFormat;
+                    elementInstance = new SettingFormatProxy(false);
                 }
-                window = (window ?? new FormatEditor(prop, configuration_instance,new StringFormatter(format)));
+                window = (window ?? new FormatEditor(typeof(SettingFormatProxy).GetProperty("FormatElement"), elementInstance, new StringFormatter(elementInstance.FormatElement)));
                 if (window.Visibility == Visibility.Visible)
                     window.Activate();
                 else

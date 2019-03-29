@@ -35,10 +35,10 @@ namespace RealTimePPDisplayer.Gui
 
             public string Format
             {
-                get => BaseConfigurationItemCreator.GetConfigValue(m_prop, m_instance).Replace("&#10;", Environment.NewLine);
+                get => BaseConfigurationItemCreator.GetConfigValue(m_prop, m_instance);
                 set
                 {
-                    BaseConfigurationItemCreator.SetConfigValue(m_prop, m_instance, value.Replace(Environment.NewLine, "&#10;").Replace("\n", "&#10;"));
+                    BaseConfigurationItemCreator.SetConfigValue(m_prop, m_instance, value);
                     PropertyChanged(this, new PropertyChangedEventArgs(nameof(Format)));
                 }
             }

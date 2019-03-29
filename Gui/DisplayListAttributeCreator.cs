@@ -1,6 +1,7 @@
 ﻿using ConfigGUI;
 using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using ConfigGUI.MultiSelect;
+using RealTimePPDisplayer.MultiOutput;
 using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace RealTimePPDisplayer.Gui
                 Content = "Multi Output Editor",
                 IsEnabled = !ConfigWindow.RequireRestart,
                 Margin = new Thickness(1),
-                Visibility = Setting.OutputMethods.Any(om => om == "multi-output") ? Visibility.Visible : Visibility.Hidden
+                Visibility = Setting.OutputMethods.Any(om => om == MultiOutputDisplayer.METHOD_NAME) ? Visibility.Visible : Visibility.Hidden
             };
 
             multi_mmf_btn.Click += (s, e) =>
@@ -42,7 +43,7 @@ namespace RealTimePPDisplayer.Gui
 
             multi_combo.Click += (s, e) =>
             {
-                multi_mmf_btn.Visibility = Setting.OutputMethods.Any(om => om == "multi-output") ? Visibility.Visible : Visibility.Hidden;
+                multi_mmf_btn.Visibility = Setting.OutputMethods.Any(om => om == MultiOutputDisplayer.METHOD_NAME) ? Visibility.Visible : Visibility.Hidden;
                 multi_mmf_btn.IsEnabled = !ConfigWindow.RequireRestart;
             };
             panel.Children.Add(multi_mmf_btn);

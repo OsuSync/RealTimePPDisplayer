@@ -12,6 +12,8 @@ namespace RealTimePPDisplayer.MultiOutput
 {
     class MultiOutputDisplayer:DisplayerBase
     {
+        public const string METHOD_NAME = "multi-output";
+
         private int? _id;
 
         class DisplayerContext

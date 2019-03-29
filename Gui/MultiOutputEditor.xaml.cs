@@ -40,10 +40,10 @@ namespace RealTimePPDisplayer.Gui
 
             public string Format
             {
-                get => _object.format.Replace(Environment.NewLine, "&#10;").Replace("\n", "&#10;");
+                get => _object.format;
                 set
                 {
-                    _object.format = value.Replace("&#10;", Environment.NewLine);
+                    _object.format = value;
                     OnPropertyChanged(nameof(Format));
                     OnFormatChange?.Invoke(_object.name, _object.format);
                 }
@@ -156,7 +156,7 @@ namespace RealTimePPDisplayer.Gui
                     public ConfigurationElement FormatElement
                     {
                         get => _object.Format;
-                        set => _object.Format = value.ToString().Replace("\\&#10;","\\n");
+                        set => _object.Format = value.ToString();
                     }
 
                     #region unused
