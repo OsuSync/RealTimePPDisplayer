@@ -1,4 +1,5 @@
 ﻿using RealTimePPDisplayer.Expression;
+using RealTimePPDisplayer.Formatter;
 using System;
 using System.Collections.Concurrent;
 using System.IO;
@@ -28,15 +29,15 @@ namespace RealTimePPDisplayer.Displayer
 
         private bool _split;
 
-        private StringFormatterBase ppFormatter;
-        private StringFormatterBase hitCountFormatter;
+        private FormatterBase ppFormatter;
+        private FormatterBase hitCountFormatter;
         private ConcurrentDictionary<FormatArgs, IAstNode> astDict = new ConcurrentDictionary<FormatArgs, IAstNode>();
 
         public MmfDisplayer(
             int? id,
             string name,
-            StringFormatterBase ppfmt,
-            StringFormatterBase hitfmt ,
+            FormatterBase ppfmt,
+            FormatterBase hitfmt ,
             bool split = false)
         {
             ppFormatter = ppfmt;
@@ -80,6 +81,12 @@ namespace RealTimePPDisplayer.Displayer
             _output = false;
             _speed = PPTuple.Empty;
             _currentPp = PPTuple.Empty;
+
+            if (ppFormatter is IFormatterClearable ppfmt)
+                ppfmt.Clear();
+
+            if (hitCountFormatter is IFormatterClearable hitfmt)
+                hitfmt.Clear();
 
             foreach (var mmf in _mmfs)
             {

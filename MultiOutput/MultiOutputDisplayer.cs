@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Expression;
+using RealTimePPDisplayer.Formatter;
 using RealTimePPDisplayer.Gui;
 
 namespace RealTimePPDisplayer.MultiOutput
@@ -20,12 +21,12 @@ namespace RealTimePPDisplayer.MultiOutput
         {
             public MultiOutputItem item;
             public DisplayerBase displayer;
-            public StringFormatterBase fmtter;
+            public FormatterBase fmtter;
         }
 
         private ConcurrentDictionary<string,DisplayerContext> _displayers = new ConcurrentDictionary<string, DisplayerContext>();
-        private Dictionary<string, Func<int?, MultiOutputItem,StringFormatterBase, DisplayerBase>> _displayer_creators;
-        private Dictionary<string, Func<string,StringFormatterBase>> _fmt_creators;
+        private Dictionary<string, Func<int?, MultiOutputItem,FormatterBase, DisplayerBase>> _displayer_creators;
+        private Dictionary<string, Func<string,FormatterBase>> _fmt_creators;
 
         static MultiOutputDisplayer()
         {
@@ -41,8 +42,8 @@ namespace RealTimePPDisplayer.MultiOutput
         }
 
         public MultiOutputDisplayer(int? id,
-            Dictionary<string, Func<int?, MultiOutputItem, StringFormatterBase, DisplayerBase>> displayer_creators,
-            Dictionary<string, Func<string, StringFormatterBase>> fmt_creator
+            Dictionary<string, Func<int?, MultiOutputItem, FormatterBase, DisplayerBase>> displayer_creators,
+            Dictionary<string, Func<string, FormatterBase>> fmt_creator
             )
         {
             _id = id;

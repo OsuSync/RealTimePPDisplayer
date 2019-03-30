@@ -1,5 +1,6 @@
 ﻿using RealTimePPDisplayer.Displayer.View;
 using RealTimePPDisplayer.Expression;
+using RealTimePPDisplayer.Formatter;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
@@ -15,10 +16,10 @@ namespace RealTimePPDisplayer.Displayer
         private PPTuple _currentPp;
         private PPTuple _speed;
 
-        private StringFormatterBase ppFormatter;
-        private StringFormatterBase hitCountFormatter;
+        private FormatterBase ppFormatter;
+        private FormatterBase hitCountFormatter;
 
-        public WpfDisplayer(int? id, StringFormatterBase ppFmt, StringFormatterBase hitFmt)
+        public WpfDisplayer(int? id, FormatterBase ppFmt, FormatterBase hitFmt)
         {
             ppFormatter = ppFmt;
             hitCountFormatter = hitFmt;
@@ -60,7 +61,13 @@ namespace RealTimePPDisplayer.Displayer
             _output = false;
             _speed = PPTuple.Empty;
             _currentPp = PPTuple.Empty;
-            
+
+            if (ppFormatter is IFormatterClearable ppfmt)
+                ppfmt.Clear();
+
+            if (hitCountFormatter is IFormatterClearable hitfmt)
+                hitfmt.Clear();
+
             if (_win != null)
             {
                 _win.HitCountContext = "";

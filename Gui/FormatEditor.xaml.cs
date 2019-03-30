@@ -21,6 +21,7 @@ using static RealTimePPDisplayer.Gui.OpenFormatEditorCreator;
 using RealTimePPDisplayer.Expression;
 using System.Collections.Concurrent;
 using static OsuRTDataProvider.Mods.ModsInfo;
+using RealTimePPDisplayer.Formatter;
 
 namespace RealTimePPDisplayer.Gui
 {
@@ -158,7 +159,7 @@ namespace RealTimePPDisplayer.Gui
 
         private bool _not_close;
 
-        public FormatEditor(PropertyInfo prop, object configurationInstance,StringFormatterBase fmt,bool not_close = true)
+        public FormatEditor(PropertyInfo prop, object configurationInstance,FormatterBase fmt,bool not_close = true)
         {
             var item = new ConfigItemProxy(prop, configurationInstance);
             _not_close = not_close;

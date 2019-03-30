@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RealTimePPDisplayer.Formatter;
+using System;
 using System.IO;
 
 namespace RealTimePPDisplayer.Displayer
@@ -14,9 +15,15 @@ namespace RealTimePPDisplayer.Displayer
 
         private readonly bool _splited;
 
+        private FormatterBase ppFormatter;
+        private FormatterBase hitCountFormatter;
+
         public TextDisplayer(string filename,bool splited=false)
         {
             _splited = splited;
+
+            ppFormatter = StringFormatter.GetPPFormatter();
+            hitCountFormatter = StringFormatter.GetHitCountFormatter();
 
             if (!Path.IsPathRooted(filename))
                 _filenames[0] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);
@@ -37,6 +44,13 @@ namespace RealTimePPDisplayer.Displayer
         public override void Clear()
         {
             base.Clear();
+
+            if (ppFormatter is IFormatterClearable ppfmt)
+                ppfmt.Clear();
+
+            if (hitCountFormatter is IFormatterClearable hitfmt)
+                hitfmt.Clear();
+
             using (File.Open(_filenames[0], FileMode.Create, FileAccess.Write, FileShare.Read))
                 if(_splited)
                     using (File.Open(_filenames[1], FileMode.Create, FileAccess.Write, FileShare.Read)){}
@@ -53,11 +67,11 @@ namespace RealTimePPDisplayer.Displayer
                 _init = true;
             }
 
-            string s = FormatPp().GetFormattedString();
+            string s = ppFormatter.GetFormattedString();
             _ppStrLen = s.Length;
             s.CopyTo(0,_ppBuffer,0, _ppStrLen);
 
-            s = FormatHitCount().GetFormattedString();
+            s = hitCountFormatter.GetFormattedString();
             _hitStrLen = s.Length;
             s.CopyTo(0, _hitBuffer, 0, _hitStrLen);
 

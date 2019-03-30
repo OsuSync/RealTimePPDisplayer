@@ -62,6 +62,7 @@
     <Compile Include="Calculator\StdPerformanceCalculator.cs" />
     <Compile Include="Calculator\PerformanceCalculatorBase.cs" />
     <Compile Include="Calculator\TaikoPerformanceCalculator.cs" />
+    <Compile Include="Formatter\FormatterBase.cs" />
     <Compile Include="Gui\DisplayListAttributeCreator.cs" />
     <Compile Include="Gui\MultiOutputEditor.xaml.cs">
       <DependentUpon>MultiOutputEditor.xaml</DependentUpon>
@@ -70,7 +71,6 @@
     <Compile Include="MultiOutput\MultiOutputItem.cs" />
     <Compile Include="UpdateChecker.cs" />
     <Compile Include="DefaultLanguage.cs" />
-    <Compile Include="Displayer\ConsoleDisplayer.cs" />
     <Compile Include="Displayer\DisplayerBase.cs" />
     <Compile Include="Displayer\MmfDisplayer.cs" />
     <Compile Include="Displayer\TextDisplayer.cs" />

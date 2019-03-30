@@ -9,6 +9,7 @@ using OsuRTDataProvider;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Gui;
 using RealTimePPDisplayer.MultiOutput;
+using RealTimePPDisplayer.Formatter;
 
 namespace RealTimePPDisplayer
 {
@@ -32,8 +33,8 @@ namespace RealTimePPDisplayer
 
         private bool _stopFixedUpdate;
         private readonly Dictionary<string, Func<int?, DisplayerBase>> _displayerCreators = new Dictionary<string,Func<int?, DisplayerBase>>();
-        private readonly Dictionary<string, Func<int?, MultiOutputItem, StringFormatterBase, DisplayerBase>> _multiDisplayerCreators = new Dictionary<string, Func<int?,MultiOutputItem, StringFormatterBase, DisplayerBase>>();
-        private readonly Dictionary<string, Func<string,StringFormatterBase>> _formatterCreators = new Dictionary<string, Func<string,StringFormatterBase>>();
+        private readonly Dictionary<string, Func<int?, MultiOutputItem, FormatterBase, DisplayerBase>> _multiDisplayerCreators = new Dictionary<string, Func<int?,MultiOutputItem, FormatterBase, DisplayerBase>>();
+        private readonly Dictionary<string, Func<string,FormatterBase>> _formatterCreators = new Dictionary<string, Func<string,FormatterBase>>();
 
         public IEnumerable<string> DisplayerTypes => _displayerCreators.Keys;
         public IEnumerable<string> MultiDisplayerTypes => _multiDisplayerCreators.Keys;
@@ -121,7 +122,6 @@ namespace RealTimePPDisplayer
             RegisterDisplayer(MultiOutputDisplayer.METHOD_NAME, id => new MultiOutputDisplayer(id,_multiDisplayerCreators,_formatterCreators));
             RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
-            RegisterDisplayer("console", id => new ConsoleDisplayer());
 
             IO.CurrentIO.WriteColor($"{PLUGIN_NAME} By {PLUGIN_AUTHOR} Ver.{VERSION}", ConsoleColor.DarkCyan);
         }
@@ -155,7 +155,7 @@ namespace RealTimePPDisplayer
         /// <param name="name"></param>
         /// <param name="creator"></param>
         /// <returns></returns>
-        public bool RegisterMultiDisplayer(string name, Func<int?,MultiOutputItem,StringFormatterBase, DisplayerBase> creator)
+        public bool RegisterMultiDisplayer(string name, Func<int?,MultiOutputItem,FormatterBase, DisplayerBase> creator)
         {
             if (_multiDisplayerCreators.ContainsKey(name))
             {
@@ -167,7 +167,7 @@ namespace RealTimePPDisplayer
             return true;
         }
 
-        public bool RegisterFormatter(string name, Func<string,StringFormatterBase> creator)
+        public bool RegisterFormatter(string name, Func<string,FormatterBase> creator)
         {
             if (_formatterCreators.ContainsKey(name))
             {
@@ -179,7 +179,7 @@ namespace RealTimePPDisplayer
             return true;
         }
 
-        public StringFormatterBase NewFormatter(string formatterName,string format)
+        public FormatterBase NewFormatter(string formatterName,string format)
         {
             if (_formatterCreators.TryGetValue(formatterName, out var creator))
             {

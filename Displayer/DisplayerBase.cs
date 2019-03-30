@@ -5,6 +5,7 @@ using System.Threading;
 using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Expression;
+using RealTimePPDisplayer.Formatter;
 using static OsuRTDataProvider.Listen.OsuListenerManager;
 
 namespace RealTimePPDisplayer.Displayer
@@ -87,7 +88,7 @@ namespace RealTimePPDisplayer.Displayer
 
         public virtual void OnReady() { }
 
-        public void SetFormatterArgs(StringFormatterBase fmt)
+        public void SetFormatterArgs(FormatterBase fmt)
         {
             fmt.HitCount = HitCount;
             fmt.Pp = Pp;

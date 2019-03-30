@@ -2,6 +2,7 @@
 using OsuRTDataProvider.Mods;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Expression;
+using RealTimePPDisplayer.Formatter;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -23,21 +24,7 @@ namespace RealTimePPDisplayer
         public IAstNode AstRoot { get; set; }
     }
 
-    public abstract class StringFormatterBase
-    {
-        public HitCountTuple HitCount { get; set; } = new HitCountTuple();
-        public PPTuple Pp { get; set; } = new PPTuple();
-        public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
-        public double Playtime { get; set; }
-        public OsuStatus Status { get; set; }
-        public OsuPlayMode Mode { get; set; }
-        public ModsInfo Mods { get; set; }
-
-        public abstract string Format { get; set; }
-        public abstract string GetFormattedString();
-    }
-
-    public class StringFormatter: StringFormatterBase
+    public class StringFormatter: FormatterBase,IFormatterClearable
     {
         private string _format;
         public override string Format {
@@ -112,7 +99,6 @@ namespace RealTimePPDisplayer
 
         private void ProcessFormat()
         {
-            ResetAllVariables();
             var ctx = s_exprCtx.Value;
 
             UpdateContextVariablesFromPpTuple(ctx, Pp);
@@ -205,6 +191,11 @@ namespace RealTimePPDisplayer
         {
             var t = s_hitCountFormatLocal.Value;
             return t;
+        }
+
+        public void Clear()
+        {
+            ResetAllVariables();
         }
     }
 
