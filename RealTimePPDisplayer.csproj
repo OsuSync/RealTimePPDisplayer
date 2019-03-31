@@ -63,6 +63,7 @@
     <Compile Include="Calculator\PerformanceCalculatorBase.cs" />
     <Compile Include="Calculator\TaikoPerformanceCalculator.cs" />
     <Compile Include="Formatter\FormatterBase.cs" />
+    <Compile Include="Formatter\IFormatterClearable.cs" />
     <Compile Include="Gui\DisplayListAttributeCreator.cs" />
     <Compile Include="Gui\MultiOutputEditor.xaml.cs">
       <DependentUpon>MultiOutputEditor.xaml</DependentUpon>

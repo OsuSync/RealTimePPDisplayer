@@ -41,7 +41,7 @@ namespace RealTimePPDisplayer
         private readonly object _mtx = new object();
         private readonly List<FormatArgs> _args = new List<FormatArgs>(32);
         private static readonly Regex s_pattern = new Regex(@"\$\{(((?:\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*)(?:@(\d+))?)\}");
-        private static readonly ThreadLocal<ExpressionContext> s_exprCtx = new ThreadLocal<ExpressionContext>(() => new ExpressionContext(), true);
+        private ExpressionContext _ctx = new ExpressionContext();
 
         public StringFormatter(string format)
         {
@@ -90,21 +90,23 @@ namespace RealTimePPDisplayer
 
         private void ResetAllVariables()
         {
-            var ctx = s_exprCtx.Value;
-            foreach (var kv in ctx.Variables)
+            _ctx.Variables.Clear();
+        }
+
+        public void Clear()
+        {
+            foreach(var kv in _ctx.Variables)
             {
-                ctx.Variables[kv.Key] = 0.0;
+                _ctx.Variables[kv.Key] = 0.0;
             }
         }
 
         private void ProcessFormat()
         {
-            var ctx = s_exprCtx.Value;
-
-            UpdateContextVariablesFromPpTuple(ctx, Pp);
-            UpdateContextVariablesFromHitCountTuple(ctx, HitCount);
-            UpdateContextVariablesBeatmapTuple(ctx, BeatmapTuple);
-            ctx.Variables["playtime"] = Playtime;
+            UpdateContextVariablesFromPpTuple(_ctx, Pp);
+            UpdateContextVariablesFromHitCountTuple(_ctx, HitCount);
+            UpdateContextVariablesBeatmapTuple(_ctx, BeatmapTuple);
+            _ctx.Variables["playtime"] = Playtime;
 
             _builder.Clear();
             _builder.Append(_format);
@@ -114,7 +116,7 @@ namespace RealTimePPDisplayer
                 {
                     int digits = arg.Digits == int.MinValue ? Setting.RoundDigits : arg.Digits;
 
-                    string s = string.Format($"{{0:F{digits}}}", ctx.ExecAst(arg.AstRoot));
+                    string s = string.Format($"{{0:F{digits}}}", _ctx.ExecAst(arg.AstRoot));
                     _builder.Replace($"${{{arg.RawString}}}", s);
                 }
             }catch(Exception e)
@@ -191,11 +193,6 @@ namespace RealTimePPDisplayer
         {
             var t = s_hitCountFormatLocal.Value;
             return t;
-        }
-
-        public void Clear()
-        {
-            ResetAllVariables();
         }
     }
 
