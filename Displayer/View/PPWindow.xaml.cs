@@ -94,7 +94,6 @@ namespace RealTimePPDisplayer.Displayer.View
 
             //Hit Label
             hit_label.FontSize = Setting.HitCountFontSize;
-            hit_label.Visibility = Setting.DisplayHitObject ? Visibility.Visible : Visibility.Hidden;
             hit_label.Foreground = new SolidColorBrush()
             {
                 Color = Setting.HitCountFontColor
