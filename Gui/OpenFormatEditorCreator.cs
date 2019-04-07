@@ -67,15 +67,19 @@ namespace RealTimePPDisplayer.Gui
             btn.Click += (s, e) =>
             {
                 SettingFormatProxy elementInstance = null;
+                StringFormatter fmtter;
                 if(prop.GetCustomAttribute<PerformanceFormatAttribute>() != null)
                 {
                     elementInstance = new SettingFormatProxy(true);
+                    fmtter = StringFormatter.GetPPFormatter();
                 }
                 else
                 {
                     elementInstance = new SettingFormatProxy(false);
+                    fmtter = StringFormatter.GetHitCountFormatter();
                 }
-                window = (window ?? new FormatEditor(typeof(SettingFormatProxy).GetProperty("FormatElement"), elementInstance, new StringFormatter(elementInstance.FormatElement)));
+                window = (window ?? new FormatEditor(typeof(SettingFormatProxy).GetProperty("FormatElement"), elementInstance, fmtter));
+
                 if (window.Visibility == Visibility.Visible)
                     window.Activate();
                 else

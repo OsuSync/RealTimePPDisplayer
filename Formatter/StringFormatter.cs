@@ -179,19 +179,18 @@ namespace RealTimePPDisplayer
             ctx.Variables["combo"] = tuple.Combo;
         }
 
-        private static readonly ThreadLocal<StringFormatter> s_hitCountFormatLocal = new ThreadLocal<StringFormatter>(() => new HitCountStringFormatter());
+        private static readonly StringFormatter s_hitCountFormatter = new HitCountStringFormatter();
+        private static readonly StringFormatter s_ppFormatter = new PPStringFormatter();
 
         public static StringFormatter GetPPFormatter()
         {
-            var t = s_ppFormatLocal.Value;
+            var t = s_ppFormatter;
             return t;
         }
 
-        private static readonly ThreadLocal<StringFormatter> s_ppFormatLocal = new ThreadLocal<StringFormatter>(() => new PPStringFormatter());
-
         public static StringFormatter GetHitCountFormatter()
         {
-            var t = s_hitCountFormatLocal.Value;
+            var t = s_hitCountFormatter;
             return t;
         }
     }
