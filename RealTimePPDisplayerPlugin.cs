@@ -31,10 +31,16 @@ namespace RealTimePPDisplayer
         #region FixedDisplay Field
         public static RealTimePPDisplayerPlugin Instance { get; private set; }
 
+        public struct FormatterConfiguration
+        {
+            public Func<string, FormatterBase> Creator { get; set; }
+            public string DefaultFormat { get; set; }
+        }
+
         private bool _stopFixedUpdate;
         private readonly Dictionary<string, Func<int?, DisplayerBase>> _displayerCreators = new Dictionary<string,Func<int?, DisplayerBase>>();
         private readonly Dictionary<string, Func<int?, MultiOutputItem, FormatterBase, DisplayerBase>> _multiDisplayerCreators = new Dictionary<string, Func<int?,MultiOutputItem, FormatterBase, DisplayerBase>>();
-        private readonly Dictionary<string, Func<string,FormatterBase>> _formatterCreators = new Dictionary<string, Func<string,FormatterBase>>();
+        private readonly Dictionary<string, FormatterConfiguration> _formatterCreators = new Dictionary<string, FormatterConfiguration>();
 
         public IEnumerable<string> DisplayerTypes => _displayerCreators.Keys;
         public IEnumerable<string> MultiDisplayerTypes => _multiDisplayerCreators.Keys;
@@ -167,7 +173,7 @@ namespace RealTimePPDisplayer
             return true;
         }
 
-        public bool RegisterFormatter(string name, Func<string,FormatterBase> creator)
+        public bool RegisterFormatter(string name, Func<string,FormatterBase> creator,string defaultFormat)
         {
             if (_formatterCreators.ContainsKey(name))
             {
@@ -175,15 +181,30 @@ namespace RealTimePPDisplayer
                 return false;
             }
 
-            _formatterCreators[name] = creator;
+            _formatterCreators[name] = new FormatterConfiguration(){
+                Creator = creator,
+                DefaultFormat = defaultFormat
+            };
             return true;
         }
 
-        public FormatterBase NewFormatter(string formatterName,string format)
+        public string GetFormatterDefaultFormat(string name)
         {
-            if (_formatterCreators.TryGetValue(formatterName, out var creator))
+            if (!_formatterCreators.ContainsKey(name))
+                return "";
+            return _formatterCreators[name].DefaultFormat;
+        }
+
+        public FormatterBase NewFormatter(string formatterName,string format="")
+        {
+            if (_formatterCreators.TryGetValue(formatterName, out var config))
             {
-                return creator(format);
+                if (format == "")
+                {
+                    format = GetFormatterDefaultFormat(formatterName);
+                }
+                var fmtter = config.Creator(format);
+                return fmtter;
             }
 
             return null;

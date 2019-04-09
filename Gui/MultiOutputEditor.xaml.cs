@@ -75,9 +75,15 @@ namespace RealTimePPDisplayer.Gui
                 get => _object.formatter;
                 set
                 {
-                    _object.formatter = value;
-                    OnPropertyChanged(nameof(Formatter));
-                    OnFormatterChange?.Invoke(_object.name, value);
+                    if(MessageBox.Show("Changing formatter will clear the format, will it continue?", 
+                        "Hint", 
+                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    {
+                        _object.formatter = value;
+                        OnFormatterChange?.Invoke(_object.name, value);
+                        OnPropertyChanged(nameof(Format));
+                        OnPropertyChanged(nameof(Formatter));
+                    }
                 }
             }
 
@@ -248,10 +254,11 @@ namespace RealTimePPDisplayer.Gui
             var item = new MultiOutputItem()
             {
                 name = name,
-                format = "${rtpp}",
+                format = RealTimePPDisplayerPlugin.Instance.GetFormatterDefaultFormat("rtpp-fmt"),
                 type = RealTimePPDisplayerPlugin.Instance.MultiDisplayerTypes.FirstOrDefault(),
                 smooth = false,
-                mode = OsuPlayMode.Osu
+                mode = OsuPlayMode.Osu,
+                formatter = "rtpp-fmt"
             };
             OnDisplayerNew?.Invoke(item);
             var proxy = new MultiOutputItemProxy(item, this);

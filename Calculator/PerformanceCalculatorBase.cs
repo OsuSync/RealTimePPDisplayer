@@ -46,5 +46,14 @@ namespace RealTimePPDisplayer.Calculator
         {
             n300 = n100 = n50 = 0;
         }
+
+        public void AccuracyRound(double acc,int nmiss)
+        {
+            AccuracyRound(acc, Beatmap.ObjectsCount, nmiss, out int n300, out int n100, out int n50);
+            Count300 = n300;
+            Count100 = n100;
+            Count50 = n50;
+            CountMiss = nmiss;
+        }
     }
 }

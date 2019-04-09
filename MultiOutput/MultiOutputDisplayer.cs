@@ -8,6 +8,7 @@ using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Expression;
 using RealTimePPDisplayer.Formatter;
 using RealTimePPDisplayer.Gui;
+using static RealTimePPDisplayer.RealTimePPDisplayerPlugin;
 
 namespace RealTimePPDisplayer.MultiOutput
 {
@@ -26,7 +27,7 @@ namespace RealTimePPDisplayer.MultiOutput
 
         private ConcurrentDictionary<string,DisplayerContext> _displayers = new ConcurrentDictionary<string, DisplayerContext>();
         private Dictionary<string, Func<int?, MultiOutputItem,FormatterBase, DisplayerBase>> _displayer_creators;
-        private Dictionary<string, Func<string,FormatterBase>> _fmt_creators;
+        private Dictionary<string, FormatterConfiguration> _fmt_creators;
 
         static MultiOutputDisplayer()
         {
@@ -38,12 +39,12 @@ namespace RealTimePPDisplayer.MultiOutput
                 return displayer;
             });
 
-            RealTimePPDisplayerPlugin.Instance.RegisterFormatter("rtpp-fmt", (fmt) => new StringFormatter(fmt));
+            RealTimePPDisplayerPlugin.Instance.RegisterFormatter("rtpp-fmt", (fmt) => new StringFormatter(fmt),"${rtpp@1}pp");
         }
 
         public MultiOutputDisplayer(int? id,
             Dictionary<string, Func<int?, MultiOutputItem, FormatterBase, DisplayerBase>> displayer_creators,
-            Dictionary<string, Func<string, FormatterBase>> fmt_creator
+            Dictionary<string, FormatterConfiguration> fmt_creator
             )
         {
             _id = id;
@@ -78,9 +79,11 @@ namespace RealTimePPDisplayer.MultiOutput
             MultiOutputEditor.OnFormatterChange += (name, fmtter) =>
             {
                 var ctx = _displayers[name];
+                var defaultFormat = RealTimePPDisplayerPlugin.Instance.GetFormatterDefaultFormat(fmtter);
                 ctx.displayer.OnDestroy();
 
                 ctx.item.formatter = fmtter;
+                ctx.item.format = defaultFormat;
                 ctx.fmtter = RealTimePPDisplayerPlugin.Instance.NewFormatter(ctx.item.formatter,ctx.item.format);
                 ctx.displayer = _displayer_creators[ctx.item.type](_id,ctx.item,ctx.fmtter);
             };
