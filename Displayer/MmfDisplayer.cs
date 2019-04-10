@@ -47,8 +47,8 @@ namespace RealTimePPDisplayer.Displayer
 
         public MmfDisplayer(int? id,string name, bool split = false)
         {
-            ppFormatter = StringFormatter.GetPPFormatter();
-            hitCountFormatter = StringFormatter.GetHitCountFormatter();
+            ppFormatter = RtppFormatter.GetPPFormatter();
+            hitCountFormatter = RtppFormatter.GetHitCountFormatter();
             Initialize(id, name, split);
         }
 

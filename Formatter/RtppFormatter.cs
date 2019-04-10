@@ -1,21 +1,11 @@
-﻿using OsuRTDataProvider.Listen;
-using OsuRTDataProvider.Mods;
-using RealTimePPDisplayer.Displayer;
+﻿using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Expression;
-using RealTimePPDisplayer.Formatter;
 using System;
-using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
-using static OsuRTDataProvider.Listen.OsuListenerManager;
 
-namespace RealTimePPDisplayer
+namespace RealTimePPDisplayer.Formatter
 {
     public class FormatArgs
     {
@@ -24,7 +14,7 @@ namespace RealTimePPDisplayer
         public IAstNode AstRoot { get; set; }
     }
 
-    public class StringFormatter: FormatterBase,IFormatterClearable
+    public class RtppFormatter: FormatterBase,IFormatterClearable
     {
         private string _format;
         public override string Format {
@@ -43,7 +33,7 @@ namespace RealTimePPDisplayer
         private static readonly Regex s_pattern = new Regex(@"\$\{(((?:\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*)(?:@(\d+))?)\}");
         private ExpressionContext _ctx = new ExpressionContext();
 
-        public StringFormatter(string format)
+        public RtppFormatter(string format)
         {
             ReplaceFormat(format);
         }
@@ -179,23 +169,23 @@ namespace RealTimePPDisplayer
             ctx.Variables["combo"] = tuple.Combo;
         }
 
-        private static readonly StringFormatter s_hitCountFormatter = new HitCountStringFormatter();
-        private static readonly StringFormatter s_ppFormatter = new PPStringFormatter();
+        private static readonly RtppFormatter s_hitCountFormatter = new HitCountStringFormatter();
+        private static readonly RtppFormatter s_ppFormatter = new PPStringFormatter();
 
-        public static StringFormatter GetPPFormatter()
+        public static RtppFormatter GetPPFormatter()
         {
             var t = s_ppFormatter;
             return t;
         }
 
-        public static StringFormatter GetHitCountFormatter()
+        public static RtppFormatter GetHitCountFormatter()
         {
             var t = s_hitCountFormatter;
             return t;
         }
     }
 
-    internal class PPStringFormatter : StringFormatter
+    internal class PPStringFormatter : RtppFormatter
     {
         public PPStringFormatter():base(Setting.PPFormat)
         {
@@ -207,7 +197,7 @@ namespace RealTimePPDisplayer
     }
 
 
-    internal class HitCountStringFormatter : StringFormatter
+    internal class HitCountStringFormatter : RtppFormatter
     {
         public HitCountStringFormatter() : base(Setting.HitCountFormat)
         {

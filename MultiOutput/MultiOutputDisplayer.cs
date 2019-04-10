@@ -39,7 +39,7 @@ namespace RealTimePPDisplayer.MultiOutput
                 return displayer;
             });
 
-            RealTimePPDisplayerPlugin.Instance.RegisterFormatter("rtpp-fmt", (fmt) => new StringFormatter(fmt),"${rtpp@1}pp");
+            RealTimePPDisplayerPlugin.Instance.RegisterFormatter("rtpp-fmt", (fmt) => new RtppFormatter(fmt),"${rtpp@1}pp");
         }
 
         public MultiOutputDisplayer(int? id,

@@ -100,9 +100,9 @@ namespace RealTimePPDisplayer.Displayer
         }
 
         [Obsolete]
-        public StringFormatter FormatPp(PPTuple? pp=null)
+        public RtppFormatter FormatPp(PPTuple? pp=null)
         {
-            var formatter = StringFormatter.GetPPFormatter();
+            var formatter = RtppFormatter.GetPPFormatter();
             SetFormatterArgs(formatter);
             formatter.Pp = pp ?? Pp;
 
@@ -110,9 +110,9 @@ namespace RealTimePPDisplayer.Displayer
         }
 
         [Obsolete]
-        public StringFormatter FormatHitCount(HitCountTuple? hitCount=null)
+        public RtppFormatter FormatHitCount(HitCountTuple? hitCount=null)
         {
-            var formatter = StringFormatter.GetHitCountFormatter();
+            var formatter = RtppFormatter.GetHitCountFormatter();
             SetFormatterArgs(formatter);
             formatter.HitCount = hitCount??HitCount;
 

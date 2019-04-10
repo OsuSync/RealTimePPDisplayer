@@ -28,8 +28,8 @@ namespace RealTimePPDisplayer.Displayer
 
         public WpfDisplayer(int? id)
         {
-            ppFormatter = StringFormatter.GetPPFormatter();
-            hitCountFormatter = StringFormatter.GetHitCountFormatter();
+            ppFormatter = RtppFormatter.GetPPFormatter();
+            hitCountFormatter = RtppFormatter.GetHitCountFormatter();
             Initialize(id);
         }
 

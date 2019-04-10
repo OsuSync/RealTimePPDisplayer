@@ -1,5 +1,6 @@
 ﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using RealTimePPDisplayer.Attribute;
+using RealTimePPDisplayer.Formatter;
 using Sync.Tools;
 using Sync.Tools.ConfigurationAttribute;
 using System.Reflection;
@@ -67,16 +68,16 @@ namespace RealTimePPDisplayer.Gui
             btn.Click += (s, e) =>
             {
                 SettingFormatProxy elementInstance = null;
-                StringFormatter fmtter;
+                RtppFormatter fmtter;
                 if(prop.GetCustomAttribute<PerformanceFormatAttribute>() != null)
                 {
                     elementInstance = new SettingFormatProxy(true);
-                    fmtter = StringFormatter.GetPPFormatter();
+                    fmtter = RtppFormatter.GetPPFormatter();
                 }
                 else
                 {
                     elementInstance = new SettingFormatProxy(false);
-                    fmtter = StringFormatter.GetHitCountFormatter();
+                    fmtter = RtppFormatter.GetHitCountFormatter();
                 }
                 window = (window ?? new FormatEditor(typeof(SettingFormatProxy).GetProperty("FormatElement"), elementInstance, fmtter));
 

@@ -22,8 +22,8 @@ namespace RealTimePPDisplayer.Displayer
         {
             _splited = splited;
 
-            ppFormatter = StringFormatter.GetPPFormatter();
-            hitCountFormatter = StringFormatter.GetHitCountFormatter();
+            ppFormatter = RtppFormatter.GetPPFormatter();
+            hitCountFormatter = RtppFormatter.GetHitCountFormatter();
 
             if (!Path.IsPathRooted(filename))
                 _filenames[0] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);

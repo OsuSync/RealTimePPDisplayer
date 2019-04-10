@@ -167,7 +167,7 @@ namespace RealTimePPDisplayer.Gui
 
             FormatEditBox.DataContext = item;
 
-            if(!(fmt is StringFormatter))
+            if(!(fmt is RtppFormatter))
             {
                 grid.RowDefinitions[4].Height = new GridLength(0);
                 grid.RowDefinitions[5].Height = new GridLength(0);
