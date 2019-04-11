@@ -32,12 +32,12 @@ namespace RealTimePPDisplayer.MultiOutput
         static MultiOutputDisplayer()
         {
             RealTimePPDisplayerPlugin.Instance.RegisterMultiDisplayer("mmf", (id, item, fmt) => new MmfDisplayer(id, item.name, item.smooth ? fmt : null, !item.smooth ? fmt : null));
-            RealTimePPDisplayerPlugin.Instance.RegisterMultiDisplayer("wpf", (id, item, fmt) =>
+            /*RealTimePPDisplayerPlugin.Instance.RegisterMultiDisplayer("wpf", (id, item, fmt) =>
             {
                 var displayer = new WpfDisplayer(id, item.smooth ? fmt : null, !item.smooth ? fmt : null);
                 displayer.HideRow(item.smooth ? 2 : 1);
                 return displayer;
-            });
+            });*/
 
             RealTimePPDisplayerPlugin.Instance.RegisterFormatter("rtpp-fmt", (fmt) => new RtppFormatter(fmt),"${rtpp@1}pp");
         }
