@@ -269,29 +269,30 @@ namespace RealTimePPDisplayer
             get => Setting.UseUnicodePerformanceInformation.ToString();
         }
 
+
+        private string _multiOutputConfigureFile = "..\\rtpp-multi-output-config.json";
         [String(Hide = true)]
-        public ConfigurationElement MultiOutputItems
+        public ConfigurationElement MultiOutputConfigureFile
         {
             get
             {
-                using (MemoryStream ms = new MemoryStream())
+                using (Stream fs = new FileStream(_multiOutputConfigureFile,FileMode.OpenOrCreate,FileAccess.Write))
                 {
-                    using (var gzip = new GZipStream(ms, CompressionLevel.Optimal, true))
+                    using (var sw = new StreamWriter(fs))
                     {
-                        byte[] bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(Setting.MultiOutputItems));
-                        gzip.Write(bytes, 0, bytes.Length);
+                        sw.Write(JsonConvert.SerializeObject(Setting.MultiOutputItems,Formatting.Indented));
                     }
-                    return Convert.ToBase64String(ms.ToArray());
                 }
+                return _multiOutputConfigureFile;
             }
 
             set
             {
                 try
                 {
-                    using (MemoryStream ms = new MemoryStream(Convert.FromBase64String(value)))
-                    using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
-                    using (var sr = new StreamReader(gzip))
+                    _multiOutputConfigureFile = value;
+                    using (Stream fs = new FileStream(_multiOutputConfigureFile, FileMode.OpenOrCreate, FileAccess.Read))
+                    using (var sr = new StreamReader(fs))
                     {
                         string json = sr.ReadToEnd();
                         Setting.MultiOutputItems = JsonConvert.DeserializeObject<List<MultiOutputItem>>(json);

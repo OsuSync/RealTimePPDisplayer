@@ -147,7 +147,7 @@ namespace RealTimePPDisplayer.MultiOutput
         {
             foreach(var kv in _displayers)
             {
-                if (kv.Value.item.mode != Mode) continue;
+                if (!kv.Value.item.modes.Contains(Mode.ToString())) continue;
                 kv.Value.displayer.HitCount = HitCount;
                 kv.Value.displayer.Pp = Pp;
                 kv.Value.displayer.BeatmapTuple = BeatmapTuple;
@@ -163,7 +163,7 @@ namespace RealTimePPDisplayer.MultiOutput
         {
             foreach (var kv in _displayers)
             {
-                if (kv.Value.item.mode != Mode) continue;
+                if (!kv.Value.item.modes.Contains(Mode.ToString())) continue;
                 kv.Value.displayer.HitCount = HitCount;
                 kv.Value.displayer.Pp = Pp;
                 kv.Value.displayer.BeatmapTuple = BeatmapTuple;

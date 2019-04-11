@@ -6,7 +6,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using ConfigGUI.MultiSelect;
 using OsuRTDataProvider.Listen;
 using RealTimePPDisplayer.MultiOutput;
 using Sync.Tools;
@@ -18,11 +20,11 @@ namespace RealTimePPDisplayer.Gui
     /// </summary>
     partial class MultiOutputEditor : Window
     {
-        public static IEnumerable<string> OsuModes => typeof(OsuPlayMode).GetEnumNames().Where((s) => s != "Unknown");
+        public static Dictionary<string,object> OsuModes => typeof(OsuPlayMode).GetEnumNames().Where((s) => s != "Unknown").ToDictionary(s=>s,s=>s as object);
         public static IEnumerable<string> MultiDisplayerTypes => RealTimePPDisplayerPlugin.Instance.MultiDisplayerTypes;
         public static IEnumerable<string> FormatterTypes => RealTimePPDisplayerPlugin.Instance.FormatterTypes;
 
-        class MultiOutputItemProxy : INotifyPropertyChanged
+        class MultiOutputItemProxy : DependencyObject,INotifyPropertyChanged
         {
             private MultiOutputItem _object;
 
@@ -87,16 +89,12 @@ namespace RealTimePPDisplayer.Gui
                 }
             }
 
-            public string Mode
+            public Dictionary<string,object> Modes
             {
-                get => _object.mode.ToString();
-                set
-                {
-                    if (Enum.TryParse<OsuPlayMode>(value, out var mode))
-                    {
-                        _object.mode = mode;
-                        OnPropertyChanged(nameof(Mode));
-                    }
+                get => _object.modes.Split(',').Select(s=>s.Trim()).ToDictionary(s=>s,s=>s as object);
+                set {
+                    _object.modes = string.Join(",",value.Keys);
+                    OnPropertyChanged(nameof(Modes));
                 }
             }
 
@@ -257,13 +255,20 @@ namespace RealTimePPDisplayer.Gui
                 format = RealTimePPDisplayerPlugin.Instance.GetFormatterDefaultFormat("rtpp-fmt"),
                 type = RealTimePPDisplayerPlugin.Instance.MultiDisplayerTypes.FirstOrDefault(),
                 smooth = false,
-                mode = OsuPlayMode.Osu,
+                modes = "Osu",
                 formatter = "rtpp-fmt"
             };
             OnDisplayerNew?.Invoke(item);
             var proxy = new MultiOutputItemProxy(item, this);
             _observableCollection.Add(proxy);
             Setting.MultiOutputItems.Add(item);
+        }
+
+        private void MultiSelectComboBox_Click(object sender, RoutedEventArgs e)
+        {
+            var s = sender as MultiSelectComboBox;
+            var proxy = s.DataContext as MultiOutputItemProxy;
+            proxy.Modes = s.SelectedItems;
         }
     }
 }
