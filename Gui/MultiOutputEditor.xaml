@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:rtpp="clr-namespace:RealTimePPDisplayer"
              xmlns:local="clr-namespace:RealTimePPDisplayer.Gui"
              xmlns:configgui="clr-namespace:ConfigGUI.MultiSelect;assembly=ConfigGUI"
@@ -24,23 +23,23 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="0">
-                        <Label Width="80" Content="Name:"/>
+                        <Label Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_NAME_LABEL}"/>
                         <TextBox Width="400" Text="{Binding Name}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
-                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.MultiDisplayerTypes}" SelectedItem="{Binding Type}" ToolTip="Select Output Method. Recommended mmf"></ComboBox>
-                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.FormatterTypes}" SelectedItem="{Binding Formatter}" ToolTip="Select Formatter"/>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.MultiDisplayerTypes}" SelectedItem="{Binding Type}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_TYPE_COMBOBOX_TOOLTIP}"></ComboBox>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.FormatterTypes}" SelectedItem="{Binding Formatter}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_FORMATTER_COMBOBOX_TOOLTIP}"/>
                         <StackPanel Orientation="Horizontal">
-                            <Button Margin="2" Width="80" Content="Delete THIS" Command="{Binding DeleteItem}" CommandParameter="{Binding}"/>
+                            <Button Margin="2" Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_DELETETHIS_BUTTON_CONTENT}" Command="{Binding DeleteItem}" CommandParameter="{Binding}"/>
                         </StackPanel>
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" Grid.Row="1">
-                        <Label Width="80" Content="Format:"/>
+                        <Label Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_FORMAT_LABEL}"/>
                         <TextBox Width="400" Height="22" Text="{Binding Format}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
                         <StackPanel Orientation="Horizontal">
-                            <Button Margin="2" Width="80" Content="Edit" Command="{Binding OpenFormatEditor}" CommandParameter="{Binding}"/>
+                            <Button Margin="2" Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_EDITFORMAT_BUTTON_CONTENT}" Command="{Binding OpenFormatEditor}" CommandParameter="{Binding}"/>
                         </StackPanel>
-                        <configgui:MultiSelectComboBox Margin="2" Width="150" ItemsSource="{x:Static local:MultiOutputEditor.OsuModes}" SelectedItems="{Binding Modes}" Click="MultiSelectComboBox_Click" ToolTip="In which mode update Displayer"/>
-                        <CheckBox Margin="0,5,0,0" Content="Smooth" IsChecked="{Binding Smooth}" ToolTip="Enable PP smooth output"/>
+                        <configgui:MultiSelectComboBox Margin="2" Width="150" ItemsSource="{x:Static local:MultiOutputEditor.OsuModes}" SelectedItems="{Binding Modes}" Click="MultiSelectComboBox_Click" ToolTip="{x:Static rtpp:DefaultLanguage.UI_MODES_MULTISELECTCOMBOBOX_TOOLTIP}"/>
+                        <CheckBox Margin="0,5,0,0" Content="{x:Static rtpp:DefaultLanguage.UI_SMOOTH_CHECKBOX_CONTENT}" IsChecked="{Binding Smooth}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_SMMOTH_CHECKBOX_TOOLTIP}"/>
                     </StackPanel>
                 </Grid>
             </Border>

@@ -26,7 +26,7 @@ namespace RealTimePPDisplayer.Gui
 
             Button multi_mmf_btn = new Button()
             {
-                Content = "Multi Output Editor",
+                Content = DefaultLanguage.UI_MULTIOUTPUTEDITOR_BUTTON_CONTENT,
                 IsEnabled = !ConfigWindow.RequireRestart,
                 Margin = new Thickness(1),
                 Visibility = Setting.OutputMethods.Any(om => om == MultiOutputDisplayer.METHOD_NAME) ? Visibility.Visible : Visibility.Hidden

@@ -61,7 +61,7 @@ namespace RealTimePPDisplayer.Gui
 
             Button btn = new Button()
             {
-                Content = "Open Editor",
+                Content = DefaultLanguage.UI_OPENEDITOR_BUTTON_CONTENT,
                 Margin = new Thickness(1)
             };
 
