@@ -34,6 +34,11 @@ namespace RealTimePPDisplayer.Gui
 
             multi_mmf_btn.Click += (s, e) =>
             {
+                if(typeof(ListConfigurationItemCreator).Assembly.GetName().Version < Version.Parse("0.2.1"))
+                {
+                    MessageBox.Show(DefaultLanguage.UI_UPDATE_CONFIGGUI_MESSAGEBOX, "Multi Output",MessageBoxButton.OK);
+                    return;
+                }
                 _editor = _editor ?? new MultiOutputEditor();
                 if (_editor.Visibility == Visibility.Visible)
                     _editor.Activate();
