@@ -23,7 +23,7 @@ namespace RealTimePPDisplayer
         public static LanguageElement UI_EDITFORMAT_BUTTON_CONTENT = "Edit";
 
         public static LanguageElement UI_SMMOTH_CHECKBOX_TOOLTIP = "Enable PP smooth output";
-        public static LanguageElement UI_TYPE_COMBOBOX_TOOLTIP = "Select Output Method. Recommended mmf";
+        public static LanguageElement UI_TYPE_COMBOBOX_TOOLTIP = "Select Output Method";
         public static LanguageElement UI_FORMATTER_COMBOBOX_TOOLTIP = "Select Formatter";
         public static LanguageElement UI_MODES_MULTISELECTCOMBOBOX_TOOLTIP = "In which mode update Displayer";
         
