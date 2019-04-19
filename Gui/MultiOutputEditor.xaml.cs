@@ -77,15 +77,18 @@ namespace RealTimePPDisplayer.Gui
                 get => _object.formatter;
                 set
                 {
-                    if(MessageBox.Show("Changing formatter will clear the format, will it continue?", 
-                        "Hint", 
-                        MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                    if (value != _object.formatter)
                     {
-                        _object.formatter = value;
-                        OnFormatterChange?.Invoke(_object.name, value);
-                        OnPropertyChanged(nameof(Format));
-                        OnPropertyChanged(nameof(Formatter));
+                        if (MessageBox.Show("Changing formatter will clear the format, will it continue?",
+                            "Hint",
+                            MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                        {
+                            _object.formatter = value;
+                            OnFormatterChange?.Invoke(_object.name, value);
+                            OnPropertyChanged(nameof(Format));
+                        }
                     }
+                    OnPropertyChanged(nameof(Formatter));
                 }
             }
 

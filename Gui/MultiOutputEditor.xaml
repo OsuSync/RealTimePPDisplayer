@@ -26,7 +26,7 @@
                         <Label Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_NAME_LABEL}"/>
                         <TextBox Width="400" Text="{Binding Name}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
                         <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.MultiDisplayerTypes}" SelectedItem="{Binding Type}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_TYPE_COMBOBOX_TOOLTIP}"></ComboBox>
-                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.FormatterTypes}" SelectedItem="{Binding Formatter}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_FORMATTER_COMBOBOX_TOOLTIP}"/>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.FormatterTypes}" SelectedItem="{Binding Formatter,Mode=TwoWay,Delay=10}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_FORMATTER_COMBOBOX_TOOLTIP}"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Margin="2" Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_DELETETHIS_BUTTON_CONTENT}" Command="{Binding DeleteItem}" CommandParameter="{Binding}"/>
                         </StackPanel>
