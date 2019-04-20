@@ -46,7 +46,7 @@ namespace RealTimePPDisplayer.Expression
     /// </summary>
     class ExpressionParser
     {
-        private List<Token> _tokens;
+        private List<Token> _tokens = new List<Token>();
         private int _pos;
 
         public ExpressionParser()
@@ -56,7 +56,8 @@ namespace RealTimePPDisplayer.Expression
 
         public IAstNode Parse(string expr)
         {
-            _tokens = new List<Token>();
+            _pos = 0;
+
             char[] exprChars = expr.Trim().ToCharArray();
             int pos = 0;
 
@@ -74,11 +75,12 @@ namespace RealTimePPDisplayer.Expression
             var root = E_1();
             if (LookToken().Type == TokenType.EOF)
             {
-                _tokens = null;
+                _tokens.Clear();
                 return root;
             }
 
-            _tokens = null;
+            _tokens.Clear();
+
             return null;
         }
 

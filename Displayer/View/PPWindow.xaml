@@ -8,7 +8,7 @@
              Background="#ff00ff00"
              SizeChanged="WindowSizeChanged"
              Title="PPShow" Closed="Window_Closed">
-    <Grid>
+    <Grid Name="grid">
         <Grid.RowDefinitions>
             <RowDefinition Height="25" />
             <RowDefinition Height="4*" />

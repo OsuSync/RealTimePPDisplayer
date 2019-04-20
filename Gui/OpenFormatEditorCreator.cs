@@ -1,5 +1,7 @@
 ﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using RealTimePPDisplayer.Attribute;
+using RealTimePPDisplayer.Formatter;
+using Sync.Tools;
 using Sync.Tools.ConfigurationAttribute;
 using System.Reflection;
 using System.Windows;
@@ -7,6 +9,49 @@ using System.Windows.Controls;
 
 namespace RealTimePPDisplayer.Gui
 {
+    class SettingFormatProxy : IConfigurable
+    {
+        private bool _is_pp = false;
+
+        public SettingFormatProxy(bool is_pp)
+        {
+            _is_pp = is_pp;
+        }
+
+        public ConfigurationElement FormatElement
+        {
+            get => _is_pp ? Setting.PPFormat : Setting.HitCountFormat;
+            set {
+                if (_is_pp)
+                {
+                    Setting.PPFormat = value;
+                }
+                else
+                {
+                    Setting.HitCountFormat = value;
+                }
+            }
+        }
+
+        #region unused
+        public void onConfigurationLoad()
+        {
+
+        }
+
+        public void onConfigurationReload()
+        {
+
+        }
+
+        public void onConfigurationSave()
+        {
+
+        }
+
+        #endregion
+    }
+
     class OpenFormatEditorCreator: BaseConfigurationItemCreator
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
@@ -16,13 +61,26 @@ namespace RealTimePPDisplayer.Gui
 
             Button btn = new Button()
             {
-                Content = "Open Editor",
+                Content = DefaultLanguage.UI_OPENEDITOR_BUTTON_CONTENT,
                 Margin = new Thickness(1)
             };
 
             btn.Click += (s, e) =>
             {
-                window = (window ?? new FormatEditor(prop, configuration_instance));
+                SettingFormatProxy elementInstance = null;
+                RtppFormatter fmtter;
+                if(prop.GetCustomAttribute<PerformanceFormatAttribute>() != null)
+                {
+                    elementInstance = new SettingFormatProxy(true);
+                    fmtter = RtppFormatter.GetPPFormatter();
+                }
+                else
+                {
+                    elementInstance = new SettingFormatProxy(false);
+                    fmtter = RtppFormatter.GetHitCountFormatter();
+                }
+                window = (window ?? new FormatEditor(typeof(SettingFormatProxy).GetProperty("FormatElement"), elementInstance, fmtter));
+
                 if (window.Visibility == Visibility.Visible)
                     window.Activate();
                 else

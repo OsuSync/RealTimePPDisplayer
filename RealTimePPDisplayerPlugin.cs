@@ -8,6 +8,8 @@ using Sync.Tools;
 using OsuRTDataProvider;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Gui;
+using RealTimePPDisplayer.MultiOutput;
+using RealTimePPDisplayer.Formatter;
 
 namespace RealTimePPDisplayer
 {
@@ -17,7 +19,7 @@ namespace RealTimePPDisplayer
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.6.11";
+        public const string VERSION= "1.7.1";
 
         private readonly DisplayerController[] _osuPpControls = new DisplayerController[16];
 
@@ -28,10 +30,22 @@ namespace RealTimePPDisplayer
 
         #region FixedDisplay Field
         public static RealTimePPDisplayerPlugin Instance { get; private set; }
-        public IEnumerable<string> DisplayerNames => _displayerCreators.Select(d=>d.Key);
+
+        public struct FormatterConfiguration
+        {
+            public Func<string, FormatterBase> Creator { get; set; }
+            public string DefaultFormat { get; set; }
+        }
 
         private bool _stopFixedUpdate;
         private readonly Dictionary<string, Func<int?, DisplayerBase>> _displayerCreators = new Dictionary<string,Func<int?, DisplayerBase>>();
+        private readonly Dictionary<string, Func<int?, MultiOutputItem, FormatterBase, DisplayerBase>> _multiDisplayerCreators = new Dictionary<string, Func<int?,MultiOutputItem, FormatterBase, DisplayerBase>>();
+        private readonly Dictionary<string, FormatterConfiguration> _formatterCreators = new Dictionary<string, FormatterConfiguration>();
+
+        public IEnumerable<string> DisplayerTypes => _displayerCreators.Keys;
+        public IEnumerable<string> MultiDisplayerTypes => _multiDisplayerCreators.Keys;
+        public IEnumerable<string> FormatterTypes => _formatterCreators.Keys;
+
         private readonly object _allDisplayerMtx = new object();
         private readonly LinkedList<KeyValuePair<string,DisplayerBase>> _allDisplayers = new LinkedList<KeyValuePair<string,DisplayerBase>>();
         private TimeSpan _fixedInterval;
@@ -46,6 +60,10 @@ namespace RealTimePPDisplayer
             EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((e) =>
             {
                 UpdateChecker.CheckUpdate();
+                foreach(var p in _allDisplayers)
+                {
+                    p.Value.OnReady();
+                }
             });
 
             Instance = this;
@@ -96,12 +114,20 @@ namespace RealTimePPDisplayer
                 }
             });
 
-            RegisterDisplayer("wpf", id => new WpfDisplayer(id));
-            RegisterDisplayer("mmf", id => new MmfDisplayer(id));
-            RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,true));
+            RegisterDisplayer("wpf", id => 
+            {
+                var d = new WpfDisplayer(id);
+                if (!TourneyMode)
+                    d.HideRow(0);
+                if (Setting.DisplayHitObject)
+                    d.HideRow(2);
+                return d;
+            });
+            RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
+            RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
+            RegisterDisplayer(MultiOutputDisplayer.METHOD_NAME, id => new MultiOutputDisplayer(id,_multiDisplayerCreators,_formatterCreators));
             RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
-            RegisterDisplayer("console", id => new ConsoleDisplayer());
 
             IO.CurrentIO.WriteColor($"{PLUGIN_NAME} By {PLUGIN_AUTHOR} Ver.{VERSION}", ConsoleColor.DarkCyan);
         }
@@ -127,6 +153,61 @@ namespace RealTimePPDisplayer
                 AddDisplayer(name, creator);
 
             return true;
+        }
+
+        /// <summary>
+        /// Register Displayer
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="creator"></param>
+        /// <returns></returns>
+        public bool RegisterMultiDisplayer(string name, Func<int?,MultiOutputItem,FormatterBase, DisplayerBase> creator)
+        {
+            if (_multiDisplayerCreators.ContainsKey(name))
+            {
+                IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Displayer exist!", ConsoleColor.Red);
+                return false;
+            }
+
+            _multiDisplayerCreators[name] = creator;
+            return true;
+        }
+
+        public bool RegisterFormatter(string name, Func<string,FormatterBase> creator,string defaultFormat)
+        {
+            if (_formatterCreators.ContainsKey(name))
+            {
+                IO.CurrentIO.WriteColor($"[RealTimePPDisplayer]{name} Formatter exist!", ConsoleColor.Red);
+                return false;
+            }
+
+            _formatterCreators[name] = new FormatterConfiguration(){
+                Creator = creator,
+                DefaultFormat = defaultFormat
+            };
+            return true;
+        }
+
+        public string GetFormatterDefaultFormat(string name)
+        {
+            if (!_formatterCreators.ContainsKey(name))
+                return "";
+            return _formatterCreators[name].DefaultFormat;
+        }
+
+        public FormatterBase NewFormatter(string formatterName,string format="")
+        {
+            if (_formatterCreators.TryGetValue(formatterName, out var config))
+            {
+                if (format == "")
+                {
+                    format = GetFormatterDefaultFormat(formatterName);
+                }
+                var fmtter = config.Creator(format);
+                return fmtter;
+            }
+
+            return null;
         }
 
         private void AddDisplayer(string name,Func<int?, DisplayerBase> creator)

@@ -11,7 +11,22 @@ namespace RealTimePPDisplayer
         public static LanguageElement CHECK_RTPPD_UPDATE = "[RealTimePPDisplayer]Found a new version of RealTimePPDisplayer({0})";
         public static LanguageElement CHECK_OPPAI_UPDATE = "[RealTimePPDisplayer]Found a new version of oppai-ng({0})";
         public static LanguageElement CHECK_GOTO_RELEASE_PAGE_HINT= "[RealTimePPDisplayer]Enter \"rtpp releases\" to open the releases page in your browser.";
+        public static LanguageElement UI_UPDATE_CONFIGGUI_MESSAGEBOX = "Please update the ConfigGUI to 0.2.1 or later.";
 
+        public static LanguageElement UI_OPENEDITOR_BUTTON_CONTENT = "Open Editor";
+        public static LanguageElement UI_MULTIOUTPUTEDITOR_BUTTON_CONTENT = "Multi Output Editor";
+
+        public static LanguageElement UI_NAME_LABEL = "Name:";
+        public static LanguageElement UI_FORMAT_LABEL = "Format:";
+        public static LanguageElement UI_DELETETHIS_BUTTON_CONTENT = "Delete THIS";
+        public static LanguageElement UI_SMOOTH_CHECKBOX_CONTENT = "Smooth";
+        public static LanguageElement UI_EDITFORMAT_BUTTON_CONTENT = "Edit";
+
+        public static LanguageElement UI_SMMOTH_CHECKBOX_TOOLTIP = "Enable PP smooth output";
+        public static LanguageElement UI_TYPE_COMBOBOX_TOOLTIP = "Select Output Method";
+        public static LanguageElement UI_FORMATTER_COMBOBOX_TOOLTIP = "Select Formatter";
+        public static LanguageElement UI_MODES_MULTISELECTCOMBOBOX_TOOLTIP = "In which mode update Displayer";
+        
         public static GuiLanguageElement FPS = "FPS";
         public static GuiLanguageElement TextOutputPath = "Text output path";
         public static GuiLanguageElement DisplayHitObject = "Display hit object";

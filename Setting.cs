@@ -1,9 +1,14 @@
-﻿using RealTimePPDisplayer.Attribute;
+﻿using Newtonsoft.Json;
+using RealTimePPDisplayer.Attribute;
+using RealTimePPDisplayer.MultiOutput;
 using Sync.Tools;
 using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Text;
 using System.Windows.Media;
 
 namespace RealTimePPDisplayer
@@ -173,10 +178,10 @@ namespace RealTimePPDisplayer
         [PerformanceFormat]
         public ConfigurationElement PPFormat
         {
-            get => Setting.PPFormat;
+            get => Setting.PPFormat.Replace(Environment.NewLine, "\n").Replace("\n", "\\n");
             set
             {
-                Setting.PPFormat = value;
+                Setting.PPFormat = value.ToString().Replace("\\n", Environment.NewLine);
                 Setting.SettingChanged();
             }
         }
@@ -184,10 +189,10 @@ namespace RealTimePPDisplayer
         [HitCountFormat]
         public ConfigurationElement HitCountFormat
         {
-            get => Setting.HitCountFormat;
+            get => Setting.HitCountFormat.Replace(Environment.NewLine, "\n").Replace("\n", "\\n");
             set
             {
-                Setting.HitCountFormat = value;
+                Setting.HitCountFormat = value.ToString().Replace("\\n", Environment.NewLine);
                 Setting.SettingChanged();
             }
         }
@@ -264,6 +269,42 @@ namespace RealTimePPDisplayer
             get => Setting.UseUnicodePerformanceInformation.ToString();
         }
 
+
+        private string _multiOutputConfigureFile = "..\\rtpp-multi-output-config.json";
+        [String(Hide = true)]
+        public ConfigurationElement MultiOutputConfigureFile
+        {
+            get
+            {
+                using (Stream fs = new FileStream(_multiOutputConfigureFile,FileMode.OpenOrCreate,FileAccess.Write))
+                {
+                    using (var sw = new StreamWriter(fs))
+                    {
+                        sw.Write(JsonConvert.SerializeObject(Setting.MultiOutputItems,Formatting.Indented));
+                    }
+                }
+                return _multiOutputConfigureFile;
+            }
+
+            set
+            {
+                try
+                {
+                    _multiOutputConfigureFile = value;
+                    using (Stream fs = new FileStream(_multiOutputConfigureFile, FileMode.OpenOrCreate, FileAccess.Read))
+                    using (var sr = new StreamReader(fs))
+                    {
+                        string json = sr.ReadToEnd();
+                        Setting.MultiOutputItems = JsonConvert.DeserializeObject<List<MultiOutputItem>>(json);
+                    }
+                }
+                catch (Exception)
+                {
+                    Setting.MultiOutputItems = JsonConvert.DeserializeObject<List<MultiOutputItem>>(value);
+                }
+            }
+        }
+
         public void onConfigurationLoad()
         {
         }
@@ -280,7 +321,8 @@ namespace RealTimePPDisplayer
 
     internal static class Setting
     {
-        public static IEnumerable<string> OutputMethods = new[]{ "wpf" };
+        public static IEnumerable<string> OutputMethods = new[] { "wpf" };
+        public static List<MultiOutputItem> MultiOutputItems = new List<MultiOutputItem>();
         public static string TextOutputPath = @"rtpp{0}.txt";
         public static bool DisplayHitObject = true;
         public static string FontName = "Segoe UI";

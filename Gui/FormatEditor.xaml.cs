@@ -18,6 +18,10 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using RealTimePPDisplayer.Attribute;
 using static RealTimePPDisplayer.Gui.OpenFormatEditorCreator;
+using RealTimePPDisplayer.Expression;
+using System.Collections.Concurrent;
+using static OsuRTDataProvider.Mods.ModsInfo;
+using RealTimePPDisplayer.Formatter;
 
 namespace RealTimePPDisplayer.Gui
 {
@@ -32,10 +36,10 @@ namespace RealTimePPDisplayer.Gui
 
             public string Format
             {
-                get => BaseConfigurationItemCreator.GetConfigValue(m_prop, m_instance).Replace("\\n", Environment.NewLine);
+                get => BaseConfigurationItemCreator.GetConfigValue(m_prop, m_instance);
                 set
                 {
-                    BaseConfigurationItemCreator.SetConfigValue(m_prop, m_instance, value.Replace(Environment.NewLine, "\\n").Replace("\n", "\\n"));
+                    BaseConfigurationItemCreator.SetConfigValue(m_prop, m_instance, value);
                     PropertyChanged(this, new PropertyChangedEventArgs(nameof(Format)));
                 }
             }
@@ -79,6 +83,12 @@ namespace RealTimePPDisplayer.Gui
             FullCombo = 1854,
             CurrentMaxCombo = 1256
         };
+
+        private static readonly BeatmapTuple s_perviewBeatmapTuple = new BeatmapTuple
+        {
+            ObjectsCount=1358,
+            Duration = 135000
+    };
 
         private static readonly List<string> s_variables = new List<string>()
         {
@@ -147,26 +157,38 @@ namespace RealTimePPDisplayer.Gui
             "isinf(a)"
         };
 
-        public FormatEditor(PropertyInfo prop, object configurationInstance)
+        private bool _not_close;
+
+        public FormatEditor(PropertyInfo prop, object configurationInstance,FormatterBase fmt,bool not_close = true)
         {
             var item = new ConfigItemProxy(prop, configurationInstance);
-
+            _not_close = not_close;
             InitializeComponent();
 
             FormatEditBox.DataContext = item;
-            var displayer = new DisplayerBase()
+
+            if(!(fmt is RtppFormatter))
             {
-                HitCount = s_perviewHitcountTuple,
-                Pp = s_perviewPpTuple
+                grid.RowDefinitions[4].Height = new GridLength(0);
+                grid.RowDefinitions[5].Height = new GridLength(0);
+                Height = 520;
+            }
+
+            fmt.Format = item.Format;
+            fmt.HitCount = s_perviewHitcountTuple;
+            fmt.Pp = s_perviewPpTuple;
+            fmt.BeatmapTuple = s_perviewBeatmapTuple;
+            fmt.Playtime = 51000;
+            fmt.Mode = OsuRTDataProvider.Listen.OsuPlayMode.Osu;
+            fmt.Mods = new OsuRTDataProvider.Mods.ModsInfo()
+            {
+                Mod = Mods.DoubleTime | Mods.Hidden | Mods.HardRock | Mods.Perfect
             };
 
             FormatEditBox.TextChanged += (s, e) =>
             {
-                string formated;
-                if(prop.CustomAttributes.FirstOrDefault(attr=>attr.AttributeType == typeof(PerformanceFormatAttribute)) != null)
-                    formated = displayer.FormatPp().ToString();
-                else
-                    formated = displayer.FormatHitCount().ToString();
+                fmt.Format = FormatEditBox.Text;
+                string formated = fmt.GetFormattedString();
                 FormatPreviewBox.Text = formated;
             };
 
@@ -211,8 +233,11 @@ namespace RealTimePPDisplayer.Gui
 
         private void FormatEditor_OnClosing(object sender, CancelEventArgs e)
         {
-            e.Cancel = true;
-            Hide();
+            if (_not_close)
+            {
+                e.Cancel = true;
+                Hide();
+            }
         }
     }
 }

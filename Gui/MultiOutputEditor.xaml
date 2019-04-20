@@ -1,0 +1,67 @@
+﻿<Window x:Class="RealTimePPDisplayer.Gui.MultiOutputEditor"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:rtpp="clr-namespace:RealTimePPDisplayer"
+             xmlns:local="clr-namespace:RealTimePPDisplayer.Gui"
+             xmlns:configgui="clr-namespace:ConfigGUI.MultiSelect;assembly=ConfigGUI"
+             mc:Ignorable="d" 
+             Width="850" Height="600"
+             Closing="OverlayEditor_OnClosing"
+             Title="Multi Output Editor"
+             ResizeMode="NoResize">
+    <Window.Resources>
+
+        <DataTemplate x:Key="FormatOutputTemplate">
+            <Border Margin="2" BorderThickness="1" BorderBrush="#FFB4A1A1" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="25*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="0">
+                        <Label Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_NAME_LABEL}"/>
+                        <TextBox Width="400" Text="{Binding Name}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.MultiDisplayerTypes}" SelectedItem="{Binding Type}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_TYPE_COMBOBOX_TOOLTIP}"></ComboBox>
+                        <ComboBox Margin="2" Width="80" ItemsSource="{x:Static local:MultiOutputEditor.FormatterTypes}" SelectedItem="{Binding Formatter,Mode=TwoWay,Delay=10}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_FORMATTER_COMBOBOX_TOOLTIP}"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Margin="2" Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_DELETETHIS_BUTTON_CONTENT}" Command="{Binding DeleteItem}" CommandParameter="{Binding}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" Grid.Row="1">
+                        <Label Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_FORMAT_LABEL}"/>
+                        <TextBox Width="400" Height="22" Text="{Binding Format}" Margin="0,2" MaxLines="1" AcceptsReturn="False"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Margin="2" Width="80" Content="{x:Static rtpp:DefaultLanguage.UI_EDITFORMAT_BUTTON_CONTENT}" Command="{Binding OpenFormatEditor}" CommandParameter="{Binding}"/>
+                        </StackPanel>
+                        <configgui:MultiSelectComboBox Margin="2" Width="150" ItemsSource="{x:Static local:MultiOutputEditor.OsuModes}" SelectedItems="{Binding Modes}" Click="MultiSelectComboBox_Click" ToolTip="{x:Static rtpp:DefaultLanguage.UI_MODES_MULTISELECTCOMBOBOX_TOOLTIP}"/>
+                        <CheckBox Margin="0,5,0,0" Content="{x:Static rtpp:DefaultLanguage.UI_SMOOTH_CHECKBOX_CONTENT}" IsChecked="{Binding Smooth}" ToolTip="{x:Static rtpp:DefaultLanguage.UI_SMMOTH_CHECKBOX_TOOLTIP}"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="20*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0"  Margin="2" Orientation="Horizontal" HorizontalAlignment="Right" >
+            <Button Content="New" Margin="2" Click="AddNewItemButton_Click"/>
+        </StackPanel>
+        <Border Margin="2" Grid.Column="0" Grid.Row="1" BorderThickness="1" BorderBrush="#FFB4A1A1" >
+            <ScrollViewer Margin="4" VerticalScrollBarVisibility="Visible">
+                <ItemsControl Name="ConfigList" Margin="2" ItemTemplate="{StaticResource FormatOutputTemplate}"/>
+            </ScrollViewer>
+        </Border>
+    </Grid>
+</Window>
+

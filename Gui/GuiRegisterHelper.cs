@@ -16,6 +16,7 @@ namespace RealTimePPDisplayer.Gui
             var gui = plugin as ConfigGuiPlugin;
             gui.ItemFactory.RegisterItemCreator<PerformanceFormatAttribute>(new OpenFormatEditorCreator());
             gui.ItemFactory.RegisterItemCreator<HitCountFormatAttribute>(new OpenFormatEditorCreator());
+            gui.ItemFactory.RegisterItemCreator<DisplayListAttribute>(new DisplayListAttributeCreator());
         }
     }
 }
