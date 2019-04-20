@@ -151,7 +151,6 @@ namespace RealTimePPDisplayer.Displayer
 
                 var s = ppFormatter.GetFormattedString();
                 int len = s.Length;
-                s.CopyTo(0, _hitBuffer, 0, len);
                 s.CopyTo(0, _ppBuffer, 0, len);
 
                 streamWriters[0].Write(_ppBuffer, 0, len);
