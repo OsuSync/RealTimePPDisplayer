@@ -276,13 +276,7 @@ namespace RealTimePPDisplayer
         {
             get
             {
-                using (Stream fs = new FileStream(_multiOutputConfigureFile,FileMode.OpenOrCreate,FileAccess.Write))
-                {
-                    using (var sw = new StreamWriter(fs))
-                    {
-                        sw.Write(JsonConvert.SerializeObject(Setting.MultiOutputItems,Formatting.Indented));
-                    }
-                }
+                File.WriteAllText(_multiOutputConfigureFile,JsonConvert.SerializeObject(Setting.MultiOutputItems, Formatting.Indented));
                 return _multiOutputConfigureFile;
             }
 
@@ -291,12 +285,7 @@ namespace RealTimePPDisplayer
                 try
                 {
                     _multiOutputConfigureFile = value;
-                    using (Stream fs = new FileStream(_multiOutputConfigureFile, FileMode.OpenOrCreate, FileAccess.Read))
-                    using (var sr = new StreamReader(fs))
-                    {
-                        string json = sr.ReadToEnd();
-                        Setting.MultiOutputItems = JsonConvert.DeserializeObject<List<MultiOutputItem>>(json);
-                    }
+                    Setting.MultiOutputItems = JsonConvert.DeserializeObject<List<MultiOutputItem>>(File.ReadAllText(_multiOutputConfigureFile));
                 }
                 catch (Exception)
                 {
