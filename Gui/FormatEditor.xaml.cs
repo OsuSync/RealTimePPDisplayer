@@ -122,6 +122,8 @@ namespace RealTimePPDisplayer.Gui
             "player_maxcombo",
             "current_maxcombo",
             "objects_count",
+            "rt_stars",
+            "stars",
             "playtime",
             "duration"
         };

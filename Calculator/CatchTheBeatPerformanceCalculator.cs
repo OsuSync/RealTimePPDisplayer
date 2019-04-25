@@ -16,11 +16,11 @@ namespace RealTimePPDisplayer.Calculator
 {
     public sealed class CatchTheBeatPerformanceCalculator : PerformanceCalculatorBase
     {
-        private const int c_keepAlive = 0;
-        private const int c_keepAliveOk = 1;
-        private const int c_calculateCtb = 2;
+        private const int KEEP_ALIVE = 0;
+        private const int KEEP_ALIVE_OK = 1;
+        private const int CALCULATE_CTB_PP = 2;
 
-        private const int c_fullCombo = int.MaxValue;
+        private const int FULL_COMBO = int.MaxValue;
         private static Process s_ctbServer;
         public  static bool CtbServerRunning => !(s_ctbServer?.HasExited??true);
 
@@ -29,6 +29,12 @@ namespace RealTimePPDisplayer.Calculator
 
         public int FullCombo { get; private set; }
         public int RealTimeMaxCombo { get; private set; }
+
+        private double _stars = 0.0;
+        private double _rt_stars = 0.0;
+
+        public override double Stars => _stars;
+        public override double RealTimeStars => _rt_stars;
 
         public class CtbServerResult
         {
@@ -108,13 +114,13 @@ namespace RealTimePPDisplayer.Calculator
                 {
                     using (var sw = new BinaryWriter(_tcpClient.GetStream(), Encoding.UTF8, true))
                     {
-                        sw.Write(c_keepAlive);
+                        sw.Write(KEEP_ALIVE);
                     }
 
                     using (var sr = new BinaryReader(_tcpClient.GetStream(), Encoding.UTF8, true))
                     {
                         int cmd = sr.ReadInt32();
-                        if (cmd != c_keepAliveOk)
+                        if (cmd != KEEP_ALIVE_OK)
                             throw new SocketException();
                     }
                 }
@@ -145,7 +151,7 @@ namespace RealTimePPDisplayer.Calculator
                     var stream = _tcpClient.GetStream();
                     using (var sw = new BinaryWriter(stream, Encoding.UTF8, true))
                     {
-                        sw.Write(c_calculateCtb);
+                        sw.Write(CALCULATE_CTB_PP);
                         sw.Write(content.Count);
                         stream.Write(content.Array, content.Offset, content.Count);
                         sw.Write(mods); //mods
@@ -235,6 +241,8 @@ namespace RealTimePPDisplayer.Calculator
                     _ppTuple.MaxAccuracyPP = 0;
                     _ppTuple.MaxSpeedPP = 0;
                     _ppTuple.MaxAimPP = 0;
+
+                    _stars = _maxPpResult.Stars;
                 }
 
                 FullCombo = _maxPpResult.FullCombo;
@@ -274,6 +282,7 @@ namespace RealTimePPDisplayer.Calculator
                         _ppTuple.RealTimeSpeedPP = 0;
                         _ppTuple.RealTimeAimPP = 0;
                         RealTimeMaxCombo = ctbServerResult.FullCombo;
+                        _rt_stars = ctbServerResult.Stars;
                     }
                 }
             }

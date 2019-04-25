@@ -18,6 +18,8 @@ namespace RealTimePPDisplayer.Calculator
 
         public int RealTimeMaxCombo => ezpp_max_combo(rt_handle);
         public int FullCombo => ezpp_max_combo(fc_handle);
+        public double RealTimeStars => ezpp_stars(rt_handle);
+        public double Stars => ezpp_stars(fc_handle);
 
         public BeatmapReader Beatmap { get; set; }
 
@@ -187,6 +189,7 @@ namespace RealTimePPDisplayer.Calculator
         [DllImport(@"oppai.dll")] public static extern float ezpp_accuracy_percent(IntPtr handle);
         [DllImport(@"oppai.dll")] public static extern int ezpp_combo(IntPtr handle);
         [DllImport(@"oppai.dll")] public static extern int ezpp_max_combo(IntPtr handle);
+        [DllImport(@"oppai.dll")] public static extern float ezpp_stars(IntPtr handle);
         #endregion
 
         #region oppai-ng function

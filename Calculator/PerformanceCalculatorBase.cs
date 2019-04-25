@@ -24,6 +24,9 @@ namespace RealTimePPDisplayer.Calculator
         
         public uint Mods { get; set; }
 
+        public abstract double Stars { get; }
+        public abstract double RealTimeStars { get; }
+
         public abstract PPTuple GetPerformance();
 
         public virtual void ClearCache()

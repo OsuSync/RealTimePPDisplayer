@@ -148,6 +148,8 @@ namespace RealTimePPDisplayer.Formatter
         {
             ctx.Variables["duration"] = tuple.Duration;
             ctx.Variables["objects_count"] = tuple.ObjectsCount;
+            ctx.Variables["rt_stars"] = tuple.RealTimeStars;
+            ctx.Variables["stars"] = tuple.Stars;
         }
 
         private void UpdateContextVariablesFromHitCountTuple(ExpressionContext ctx, HitCountTuple tuple)

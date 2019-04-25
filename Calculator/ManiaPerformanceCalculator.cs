@@ -20,8 +20,12 @@ namespace RealTimePPDisplayer.Calculator
         private const double c_starScalingFactor = 0.018;
 
         private uint _mods;
-        private double _beatmapStars;
         private PPTuple _tuple = PPTuple.Empty;
+
+        private double _stars = 0.0;
+        private double _rt_stars = 0.0;
+        public override double Stars => _stars;
+        public override double RealTimeStars => _rt_stars;
 
         #region Mania Difficultty Calculate
         private void CalculateStrainValues(int nobjects)
@@ -101,9 +105,9 @@ namespace RealTimePPDisplayer.Calculator
             {
                 _mods = Mods;
                 CalculateStrainValues(Beatmap.ObjectsCount);
-                _beatmapStars = CalculateDifficulty(Beatmap.ObjectsCount) * c_starScalingFactor;
-                CalculatePerformance(_beatmapStars, 1000000, 100.0, Beatmap.ObjectsCount, out _tuple.MaxPP, out _tuple.MaxSpeedPP, out _tuple.MaxAccuracyPP);
-                Sync.Tools.IO.CurrentIO.Write($"[RTPPD::Mania]Difficulty:{_beatmapStars:F2}*");
+                _stars = CalculateDifficulty(Beatmap.ObjectsCount) * c_starScalingFactor;
+                CalculatePerformance(_stars, 1000000, 100.0, Beatmap.ObjectsCount, out _tuple.MaxPP, out _tuple.MaxSpeedPP, out _tuple.MaxAccuracyPP);
+                Sync.Tools.IO.CurrentIO.Write($"[RTPPD::Mania]Difficulty:{_stars:F2}*");
                 _init = true;
             }
 
@@ -112,9 +116,9 @@ namespace RealTimePPDisplayer.Calculator
             ReinitializeObjects();
 
             CalculateStrainValues(nobjects);
-            double stars = CalculateDifficulty(nobjects) * c_starScalingFactor;
+            _rt_stars = CalculateDifficulty(nobjects) * c_starScalingFactor;
 
-            CalculatePerformance(stars, RealScore, Accuracy, nobjects, out _tuple.RealTimePP, out _tuple.RealTimeSpeedPP, out _tuple.RealTimeAccuracyPP);
+            CalculatePerformance(_rt_stars, RealScore, Accuracy, nobjects, out _tuple.RealTimePP, out _tuple.RealTimeSpeedPP, out _tuple.RealTimeAccuracyPP);
             //No Fc pp
 
             return _tuple;

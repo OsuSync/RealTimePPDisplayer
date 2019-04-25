@@ -14,6 +14,8 @@ namespace RealTimePPDisplayer.Displayer
     {
         public int ObjectsCount;
         public double Duration;
+        public double Stars;
+        public double RealTimeStars;
     }
 
     public struct PPTuple
@@ -57,6 +59,7 @@ namespace RealTimePPDisplayer.Displayer
         public PPTuple Pp { get; set; } = new PPTuple();
         public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
         public double Playtime { get; set; }
+
         public OsuStatus Status { get; set; }
         public OsuPlayMode Mode { get; set; }
         public ModsInfo Mods { get; set; }

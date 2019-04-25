@@ -11,6 +11,9 @@ namespace RealTimePPDisplayer.Calculator
 {
     public abstract class OppaiPerformanceCalculator:PerformanceCalculatorBase
     {
+        public override double Stars => Oppai.Stars;
+        public override double RealTimeStars => Oppai.RealTimeStars;
+
         public Oppai Oppai { get; private set; } = new Oppai();
 
         public override void ClearCache()
