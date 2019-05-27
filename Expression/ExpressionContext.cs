@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace RealTimePPDisplayer.Expression
 {
-    class ExpressionContext
+    public class ExpressionContext
     {
         private Random _random=new Random();
 

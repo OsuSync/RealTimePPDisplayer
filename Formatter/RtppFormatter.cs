@@ -31,7 +31,7 @@ namespace RealTimePPDisplayer.Formatter
         private readonly object _mtx = new object();
         private readonly List<FormatArgs> _args = new List<FormatArgs>(32);
         private static readonly Regex s_pattern = new Regex(@"\$\{(((?:\w|\s|_|\.|,|\(|\)|\^|\+|\-|\*|\/|\%|\<|\>|\=|\!|\||\&)*)(?:@(\d+))?)\}");
-        private ExpressionContext _ctx = new ExpressionContext();
+        protected ExpressionContext Context { get; } = new ExpressionContext();
 
         public RtppFormatter(string format)
         {
@@ -80,23 +80,23 @@ namespace RealTimePPDisplayer.Formatter
 
         private void ResetAllVariables()
         {
-            _ctx.Variables.Clear();
+            Context.Variables.Clear();
         }
 
         public void Clear()
         {
-            foreach(var kv in _ctx.Variables)
+            foreach(var kv in Context.Variables)
             {
-                _ctx.Variables[kv.Key] = 0.0;
+                Context.Variables[kv.Key] = 0.0;
             }
         }
 
         private void ProcessFormat()
         {
-            UpdateContextVariablesFromPpTuple(_ctx, Pp);
-            UpdateContextVariablesFromHitCountTuple(_ctx, HitCount);
-            UpdateContextVariablesBeatmapTuple(_ctx, BeatmapTuple);
-            _ctx.Variables["playtime"] = Playtime;
+            UpdateContextVariablesFromPpTuple(Context, Pp);
+            UpdateContextVariablesFromHitCountTuple(Context, HitCount);
+            UpdateContextVariablesBeatmapTuple(Context, BeatmapTuple);
+            Context.Variables["playtime"] = Playtime;
 
             _builder.Clear();
             _builder.Append(_format);
@@ -106,7 +106,7 @@ namespace RealTimePPDisplayer.Formatter
                 {
                     int digits = arg.Digits == int.MinValue ? Setting.RoundDigits : arg.Digits;
 
-                    string s = string.Format($"{{0:F{digits}}}", _ctx.ExecAst(arg.AstRoot));
+                    string s = string.Format($"{{0:F{digits}}}", Context.ExecAst(arg.AstRoot));
                     _builder.Replace($"${{{arg.RawString}}}", s);
                 }
             }catch(Exception e)
