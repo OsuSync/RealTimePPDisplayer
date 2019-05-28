@@ -119,7 +119,7 @@ namespace RealTimePPDisplayer
                 var d = new WpfDisplayer(id);
                 if (!TourneyMode)
                     d.HideRow(0);
-                if (Setting.DisplayHitObject)
+                if (!Setting.DisplayHitObject)
                     d.HideRow(2);
                 return d;
             });
