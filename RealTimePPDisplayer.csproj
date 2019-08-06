@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attribute\CustomColorAttribute.cs" />
+    <Compile Include="Attribute\FormatterListAttribute.cs" />
     <Compile Include="Beatmap\BeatmapObject.cs" />
     <Compile Include="Beatmap\BeatmapReader.cs" />
     <Compile Include="Calculator\CatchTheBeatPerformanceCalculator.cs" />

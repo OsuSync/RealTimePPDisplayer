@@ -12,6 +12,7 @@ namespace RealTimePPDisplayer
         public static LanguageElement CHECK_OPPAI_UPDATE = "[RealTimePPDisplayer]Found a new version of oppai-ng({0})";
         public static LanguageElement CHECK_GOTO_RELEASE_PAGE_HINT= "[RealTimePPDisplayer]Enter \"rtpp releases\" to open the releases page in your browser.";
         public static LanguageElement UI_UPDATE_CONFIGGUI_MESSAGEBOX = "Please update the ConfigGUI to 0.2.1 or later.";
+        public static LanguageElement HINT_BEATMAP_NO_FOUND = "[RealTimePPDisplayer]No found beatmap! Make sure the Songs path is correct. (Go to OsuRTDataProvider to set the Songs path.)";
 
         public static LanguageElement UI_OPENEDITOR_BUTTON_CONTENT = "Open Editor";
         public static LanguageElement UI_MULTIOUTPUTEDITOR_BUTTON_CONTENT = "Multi Output Editor";

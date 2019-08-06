@@ -109,7 +109,7 @@ namespace RealTimePPDisplayer.Displayer
             SetFormatterArgs(formatter);
             formatter.Pp = pp ?? Pp;
 
-            return formatter;
+            return formatter as RtppFormatter;
         }
 
         [Obsolete]
@@ -119,7 +119,7 @@ namespace RealTimePPDisplayer.Displayer
             SetFormatterArgs(formatter);
             formatter.HitCount = hitCount??HitCount;
 
-            return formatter;
+            return formatter as RtppFormatter;
         }
     }
 }

@@ -144,7 +144,7 @@ namespace RealTimePPDisplayer
                 _n50 = 0;
                 _nmiss = 0;
                 foreach (var p in _displayers)
-                    p.Value.Clear();
+                    p.Value?.Clear();
             }
 
             _status = cur;
@@ -211,9 +211,9 @@ namespace RealTimePPDisplayer
                     p.Value?.Clear();
             }
 
-            if (Setting.DebugMode && _beatmapReader == null)
+            if (_beatmapReader == null)
             {
-                CurrentIO.WriteColor("[RealTimePPDisplayer]Can\'t get beatmap information!", ConsoleColor.Yellow);
+                CurrentIO.WriteColor(DefaultLanguage.HINT_BEATMAP_NO_FOUND, ConsoleColor.Red);
                 return;
             }
 
@@ -256,9 +256,12 @@ namespace RealTimePPDisplayer
             hitTuple.CountGeki = _ngeki;
             hitTuple.CountKatu = _nkatu;
 
+            int duration = cal.Beatmap?.BeatmapDuration??-1;
+            int objectsCount = cal.Beatmap?.ObjectsCount??-1;
+
             BeatmapTuple beatmapTuple;
-            beatmapTuple.Duration = cal.Beatmap.BeatmapDuration;
-            beatmapTuple.ObjectsCount = cal.Beatmap.ObjectsCount;
+            beatmapTuple.Duration = duration;
+            beatmapTuple.ObjectsCount = objectsCount;
             beatmapTuple.RealTimeStars = cal.RealTimeStars;
             beatmapTuple.Stars = cal.Stars;
 

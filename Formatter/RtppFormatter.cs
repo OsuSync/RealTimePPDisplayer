@@ -170,43 +170,5 @@ namespace RealTimePPDisplayer.Formatter
             ctx.Variables["player_maxcombo"] = tuple.PlayerMaxCombo;
             ctx.Variables["combo"] = tuple.Combo;
         }
-
-        private static readonly RtppFormatter s_hitCountFormatter = new HitCountStringFormatter();
-        private static readonly RtppFormatter s_ppFormatter = new PPStringFormatter();
-
-        public static RtppFormatter GetPPFormatter()
-        {
-            var t = s_ppFormatter;
-            return t;
-        }
-
-        public static RtppFormatter GetHitCountFormatter()
-        {
-            var t = s_hitCountFormatter;
-            return t;
-        }
-    }
-
-    internal class PPStringFormatter : RtppFormatter
-    {
-        public PPStringFormatter():base(Setting.PPFormat)
-        {
-            Setting.OnSettingChanged += () =>
-              {
-                  ReplaceFormat(Setting.PPFormat);
-              };
-        }
-    }
-
-
-    internal class HitCountStringFormatter : RtppFormatter
-    {
-        public HitCountStringFormatter() : base(Setting.HitCountFormat)
-        {
-            Setting.OnSettingChanged += () =>
-            {
-                ReplaceFormat(Setting.HitCountFormat);
-            };
-        }
     }
 }

@@ -182,7 +182,7 @@ namespace RealTimePPDisplayer
             set
             {
                 Setting.PPFormat = value.ToString().Replace("\\n", Environment.NewLine);
-                Setting.SettingChanged();
+                Setting.PPFormatChanged();
             }
         }
 
@@ -193,7 +193,20 @@ namespace RealTimePPDisplayer
             set
             {
                 Setting.HitCountFormat = value.ToString().Replace("\\n", Environment.NewLine);
-                Setting.SettingChanged();
+                Setting.HitCountFormatChanged();
+            }
+        }
+#if DEBUG
+        [FormatterList]
+#else
+        [FormatterList(Hide = true)]
+#endif
+        public ConfigurationElement Formatter
+        {
+            get => Setting.Formatter;
+            set {
+                Setting.Formatter = value.ToString();
+                Setting.FormatterChanged();
             }
         }
 
@@ -332,15 +345,34 @@ namespace RealTimePPDisplayer
         public static string PPFormat = "${rtpp}pp";
         //combo maxcombo fullcombo n300 n100 n50 nmiss
         public static string HitCountFormat = "${n100@0}x100 ${n50@0}x50 ${nmiss@0}xMiss";
+        public static string Formatter = "rtpp-fmt";
         public static bool IgnoreTouchScreenDecrease = false;
         public static bool RankingSendPerformanceToChat = false;
         public static bool UseUnicodePerformanceInformation = false;
 
         public static event Action OnSettingChanged;
+        public static event Action OnPPFormatChanged;
+        public static event Action OnHitCountFormatChanged;
+        public static event Action OnFormatterChanged;
 
         public static void SettingChanged()
         {
             OnSettingChanged?.Invoke();
+        }
+
+        public static void PPFormatChanged()
+        {
+            OnPPFormatChanged?.Invoke();
+        }
+
+        public static void HitCountFormatChanged()
+        {
+            OnHitCountFormatChanged?.Invoke();
+        }
+
+        public static void FormatterChanged()
+        {
+            OnFormatterChanged?.Invoke();
         }
     }
 }

@@ -22,5 +22,32 @@ namespace RealTimePPDisplayer.Formatter
 
         public abstract string Format { get; set; }
         public abstract string GetFormattedString();
+
+
+        private static FormatterBase s_hitCountFormatter;
+        private static FormatterBase s_ppFormatter;
+        public static FormatterBase GetPPFormatter()
+        {
+            if (s_ppFormatter == null)
+            {
+                s_ppFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter, Setting.PPFormat);
+                Setting.OnFormatterChanged += ()=> s_ppFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter, Setting.PPFormat);
+                Setting.OnPPFormatChanged += () => s_ppFormatter.Format = Setting.PPFormat;
+            }
+            var t = s_ppFormatter;
+            return t;
+        }
+
+        public static FormatterBase GetHitCountFormatter()
+        {
+            if (s_hitCountFormatter == null)
+            {
+                s_hitCountFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter);
+                Setting.OnFormatterChanged += () => s_hitCountFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter, Setting.HitCountFormat);
+                Setting.OnPPFormatChanged += () => s_hitCountFormatter.Format = Setting.HitCountFormat;
+            }
+            var t = s_hitCountFormatter;
+            return t;
+        }
     }
 }
