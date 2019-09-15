@@ -125,7 +125,10 @@ namespace RealTimePPDisplayer.Gui
             "rtstars",
             "stars",
             "playtime",
-            "duration"
+            "duration",
+            "ur",
+            "error_min",
+            "error_max"
         };
 
         private static readonly List<string> s_functionss = new List<string>()
@@ -156,7 +159,8 @@ namespace RealTimePPDisplayer.Gui
             "random()",
             "getTime()",
             "isnan(a)",
-            "isinf(a)"
+            "isinf(a)",
+            "smooth(var)"
         };
 
         private bool _not_close;

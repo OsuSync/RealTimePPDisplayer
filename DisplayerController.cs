@@ -44,6 +44,7 @@ namespace RealTimePPDisplayer
         private int _nmiss;
         private int _time;
         private int _score;
+        private ErrorStatisticsResult _error_statistics;
 
 
         public DisplayerController(OsuListenerManager mamger)
@@ -57,6 +58,7 @@ namespace RealTimePPDisplayer
             listenerManager.OnCount50Changed += c => _n50 = c;
             listenerManager.OnCountMissChanged += c => _nmiss = c;
             listenerManager.OnScoreChanged += s => _score = s;
+            listenerManager.OnErrorStatisticsChanged += es => _error_statistics = es;
 
             listenerManager.OnComboChanged += (combo) =>
             {
@@ -255,6 +257,7 @@ namespace RealTimePPDisplayer
             hitTuple.CurrentMaxCombo = rtMaxCombo;
             hitTuple.CountGeki = _ngeki;
             hitTuple.CountKatu = _nkatu;
+            hitTuple.ErrorStatistics = _error_statistics;
 
             int duration = cal.Beatmap?.BeatmapDuration??-1;
             int objectsCount = cal.Beatmap?.ObjectsCount??-1;

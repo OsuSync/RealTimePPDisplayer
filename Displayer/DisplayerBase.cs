@@ -51,6 +51,8 @@ namespace RealTimePPDisplayer.Displayer
         public int PlayerMaxCombo;
         public int FullCombo;
         public int CurrentMaxCombo;
+
+        public ErrorStatisticsResult ErrorStatistics;
     }
 
     public class DisplayerBase

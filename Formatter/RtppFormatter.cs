@@ -169,6 +169,10 @@ namespace RealTimePPDisplayer.Formatter
             ctx.Variables["maxcombo"] = tuple.PlayerMaxCombo;
             ctx.Variables["player_maxcombo"] = tuple.PlayerMaxCombo;
             ctx.Variables["combo"] = tuple.Combo;
+
+            ctx.Variables["error_min"] = tuple.ErrorStatistics.ErrorMin;
+            ctx.Variables["error_max"] = tuple.ErrorStatistics.ErrorMax;
+            ctx.Variables["ur"] = tuple.ErrorStatistics.UnstableRate;
         }
     }
 }
