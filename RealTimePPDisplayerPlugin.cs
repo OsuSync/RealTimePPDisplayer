@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,13 +13,13 @@ using RealTimePPDisplayer.Formatter;
 
 namespace RealTimePPDisplayer
 {
-    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.4.12", Require = true)]
+    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.5.0", Require = true)]
     [SyncPluginID("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", VERSION)]
     public class RealTimePPDisplayerPlugin : Plugin
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.7.4";
+        public const string VERSION= "1.8.0";
 
         private readonly DisplayerController[] _osuPpControls = new DisplayerController[16];
 
