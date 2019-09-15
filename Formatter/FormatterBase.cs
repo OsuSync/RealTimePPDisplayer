@@ -12,13 +12,7 @@ namespace RealTimePPDisplayer.Formatter
 {
     public abstract class FormatterBase
     {
-        public HitCountTuple HitCount { get; set; } = new HitCountTuple();
-        public PPTuple Pp { get; set; } = new PPTuple();
-        public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
-        public double Playtime { get; set; }
-        public OsuStatus Status { get; set; }
-        public OsuPlayMode Mode { get; set; }
-        public ModsInfo Mods { get; set; }
+        public DisplayerBase Displayer { get; set; }
 
         public abstract string Format { get; set; }
         public abstract string GetFormattedString();
@@ -26,7 +20,12 @@ namespace RealTimePPDisplayer.Formatter
 
         private static FormatterBase s_hitCountFormatter;
         private static FormatterBase s_ppFormatter;
-        public static FormatterBase GetPPFormatter()
+
+        public FormatterBase()
+        {
+        }
+
+        public static FormatterBase CreatePPFormatter()
         {
             if (s_ppFormatter == null)
             {
@@ -38,13 +37,13 @@ namespace RealTimePPDisplayer.Formatter
             return t;
         }
 
-        public static FormatterBase GetHitCountFormatter()
+        public static FormatterBase CreateHitCountFormatter()
         {
             if (s_hitCountFormatter == null)
             {
-                s_hitCountFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter);
+                s_hitCountFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter,Setting.HitCountFormat);
                 Setting.OnFormatterChanged += () => s_hitCountFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter, Setting.HitCountFormat);
-                Setting.OnPPFormatChanged += () => s_hitCountFormatter.Format = Setting.HitCountFormat;
+                Setting.OnHitCountFormatChanged += () => s_hitCountFormatter.Format = Setting.HitCountFormat;
             }
             var t = s_hitCountFormatter;
             return t;

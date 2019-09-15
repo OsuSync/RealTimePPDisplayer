@@ -13,28 +13,30 @@ namespace RealTimePPDisplayer.Displayer
         private PPWindow _win;
         private bool _output = false;
 
-        private PPTuple _currentPp;
-        private PPTuple _speed;
-
         private FormatterBase ppFormatter;
         private FormatterBase hitCountFormatter;
 
-        public WpfDisplayer(int? id, FormatterBase ppFmt, FormatterBase hitFmt)
+        public WpfDisplayer(int? id, FormatterBase ppFmt, FormatterBase hitFmt):base(id)
         {
             ppFormatter = ppFmt;
             hitCountFormatter = hitFmt;
-            Initialize(id);
+            Initialize();
         }
 
-        public WpfDisplayer(int? id)
+        public WpfDisplayer(int? id):base(id)
         {
-            ppFormatter = RtppFormatter.GetPPFormatter();
-            hitCountFormatter = RtppFormatter.GetHitCountFormatter();
-            Initialize(id);
+            ppFormatter = FormatterBase.CreatePPFormatter();
+            hitCountFormatter = FormatterBase.CreateHitCountFormatter();
+            Initialize();
         }
 
-        public void Initialize(int? id)
+        public void Initialize()
         {
+            if(ppFormatter!=null)
+                ppFormatter.Displayer = this;
+            if (hitCountFormatter != null)
+                hitCountFormatter.Displayer = this;
+
             if (Application.Current == null)
             {
                 var winThread = new Thread(() => new Application().Run())
@@ -47,7 +49,7 @@ namespace RealTimePPDisplayer.Displayer
             }
 
             Debug.Assert(Application.Current != null, "Application.Current != null");
-            Application.Current.Dispatcher.Invoke(() => ShowPPWindow(id));
+            Application.Current.Dispatcher.Invoke(() => ShowPPWindow(Id));
         }
 
         public void HideRow(int row)
@@ -59,8 +61,6 @@ namespace RealTimePPDisplayer.Displayer
         {
             base.Clear();
             _output = false;
-            _speed = PPTuple.Empty;
-            _currentPp = PPTuple.Empty;
 
             if (ppFormatter is IFormatterClearable ppfmt)
                 ppfmt.Clear();
@@ -81,7 +81,6 @@ namespace RealTimePPDisplayer.Displayer
             {
                 if (hitCountFormatter != null)
                 {
-                    SetFormatterArgs(hitCountFormatter);
                     _win.HitCountContext = hitCountFormatter.GetFormattedString();
                 }
             }
@@ -94,13 +93,8 @@ namespace RealTimePPDisplayer.Displayer
         {
             if (!_output)return;
 
-            _currentPp=SmoothMath.SmoothDampPPTuple(_currentPp, Pp, ref _speed, time);
-
             if (ppFormatter != null)
             {
-                SetFormatterArgs(ppFormatter);
-                ppFormatter.Pp = _currentPp;
-
                 if (_win != null)
                     _win.PpContext = ppFormatter.GetFormattedString();
                 _win.Refresh();

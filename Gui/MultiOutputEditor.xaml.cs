@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using ConfigGUI.MultiSelect;
 using OsuRTDataProvider.Listen;
+using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.MultiOutput;
 using Sync.Tools;
 

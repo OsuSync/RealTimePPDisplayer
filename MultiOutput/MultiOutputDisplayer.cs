@@ -16,8 +16,6 @@ namespace RealTimePPDisplayer.MultiOutput
     {
         public const string METHOD_NAME = "multi-output";
 
-        private int? _id;
-
         class DisplayerContext
         {
             public MultiOutputItem item;
@@ -38,16 +36,13 @@ namespace RealTimePPDisplayer.MultiOutput
                 displayer.HideRow(item.smooth ? 2 : 1);
                 return displayer;
             });*/
-
-            RealTimePPDisplayerPlugin.Instance.RegisterFormatter("rtpp-fmt", (fmt) => new RtppFormatter(fmt),"${rtpp@1}pp");
         }
 
         public MultiOutputDisplayer(int? id,
             Dictionary<string, Func<int?, MultiOutputItem, FormatterBase, DisplayerBase>> displayer_creators,
             Dictionary<string, FormatterConfiguration> fmt_creator
-            )
+            ):base(id)
         {
-            _id = id;
             _fmt_creators = fmt_creator;
             _displayer_creators = displayer_creators;
 
@@ -84,8 +79,8 @@ namespace RealTimePPDisplayer.MultiOutput
 
                 ctx.item.formatter = fmtter;
                 ctx.item.format = defaultFormat;
-                ctx.fmtter = RealTimePPDisplayerPlugin.Instance.NewFormatter(ctx.item.formatter,ctx.item.format);
-                ctx.displayer = _displayer_creators[ctx.item.type](_id,ctx.item,ctx.fmtter);
+                ctx.fmtter = RealTimePPDisplayerPlugin.Instance.NewFormatter(ctx.item.formatter, ctx.item.format);
+                ctx.displayer = _displayer_creators[ctx.item.type](Id,ctx.item,ctx.fmtter);
             };
         }
 
@@ -120,7 +115,7 @@ namespace RealTimePPDisplayer.MultiOutput
             DisplayerBase displayer=null;
             if(_displayer_creators.TryGetValue(item.type,out var creator))
             {
-                displayer = creator(_id, item, ctx.fmtter);
+                displayer = creator(Id, item, ctx.fmtter);
             }
 
             ctx.displayer = displayer;
@@ -155,6 +150,7 @@ namespace RealTimePPDisplayer.MultiOutput
                 kv.Value.displayer.Mode = Mode;
                 kv.Value.displayer.Mods = Mods;
                 kv.Value.displayer.Status = Status;
+                kv.Value.displayer.Playername = Playername;
                 kv.Value.displayer.Display();
             }
         }
@@ -171,6 +167,7 @@ namespace RealTimePPDisplayer.MultiOutput
                 kv.Value.displayer.Mode = Mode;
                 kv.Value.displayer.Mods = Mods;
                 kv.Value.displayer.Status = Status;
+                kv.Value.displayer.Playername = Playername;
                 kv.Value.displayer.FixedDisplay(time);
             }
         }

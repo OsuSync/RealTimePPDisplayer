@@ -18,12 +18,16 @@ namespace RealTimePPDisplayer.Displayer
         private FormatterBase ppFormatter;
         private FormatterBase hitCountFormatter;
 
-        public TextDisplayer(string filename,bool splited=false)
+        public TextDisplayer(int? id,string filename,bool splited=false):base(id)
         {
             _splited = splited;
 
-            ppFormatter = RtppFormatter.GetPPFormatter();
-            hitCountFormatter = RtppFormatter.GetHitCountFormatter();
+            ppFormatter = RtppFormatter.CreatePPFormatter();
+            hitCountFormatter = RtppFormatter.CreateHitCountFormatter();
+            if (ppFormatter != null)
+                ppFormatter.Displayer = this;
+            if (hitCountFormatter != null)
+                hitCountFormatter.Displayer = this;
 
             if (!Path.IsPathRooted(filename))
                 _filenames[0] = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename);

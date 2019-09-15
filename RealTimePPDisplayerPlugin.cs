@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -13,7 +13,7 @@ using RealTimePPDisplayer.Formatter;
 
 namespace RealTimePPDisplayer
 {
-    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.4.3", Require = true)]
+    [SyncPluginDependency("7216787b-507b-4eef-96fb-e993722acf2e", Version = "^1.4.12", Require = true)]
     [SyncPluginID("8eb9e8e0-7bca-4a96-93f7-6408e76898a9", VERSION)]
     public class RealTimePPDisplayerPlugin : Plugin
     {
@@ -33,6 +33,7 @@ namespace RealTimePPDisplayer
 
         public struct FormatterConfiguration
         {
+            /// string format
             public Func<string, FormatterBase> Creator { get; set; }
             public string DefaultFormat { get; set; }
         }
@@ -49,7 +50,7 @@ namespace RealTimePPDisplayer
         private readonly object _allDisplayerMtx = new object();
         private readonly LinkedList<KeyValuePair<string,DisplayerBase>> _allDisplayers = new LinkedList<KeyValuePair<string,DisplayerBase>>();
         private TimeSpan _fixedInterval;
-
+        
         private Task _fixedUpdateThread;
         #endregion
 
@@ -126,9 +127,11 @@ namespace RealTimePPDisplayer
             RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
             RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
             RegisterDisplayer(MultiOutputDisplayer.METHOD_NAME, id => new MultiOutputDisplayer(id,_multiDisplayerCreators,_formatterCreators));
-            RegisterDisplayer("text", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
-            RegisterDisplayer("text-split", id => new TextDisplayer(string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
+            RegisterDisplayer("text", id => new TextDisplayer(id,string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
+            RegisterDisplayer("text-split", id => new TextDisplayer(id,string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
 
+            RegisterFormatter("rtpp-fmt", (fmt) => new RtppFormatter(fmt), "${rtpp@1}pp");
+            RegisterFormatter("rtppfmt-bp", (fmt) => new RtppFormatWithBp(fmt), "${rtpp@1}pp (${rtpp_with_weight@1}pp) BP: #${rtbp@0}");
             IO.CurrentIO.WriteColor($"{PLUGIN_NAME} By {PLUGIN_AUTHOR} Ver.{VERSION}", ConsoleColor.DarkCyan);
         }
 

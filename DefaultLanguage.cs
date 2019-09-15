@@ -12,7 +12,9 @@ namespace RealTimePPDisplayer
         public static LanguageElement CHECK_OPPAI_UPDATE = "[RealTimePPDisplayer]Found a new version of oppai-ng({0})";
         public static LanguageElement CHECK_GOTO_RELEASE_PAGE_HINT= "[RealTimePPDisplayer]Enter \"rtpp releases\" to open the releases page in your browser.";
         public static LanguageElement UI_UPDATE_CONFIGGUI_MESSAGEBOX = "Please update the ConfigGUI to 0.2.1 or later.";
-        public static LanguageElement HINT_BEATMAP_NO_FOUND = "[RealTimePPDisplayer]No found beatmap! Make sure the Songs path is correct. (Go to OsuRTDataProvider to set the Songs path.)";
+        public static LanguageElement HINT_BEATMAP_NO_FOUND = "[RealTimePPDisplayer]No found beatmap! Make sure the Songs path is correct. (Go to OsuRTDataProvider to set the Songs path).";
+        public static LanguageElement HINT_CANNOT_WATCH_OTHER_PLAYER = "[RealTimePPDisplayer]Can't watch other player. (If you want to watch other player, please uncheck \"By CuteSync Proxy\" and enter api key).";
+        public static LanguageElement HINT_POBT_VERSION_LOWER = "[RealTimePPDisplayer]Your PublicOsuBotTransfer version is lower than 1.3.0 and you cannot use \"By CuteSync Proxy\".";
 
         public static LanguageElement UI_OPENEDITOR_BUTTON_CONTENT = "Open Editor";
         public static LanguageElement UI_MULTIOUTPUTEDITOR_BUTTON_CONTENT = "Multi Output Editor";
@@ -23,7 +25,7 @@ namespace RealTimePPDisplayer
         public static LanguageElement UI_SMOOTH_CHECKBOX_CONTENT = "Smooth";
         public static LanguageElement UI_EDITFORMAT_BUTTON_CONTENT = "Edit";
 
-        public static LanguageElement UI_SMMOTH_CHECKBOX_TOOLTIP = "Enable PP smooth output";
+        public static LanguageElement UI_SMMOTH_CHECKBOX_TOOLTIP = "Enable smooth";
         public static LanguageElement UI_TYPE_COMBOBOX_TOOLTIP = "Select Output Method";
         public static LanguageElement UI_FORMATTER_COMBOBOX_TOOLTIP = "Select Formatter";
         public static LanguageElement UI_MODES_MULTISELECTCOMBOBOX_TOOLTIP = "In which mode update Displayer";
@@ -50,5 +52,8 @@ namespace RealTimePPDisplayer
         public static GuiLanguageElement IgnoreTouchScreenDecrease = "Ignore touch screen decrease";
         public static GuiLanguageElement RankingSendPerformanceToChat = "Send pp to Chat on Ranking";
         public static GuiLanguageElement UseUnicodePerformanceInformation = "Perfer metadata in original language";
+        public static GuiLanguageElement ByCuteSyncProxy = "By CuteSync Proxy";
+        public static GuiLanguageElement ApiKey = "Osu! Api key";
+        public static GuiLanguageElement Formatter = "Formatter";
     }
 }

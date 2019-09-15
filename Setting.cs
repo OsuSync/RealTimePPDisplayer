@@ -196,11 +196,8 @@ namespace RealTimePPDisplayer
                 Setting.HitCountFormatChanged();
             }
         }
-#if DEBUG
+
         [FormatterList]
-#else
-        [FormatterList(Hide = true)]
-#endif
         public ConfigurationElement Formatter
         {
             get => Setting.Formatter;
@@ -208,6 +205,20 @@ namespace RealTimePPDisplayer
                 Setting.Formatter = value.ToString();
                 Setting.FormatterChanged();
             }
+        }
+
+        [Bool]
+        public ConfigurationElement ByCuteSyncProxy
+        {
+            get => Setting.ByCuteSyncProxy.ToString();
+            set => Setting.ByCuteSyncProxy = bool.Parse(value);
+        }
+
+        [ApiKey]
+        public ConfigurationElement ApiKey
+        {
+            set => Setting.ApiKey = value;
+            get => Setting.ApiKey;
         }
 
         [Integer(MinValue = 0,MaxValue = 15)]
@@ -341,14 +352,16 @@ namespace RealTimePPDisplayer
         public static bool WindowTextShadow = true;
         public static bool DebugMode = false;
         public static int RoundDigits = 1;
-        //rtpp rtpp_aim rtpp_speed rtpp_acc fcpp fcpp_aim fcpp_speed fcpp_acc maxpp maxpp_aim maxpp_speed maxpp_acc
+
         public static string PPFormat = "${rtpp}pp";
-        //combo maxcombo fullcombo n300 n100 n50 nmiss
+
         public static string HitCountFormat = "${n100@0}x100 ${n50@0}x50 ${nmiss@0}xMiss";
         public static string Formatter = "rtpp-fmt";
         public static bool IgnoreTouchScreenDecrease = false;
         public static bool RankingSendPerformanceToChat = false;
         public static bool UseUnicodePerformanceInformation = false;
+        public static string ApiKey = string.Empty;
+        public static bool ByCuteSyncProxy = true;
 
         public static event Action OnSettingChanged;
         public static event Action OnPPFormatChanged;

@@ -45,6 +45,7 @@ namespace RealTimePPDisplayer
         private int _time;
         private int _score;
         private ErrorStatisticsResult _error_statistics;
+        private string _playername = string.Empty;
 
 
         public DisplayerController(OsuListenerManager mamger)
@@ -59,6 +60,7 @@ namespace RealTimePPDisplayer
             listenerManager.OnCountMissChanged += c => _nmiss = c;
             listenerManager.OnScoreChanged += s => _score = s;
             listenerManager.OnErrorStatisticsChanged += es => _error_statistics = es;
+            listenerManager.OnPlayerChanged += p => _playername = p;
 
             listenerManager.OnComboChanged += (combo) =>
             {
@@ -280,6 +282,7 @@ namespace RealTimePPDisplayer
                 p.Value.Mode = _mode;
                 p.Value.Mods = _curMods;
                 p.Value.Status = _status;
+                p.Value.Playername = _playername;
                 p.Value.Display();
             }
 

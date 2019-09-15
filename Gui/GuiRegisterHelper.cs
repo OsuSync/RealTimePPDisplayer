@@ -17,6 +17,7 @@ namespace RealTimePPDisplayer.Gui
             gui.ItemFactory.RegisterItemCreator<PerformanceFormatAttribute>(new OpenFormatEditorCreator());
             gui.ItemFactory.RegisterItemCreator<HitCountFormatAttribute>(new OpenFormatEditorCreator());
             gui.ItemFactory.RegisterItemCreator<DisplayListAttribute>(new DisplayListAttributeCreator());
+            gui.ItemFactory.RegisterItemCreator<ApiKeyAttribute>(new ApiKeyAttributeCreator());
         }
     }
 }

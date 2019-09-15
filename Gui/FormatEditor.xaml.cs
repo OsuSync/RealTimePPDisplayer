@@ -131,7 +131,17 @@ namespace RealTimePPDisplayer.Gui
             "error_max"
         };
 
-        private static readonly List<string> s_functionss = new List<string>()
+        private static readonly List<string> s_rtpp_bp_only_variables = new List<string>()
+        {
+            "rtbp",
+            "fcbp",
+            "rtpp_with_weight",
+            "fcpp_with_weight",
+            "rtpp_weight",
+            "fcpp_weight"
+        };
+
+        private static readonly List<string> s_functions = new List<string>()
         {
             "set(varName,expr)",
             "if(cond,true_expr,flase_expr)",
@@ -181,12 +191,13 @@ namespace RealTimePPDisplayer.Gui
             }
 
             fmt.Format = item.Format;
-            fmt.HitCount = s_perviewHitcountTuple;
-            fmt.Pp = s_perviewPpTuple;
-            fmt.BeatmapTuple = s_perviewBeatmapTuple;
-            fmt.Playtime = 51000;
-            fmt.Mode = OsuRTDataProvider.Listen.OsuPlayMode.Osu;
-            fmt.Mods = new OsuRTDataProvider.Mods.ModsInfo()
+            fmt.Displayer = new DisplayerBase();
+            fmt.Displayer.HitCount = s_perviewHitcountTuple;
+            fmt.Displayer.Pp = s_perviewPpTuple;
+            fmt.Displayer.BeatmapTuple = s_perviewBeatmapTuple;
+            fmt.Displayer.Playtime = 51000;
+            fmt.Displayer.Mode = OsuRTDataProvider.Listen.OsuPlayMode.Osu;
+            fmt.Displayer.Mods = new OsuRTDataProvider.Mods.ModsInfo()
             {
                 Mod = Mods.DoubleTime | Mods.Hidden | Mods.HardRock | Mods.Perfect
             };
@@ -217,7 +228,29 @@ namespace RealTimePPDisplayer.Gui
                 VariableButtonsList.Children.Add(btn);
             }
 
-            foreach (var para in s_functionss)
+            if(fmt is RtppFormatWithBp)
+            {
+                foreach (var para in s_rtpp_bp_only_variables)
+                {
+                    var btn = new Button()
+                    {
+                        Content = para.Replace("_", "__"),
+                        Margin = new Thickness(1)
+                    };
+
+                    btn.Click += (s, e) =>
+                    {
+                        int pos = FormatEditBox.CaretIndex;
+                        string val = $"${{{para}}}";
+                        item.Format = item.Format.Insert(pos, val);
+                        FormatEditBox.CaretIndex = pos + val.Length;
+                    };
+
+                    VariableButtonsList.Children.Add(btn);
+                }
+            }
+
+            foreach (var para in s_functions)
             {
                 var btn = new Button()
                 {

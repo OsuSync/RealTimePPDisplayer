@@ -1,5 +1,6 @@
 ﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using RealTimePPDisplayer.Attribute;
+using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Formatter;
 using Sync.Tools;
 using Sync.Tools.ConfigurationAttribute;
@@ -72,12 +73,12 @@ namespace RealTimePPDisplayer.Gui
                 if(prop.GetCustomAttribute<PerformanceFormatAttribute>() != null)
                 {
                     elementInstance = new SettingFormatProxy(true);
-                    fmtter = FormatterBase.GetPPFormatter();
+                    fmtter = FormatterBase.CreatePPFormatter();
                 }
                 else
                 {
                     elementInstance = new SettingFormatProxy(false);
-                    fmtter = FormatterBase.GetHitCountFormatter();
+                    fmtter = FormatterBase.CreateHitCountFormatter();
                 }
                 window = (window ?? new FormatEditor(typeof(SettingFormatProxy).GetProperty("FormatElement"), elementInstance, fmtter));
 

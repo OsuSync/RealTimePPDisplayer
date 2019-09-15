@@ -93,10 +93,10 @@ namespace RealTimePPDisplayer.Formatter
 
         private void ProcessFormat()
         {
-            UpdateContextVariablesFromPpTuple(Context, Pp);
-            UpdateContextVariablesFromHitCountTuple(Context, HitCount);
-            UpdateContextVariablesBeatmapTuple(Context, BeatmapTuple);
-            Context.Variables["playtime"] = Playtime;
+            UpdateContextVariablesFromPpTuple(Context, Displayer.Pp);
+            UpdateContextVariablesFromHitCountTuple(Context, Displayer.HitCount);
+            UpdateContextVariablesBeatmapTuple(Context, Displayer.BeatmapTuple);
+            Context.Variables["playtime"] = Displayer.Playtime;
 
             _builder.Clear();
             _builder.Append(_format);

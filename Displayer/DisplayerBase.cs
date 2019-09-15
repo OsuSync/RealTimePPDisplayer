@@ -66,6 +66,15 @@ namespace RealTimePPDisplayer.Displayer
         public OsuPlayMode Mode { get; set; }
         public ModsInfo Mods { get; set; }
 
+        public string Playername { get; set; }
+
+        public int? Id { get; }
+
+        public DisplayerBase(int? id = null)
+        {
+            Id = id;
+        }
+
         /// <summary>
         /// Clear Output
         /// </summary>
@@ -92,36 +101,5 @@ namespace RealTimePPDisplayer.Displayer
         public virtual void OnDestroy() { }
 
         public virtual void OnReady() { }
-
-        public void SetFormatterArgs(FormatterBase fmt)
-        {
-            fmt.HitCount = HitCount;
-            fmt.Pp = Pp;
-            fmt.BeatmapTuple = BeatmapTuple;
-            fmt.Playtime = Playtime;
-            fmt.Mode = Mode;
-            fmt.Mods = Mods;
-            fmt.Status = Status;
-        }
-
-        [Obsolete]
-        public RtppFormatter FormatPp(PPTuple? pp=null)
-        {
-            var formatter = RtppFormatter.GetPPFormatter();
-            SetFormatterArgs(formatter);
-            formatter.Pp = pp ?? Pp;
-
-            return formatter as RtppFormatter;
-        }
-
-        [Obsolete]
-        public RtppFormatter FormatHitCount(HitCountTuple? hitCount=null)
-        {
-            var formatter = RtppFormatter.GetHitCountFormatter();
-            SetFormatterArgs(formatter);
-            formatter.HitCount = hitCount??HitCount;
-
-            return formatter as RtppFormatter;
-        }
     }
 }
