@@ -1,5 +1,6 @@
 ﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
 using ConfigGUI.MultiSelect;
+using Sync;
 using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,16 @@ namespace RealTimePPDisplayer.Gui
                     }
                 };
 
-                
+                byCuteSyncCheckBox.Checked += (ss, ee) =>
+                {
+                    if (SyncHost.Instance.EnumPluings().FirstOrDefault(p => p.Name == "PublicOsuBotTransferPlugin") == null)
+                    {
+                        ee.Handled = true;
+                        MessageBox.Show(DefaultLanguage.MBX_POBT_VERSION_NO_INSTALLED, "RealTimePPDisplayer");
+                        return;
+                    }
+                };
+
                 byCuteSyncCheckBox.Click += (ss, ee) =>
                 {
                     if (byCuteSyncCheckBox.IsChecked ?? false)

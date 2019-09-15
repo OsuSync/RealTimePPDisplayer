@@ -15,6 +15,7 @@ namespace RealTimePPDisplayer
         public static LanguageElement HINT_BEATMAP_NO_FOUND = "[RealTimePPDisplayer]No found beatmap! Make sure the Songs path is correct. (Go to OsuRTDataProvider to set the Songs path).";
         public static LanguageElement HINT_CANNOT_WATCH_OTHER_PLAYER = "[RealTimePPDisplayer]Can't watch other player. (If you want to watch other player, please uncheck \"By CuteSync Proxy\" and enter api key).";
         public static LanguageElement HINT_POBT_VERSION_LOWER = "[RealTimePPDisplayer]Your PublicOsuBotTransfer version is lower than 1.3.0 and you cannot use \"By CuteSync Proxy\".";
+        public static LanguageElement MBX_POBT_VERSION_NO_INSTALLED = "You have not installed the PublicOsuBotTransfer plugin.";
 
         public static LanguageElement UI_OPENEDITOR_BUTTON_CONTENT = "Open Editor";
         public static LanguageElement UI_MULTIOUTPUTEDITOR_BUTTON_CONTENT = "Multi Output Editor";

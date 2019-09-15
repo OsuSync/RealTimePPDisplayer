@@ -52,6 +52,7 @@ namespace RealTimePPDisplayer
                     return false;
                 }
             }
+
             return false;
         }
 
