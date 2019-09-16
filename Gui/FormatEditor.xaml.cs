@@ -193,24 +193,23 @@ namespace RealTimePPDisplayer.Gui
 
             _fmt = fmt;
             fmt.Format = item.Format;
-            if (fmt.Displayer == null)
+            fmt.Displayer = new DisplayerBase();
+            fmt.Displayer.HitCount = s_perviewHitcountTuple;
+            fmt.Displayer.Pp = s_perviewPpTuple;
+            fmt.Displayer.BeatmapTuple = s_perviewBeatmapTuple;
+            fmt.Displayer.Playtime = 51000;
+            fmt.Displayer.Mode = OsuRTDataProvider.Listen.OsuPlayMode.Osu;
+            fmt.Displayer.Playername = Constants.PREVIWEING_PLAYNAME;
+            fmt.Displayer.Mods = new OsuRTDataProvider.Mods.ModsInfo()
             {
-                fmt.Displayer = new DisplayerBase();
-                fmt.Displayer.HitCount = s_perviewHitcountTuple;
-                fmt.Displayer.Pp = s_perviewPpTuple;
-                fmt.Displayer.BeatmapTuple = s_perviewBeatmapTuple;
-                fmt.Displayer.Playtime = 51000;
-                fmt.Displayer.Mode = OsuRTDataProvider.Listen.OsuPlayMode.Osu;
-                fmt.Displayer.Playername = Constants.PREVIWEING_PLAYNAME;
-                fmt.Displayer.Mods = new OsuRTDataProvider.Mods.ModsInfo()
-                {
-                    Mod = Mods.DoubleTime | Mods.Hidden | Mods.HardRock | Mods.Perfect
-                };
-            }
+                Mod = Mods.DoubleTime | Mods.Hidden | Mods.HardRock | Mods.Perfect
+            };
+
 
             FormatEditBox.TextChanged += (s, e) =>
             {
-                fmt.Format = FormatEditBox.Text;
+                //fmt.Format = FormatEditBox.Text;
+                item.Format = FormatEditBox.Text;
                 string formated = fmt.GetFormattedString();
                 FormatPreviewBox.Text = formated;
             };

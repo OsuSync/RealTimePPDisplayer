@@ -353,9 +353,25 @@ namespace RealTimePPDisplayer
         public static bool DebugMode = false;
         public static int RoundDigits = 1;
 
-        public static string PPFormat = "${rtpp}pp";
+        private static string _ppFormat = "${smooth(rtpp)}pp";
+        public static string PPFormat
+        {
+            get => _ppFormat;
+            set {
+                _ppFormat = value;
+                PPFormatChanged();
+            }
+        }
 
-        public static string HitCountFormat = "${n100@0}x100 ${n50@0}x50 ${nmiss@0}xMiss";
+        private static string _hitCountFormat = "${n100@0}x100 ${n50@0}x50 ${nmiss@0}xMiss";
+        public static string HitCountFormat
+        {
+            get => _hitCountFormat;
+            set{
+                _hitCountFormat = value;
+                HitCountFormatChanged();
+            }
+        }
         public static string Formatter = "rtpp-fmt";
         public static bool IgnoreTouchScreenDecrease = false;
         public static bool RankingSendPerformanceToChat = false;
