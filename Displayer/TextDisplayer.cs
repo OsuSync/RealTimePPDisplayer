@@ -22,8 +22,8 @@ namespace RealTimePPDisplayer.Displayer
         {
             _splited = splited;
 
-            ppFormatter = RtppFormatter.CreatePPFormatter();
-            hitCountFormatter = RtppFormatter.CreateHitCountFormatter();
+            ppFormatter = RtppFormatter.GetPPFormatter();
+            hitCountFormatter = RtppFormatter.GetHitCountFormatter();
             if (ppFormatter != null)
                 ppFormatter.Displayer = this;
             if (hitCountFormatter != null)

@@ -25,7 +25,7 @@ namespace RealTimePPDisplayer.Formatter
         {
         }
 
-        public static FormatterBase CreatePPFormatter()
+        public static FormatterBase GetPPFormatter()
         {
             if (s_ppFormatter == null)
             {
@@ -37,7 +37,7 @@ namespace RealTimePPDisplayer.Formatter
             return t;
         }
 
-        public static FormatterBase CreateHitCountFormatter()
+        public static FormatterBase GetHitCountFormatter()
         {
             if (s_hitCountFormatter == null)
             {

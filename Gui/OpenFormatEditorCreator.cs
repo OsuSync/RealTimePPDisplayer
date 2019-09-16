@@ -73,19 +73,22 @@ namespace RealTimePPDisplayer.Gui
                 if(prop.GetCustomAttribute<PerformanceFormatAttribute>() != null)
                 {
                     elementInstance = new SettingFormatProxy(true);
-                    fmtter = FormatterBase.CreatePPFormatter();
+                    fmtter = FormatterBase.GetPPFormatter();
                 }
                 else
                 {
                     elementInstance = new SettingFormatProxy(false);
-                    fmtter = FormatterBase.CreateHitCountFormatter();
+                    fmtter = FormatterBase.GetHitCountFormatter();
                 }
                 window = (window ?? new FormatEditor(typeof(SettingFormatProxy).GetProperty("FormatElement"), elementInstance, fmtter));
+
+                window.Closed += (ss, ee) => window = null;
 
                 if (window.Visibility == Visibility.Visible)
                     window.Activate();
                 else
                     window.Show();
+
             };
 
             panel.Children.Add(btn);

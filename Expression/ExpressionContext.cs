@@ -124,7 +124,7 @@ namespace RealTimePPDisplayer.Expression
                         if (funcNode.Id == "set")
                         {
                             AstVariableNode varNode = funcNode.Args[0] as AstVariableNode;
-                            string varName = varNode?.Id ?? throw new ExpressionException("The first parameter is the variable name.");
+                            string varName = varNode?.Id ?? throw new ExpressionException($"The \"{funcNode.Id}()\"  first parameter is the variable name.");
 
                             double varVal = ExecAst(funcNode.Args[1]);
                             Variables[varName] = varVal;
@@ -148,7 +148,7 @@ namespace RealTimePPDisplayer.Expression
                         else if(funcNode.Id == "smooth")
                         {
                             AstVariableNode varNode = funcNode.Args[0] as AstVariableNode;
-                            string varName = varNode?.Id ?? throw new ExpressionException("The first parameter is the variable name.");
+                            string varName = varNode?.Id ?? throw new ExpressionException($"The \"{funcNode.Id}()\" first parameter is the variable name.");
                             double varVal = ExecAst(funcNode.Args[0]);
                             smoothValues[$"{varName}_target"] = varVal;
 

@@ -64,6 +64,7 @@
     <Compile Include="Calculator\StdPerformanceCalculator.cs" />
     <Compile Include="Calculator\PerformanceCalculatorBase.cs" />
     <Compile Include="Calculator\TaikoPerformanceCalculator.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Formatter\FormatterBase.cs" />
     <Compile Include="Formatter\IFormatterClearable.cs" />
     <Compile Include="Formatter\RtppFormatWithBp.cs" />

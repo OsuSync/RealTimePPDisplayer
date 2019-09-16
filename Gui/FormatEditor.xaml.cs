@@ -174,6 +174,7 @@ namespace RealTimePPDisplayer.Gui
         };
 
         private bool _not_close;
+        private FormatterBase _fmt;
 
         public FormatEditor(PropertyInfo prop, object configurationInstance,FormatterBase fmt,bool not_close = true)
         {
@@ -190,17 +191,22 @@ namespace RealTimePPDisplayer.Gui
                 Height = 520;
             }
 
+            _fmt = fmt;
             fmt.Format = item.Format;
-            fmt.Displayer = new DisplayerBase();
-            fmt.Displayer.HitCount = s_perviewHitcountTuple;
-            fmt.Displayer.Pp = s_perviewPpTuple;
-            fmt.Displayer.BeatmapTuple = s_perviewBeatmapTuple;
-            fmt.Displayer.Playtime = 51000;
-            fmt.Displayer.Mode = OsuRTDataProvider.Listen.OsuPlayMode.Osu;
-            fmt.Displayer.Mods = new OsuRTDataProvider.Mods.ModsInfo()
+            if (fmt.Displayer == null)
             {
-                Mod = Mods.DoubleTime | Mods.Hidden | Mods.HardRock | Mods.Perfect
-            };
+                fmt.Displayer = new DisplayerBase();
+                fmt.Displayer.HitCount = s_perviewHitcountTuple;
+                fmt.Displayer.Pp = s_perviewPpTuple;
+                fmt.Displayer.BeatmapTuple = s_perviewBeatmapTuple;
+                fmt.Displayer.Playtime = 51000;
+                fmt.Displayer.Mode = OsuRTDataProvider.Listen.OsuPlayMode.Osu;
+                fmt.Displayer.Playername = Constants.PREVIWEING_PLAYNAME;
+                fmt.Displayer.Mods = new OsuRTDataProvider.Mods.ModsInfo()
+                {
+                    Mod = Mods.DoubleTime | Mods.Hidden | Mods.HardRock | Mods.Perfect
+                };
+            }
 
             FormatEditBox.TextChanged += (s, e) =>
             {
@@ -268,15 +274,7 @@ namespace RealTimePPDisplayer.Gui
 
                 FunctionButtonsList.Children.Add(btn);
             }
-        }
-
-        private void FormatEditor_OnClosing(object sender, CancelEventArgs e)
-        {
-            if (_not_close)
-            {
-                e.Cancel = true;
-                Hide();
-            }
-        }
+            
+        } 
     }
 }

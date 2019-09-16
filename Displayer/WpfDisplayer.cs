@@ -25,8 +25,8 @@ namespace RealTimePPDisplayer.Displayer
 
         public WpfDisplayer(int? id):base(id)
         {
-            ppFormatter = FormatterBase.CreatePPFormatter();
-            hitCountFormatter = FormatterBase.CreateHitCountFormatter();
+            ppFormatter = FormatterBase.GetPPFormatter();
+            hitCountFormatter = FormatterBase.GetHitCountFormatter();
             Initialize();
         }
 

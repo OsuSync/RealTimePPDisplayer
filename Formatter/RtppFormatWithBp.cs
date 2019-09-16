@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static OsuRTDataProvider.Listen.OsuListenerManager;
+using static OsuRTDataProvider.Mods.ModsInfo;
 
 namespace RealTimePPDisplayer.Formatter
 {
@@ -86,6 +88,16 @@ namespace RealTimePPDisplayer.Formatter
 
         public override string GetFormattedString()
         {
+            if (Displayer.Mods.HasMod(Mods.Autoplay) || Displayer.Mods.HasMod(Mods.Cinema))
+            {
+                return base.GetFormattedString();
+            }
+
+            if (Constants.NO_FETCH_BP_USERNAMES.Any(u => u == Displayer.Playername))
+            {
+                return base.GetFormattedString();
+            }
+
             UpdateBpList();
 
             return base.GetFormattedString();
@@ -93,14 +105,14 @@ namespace RealTimePPDisplayer.Formatter
 
         public new void Clear()
         {
-            Task.Run(() =>
-            {
-                Thread.Sleep(1000);
-                //if (RtppFormatterWithBpPlugin.Instance.Status != OsuStatus.Playing)
-                {
-                    bps = null;
-                }
-            });
+            //Task.Run(() =>
+            //{
+            //    Thread.Sleep(1000);
+            //    if (Displayer.Status != OsuStatus.Playing)
+            //    {
+            //        bps = null;
+            //    }
+            //});
 
             base.Clear();
         }
