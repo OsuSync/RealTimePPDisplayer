@@ -105,14 +105,7 @@ namespace RealTimePPDisplayer.Formatter
 
         public new void Clear()
         {
-            //Task.Run(() =>
-            //{
-            //    Thread.Sleep(1000);
-            //    if (Displayer.Status != OsuStatus.Playing)
-            //    {
-            //        bps = null;
-            //    }
-            //});
+            bps = null;
 
             base.Clear();
         }
