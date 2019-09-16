@@ -50,6 +50,7 @@ namespace RealTimePPDisplayer.Gui
                     if (SyncHost.Instance.EnumPluings().FirstOrDefault(p => p.Name == "PublicOsuBotTransferPlugin") == null)
                     {
                         ee.Handled = true;
+                        byCuteSyncCheckBox.IsChecked = false;
                         MessageBox.Show(DefaultLanguage.MBX_POBT_VERSION_NO_INSTALLED, "RealTimePPDisplayer");
                         return;
                     }

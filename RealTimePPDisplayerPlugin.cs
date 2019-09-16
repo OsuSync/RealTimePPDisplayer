@@ -124,14 +124,15 @@ namespace RealTimePPDisplayer
                     d.HideRow(2);
                 return d;
             });
+            RegisterFormatter("rtpp-fmt", (fmt) => new RtppFormatter(fmt), "${rtpp@1}pp");
+            RegisterFormatter("rtppfmt-bp", (fmt) => new RtppFormatWithBp(fmt), "${rtpp@1}pp (${rtpp_with_weight@1}pp) BP: #${rtbp@0}");
+
             RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
             RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
             RegisterDisplayer(MultiOutputDisplayer.METHOD_NAME, id => new MultiOutputDisplayer(id,_multiDisplayerCreators,_formatterCreators));
             RegisterDisplayer("text", id => new TextDisplayer(id,string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString())));
             RegisterDisplayer("text-split", id => new TextDisplayer(id,string.Format(Setting.TextOutputPath, id == null ? "" : id.Value.ToString()),true));
 
-            RegisterFormatter("rtpp-fmt", (fmt) => new RtppFormatter(fmt), "${rtpp@1}pp");
-            RegisterFormatter("rtppfmt-bp", (fmt) => new RtppFormatWithBp(fmt), "${rtpp@1}pp (${rtpp_with_weight@1}pp) BP: #${rtbp@0}");
             IO.CurrentIO.WriteColor($"{PLUGIN_NAME} By {PLUGIN_AUTHOR} Ver.{VERSION}", ConsoleColor.DarkCyan);
         }
 

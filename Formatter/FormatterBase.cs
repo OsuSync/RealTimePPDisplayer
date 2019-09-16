@@ -25,8 +25,10 @@ namespace RealTimePPDisplayer.Formatter
         public static FormatterBase GetPPFormatter()
         {
             var ppFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter, Setting.PPFormat);
-            Setting.OnFormatterChanged += ()=> ppFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter, Setting.PPFormat);
-            Setting.OnPPFormatChanged += () => ppFormatter.Format = Setting.PPFormat;
+            Setting.OnPPFormatChanged += () => {
+                var ppForamter_saved = ppFormatter;
+                ppForamter_saved.Format = Setting.PPFormat;
+            };
 
             return ppFormatter;
         }
@@ -34,8 +36,11 @@ namespace RealTimePPDisplayer.Formatter
         public static FormatterBase GetHitCountFormatter()
         {
             var hitCountFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter,Setting.HitCountFormat);
-            Setting.OnFormatterChanged += () => hitCountFormatter = RealTimePPDisplayerPlugin.Instance.NewFormatter(Setting.Formatter, Setting.HitCountFormat);
-            Setting.OnHitCountFormatChanged += () => hitCountFormatter.Format = Setting.HitCountFormat;
+            Setting.OnHitCountFormatChanged += () =>
+            {
+                var hitCountFormatter_saved = hitCountFormatter;
+                hitCountFormatter_saved.Format = Setting.HitCountFormat;
+            };
 
             return hitCountFormatter;
         }

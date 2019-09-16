@@ -197,14 +197,11 @@ namespace RealTimePPDisplayer
             }
         }
 
-        [FormatterList]
+        [FormatterList(RequireRestart = true)]
         public ConfigurationElement Formatter
         {
             get => Setting.Formatter;
-            set {
-                Setting.Formatter = value.ToString();
-                Setting.FormatterChanged();
-            }
+            set => Setting.Formatter = value.ToString();
         }
 
         [Bool]
@@ -382,7 +379,6 @@ namespace RealTimePPDisplayer
         public static event Action OnSettingChanged;
         public static event Action OnPPFormatChanged;
         public static event Action OnHitCountFormatChanged;
-        public static event Action OnFormatterChanged;
 
         public static void SettingChanged()
         {
@@ -397,11 +393,6 @@ namespace RealTimePPDisplayer
         public static void HitCountFormatChanged()
         {
             OnHitCountFormatChanged?.Invoke();
-        }
-
-        public static void FormatterChanged()
-        {
-            OnFormatterChanged?.Invoke();
         }
     }
 }
