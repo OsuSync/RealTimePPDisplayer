@@ -115,6 +115,9 @@ namespace RealTimePPDisplayer
                 }
             });
 
+            RegisterFormatter("rtpp-fmt", (fmt) => new RtppFormatter(fmt), "${rtpp@1}pp");
+            RegisterFormatter("rtppfmt-bp", (fmt) => new RtppFormatWithBp(fmt), "${rtpp@1}pp (${rtpp_with_weight@1}pp) BP: #${rtbp@0}");
+
             RegisterDisplayer("wpf", id => 
             {
                 var d = new WpfDisplayer(id);
@@ -124,8 +127,6 @@ namespace RealTimePPDisplayer
                     d.HideRow(2);
                 return d;
             });
-            RegisterFormatter("rtpp-fmt", (fmt) => new RtppFormatter(fmt), "${rtpp@1}pp");
-            RegisterFormatter("rtppfmt-bp", (fmt) => new RtppFormatWithBp(fmt), "${rtpp@1}pp (${rtpp_with_weight@1}pp) BP: #${rtbp@0}");
 
             RegisterDisplayer("mmf", id => new MmfDisplayer(id,"rtpp"));
             RegisterDisplayer("mmf-split", id => new MmfDisplayer(id,"rtpp",true));
