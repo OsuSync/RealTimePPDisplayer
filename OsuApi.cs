@@ -1,6 +1,6 @@
 ﻿using OsuRTDataProvider.Listen;
 using OsuRTDataProvider.Mods;
-using PublicOsuBotTransfer;
+using RealTimePPDisplayer.Warpper;
 using Sync;
 using System;
 using System.Collections.Generic;
@@ -36,42 +36,25 @@ namespace RealTimePPDisplayer
 
     static class OsuApi
     {
-        private static PublicOsuBotTransferPlugin s_pobt;
-        static bool Init()
-        {
-            if (SyncHost.Instance.EnumPluings().FirstOrDefault(p => p.Name == "PublicOsuBotTransferPlugin") is PublicOsuBotTransferPlugin pobt)
-            {
-                if (pobt.GetType().Assembly.GetName().Version >= Version.Parse("1.3.0"))
-                {
-                    s_pobt = pobt;
-                    return true;
-                }
-                else
-                {
-                    Sync.Tools.IO.DefaultIO.WriteColor(DefaultLanguage.HINT_POBT_VERSION_LOWER, ConsoleColor.Yellow);
-                    return false;
-                }
-            }
-
-            return false;
-        }
+        public static PublicOsuBotTransferWarpper publicOsuBotTransferWarpper;
 
         public static List<BeatPerformance> GetBp(string player,OsuPlayMode mode)
         {
             HttpWebRequest req;
             if(Setting.ByCuteSyncProxy)
             {
-                if (s_pobt == null)
+                if (publicOsuBotTransferWarpper == null)
                 {
-                    if (!Init())
+                    publicOsuBotTransferWarpper = new PublicOsuBotTransferWarpper();
+                    if (!publicOsuBotTransferWarpper.Init())
                         return null;
                 }
-                if(s_pobt.Username != player)
+                if(publicOsuBotTransferWarpper.Username != player)
                 {
                     Sync.Tools.IO.DefaultIO.WriteColor(DefaultLanguage.HINT_CANNOT_WATCH_OTHER_PLAYER, ConsoleColor.Yellow);
                     return null;
                 }
-                req = (HttpWebRequest)WebRequest.Create($"https://osubot.kedamaovo.moe/osuapi/bp?k={s_pobt.Token}&u={player}&type=string&limit=100&m={(uint)mode}");
+                req = (HttpWebRequest)WebRequest.Create($"https://osubot.kedamaovo.moe/osuapi/bp?k={publicOsuBotTransferWarpper.Token}&u={player}&type=string&limit=100&m={(uint)mode}");
             }
             else
             {
