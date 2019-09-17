@@ -54,6 +54,10 @@ namespace RealTimePPDisplayer
                     Sync.Tools.IO.DefaultIO.WriteColor(DefaultLanguage.HINT_CANNOT_WATCH_OTHER_PLAYER, ConsoleColor.Yellow);
                     return null;
                 }
+
+                if (string.IsNullOrEmpty(publicOsuBotTransferWarpper.Token))
+                    return null;
+
                 req = (HttpWebRequest)WebRequest.Create($"https://osubot.kedamaovo.moe/osuapi/bp?k={publicOsuBotTransferWarpper.Token}&u={player}&type=string&limit=100&m={(uint)mode}");
             }
             else
