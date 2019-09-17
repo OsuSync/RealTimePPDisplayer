@@ -144,7 +144,7 @@ namespace RealTimePPDisplayer.Gui
         private static readonly List<string> s_functions = new List<string>()
         {
             "set(varName,expr)",
-            "if(cond,true_expr,flase_expr)",
+            "if(cond,true_expr,false_expr)",
             "sin(x)",
             "cos(x)",
             "tan(x)",
