@@ -19,7 +19,7 @@ namespace RealTimePPDisplayer
 {
     class DisplayerController
     {
-        private readonly Dictionary<string,DisplayerBase> _displayers = new Dictionary<string,DisplayerBase>();
+        public Dictionary<string, DisplayerBase> Displayers { get; } = new Dictionary<string, DisplayerBase>();
 
         private BeatmapReader _beatmapReader;
 
@@ -147,7 +147,7 @@ namespace RealTimePPDisplayer
                 _n100 = 0;
                 _n50 = 0;
                 _nmiss = 0;
-                foreach (var p in _displayers)
+                foreach (var p in Displayers)
                     p.Value?.Clear();
             }
 
@@ -211,7 +211,7 @@ namespace RealTimePPDisplayer
                 _n50 = 0;
                 _nmiss = 0;
                 _score = 0;
-                foreach (var p in _displayers)
+                foreach (var p in Displayers)
                     p.Value?.Clear();
             }
 
@@ -272,7 +272,7 @@ namespace RealTimePPDisplayer
 
             if (_maxCombo > (fullCombo == 0 ? 20000 : fullCombo)) _maxCombo = 0;
 
-            foreach(var p in _displayers)
+            foreach(var p in Displayers)
             {
                 if (p.Value == null) continue;
                 p.Value.Pp=ppTuple;
@@ -297,7 +297,8 @@ namespace RealTimePPDisplayer
         /// <param name="displayer"></param>
         public void AddDisplayer(string name,DisplayerBase displayer)
         {
-            _displayers[name]=displayer;
+            Displayers[name]=displayer;
+            displayer.OnReady();
         }
 
         /// <summary>
@@ -306,10 +307,21 @@ namespace RealTimePPDisplayer
         /// <param name="name"></param>
         public void RemoveDisplayer(string name)
         {
-            if (_displayers.ContainsKey(name))
+            if (Displayers.ContainsKey(name))
             {
-                _displayers.Remove(name);
+                Displayers[name].OnDestroy();
+                Displayers.Remove(name);
             }
+        }
+
+        public void RemoveAllDisplayer()
+        {
+            foreach(var displayer in Displayers)
+            {
+                displayer.Value.OnDestroy();
+            }
+
+            Displayers.Clear();
         }
 
         #region helper function
