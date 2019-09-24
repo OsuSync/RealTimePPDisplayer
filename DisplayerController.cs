@@ -283,6 +283,8 @@ namespace RealTimePPDisplayer
                 p.Value.Mods = _curMods;
                 p.Value.Status = _status;
                 p.Value.Playername = _playername;
+                p.Value.Accuracy = cal.Accuracy;
+                p.Value.Score = _score;
                 p.Value.Display();
             }
 

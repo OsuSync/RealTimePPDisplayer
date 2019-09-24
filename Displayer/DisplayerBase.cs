@@ -62,6 +62,9 @@ namespace RealTimePPDisplayer.Displayer
         public BeatmapTuple BeatmapTuple { get; set; } = new BeatmapTuple();
         public double Playtime { get; set; }
 
+        public int Score { get; set; }
+        public double Accuracy { get; set; }
+
         public OsuStatus Status { get; set; }
         public OsuPlayMode Mode { get; set; }
         public ModsInfo Mods { get; set; }

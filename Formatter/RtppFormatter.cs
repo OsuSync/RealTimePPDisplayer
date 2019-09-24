@@ -97,6 +97,8 @@ namespace RealTimePPDisplayer.Formatter
             UpdateContextVariablesFromHitCountTuple(Context, Displayer.HitCount);
             UpdateContextVariablesBeatmapTuple(Context, Displayer.BeatmapTuple);
             Context.Variables["playtime"] = Displayer.Playtime;
+            Context.Variables["acc"] = Displayer.Accuracy;
+            Context.Variables["score"] = Displayer.Score;
 
             _builder.Clear();
             _builder.Append(_format);

@@ -125,6 +125,8 @@ namespace RealTimePPDisplayer.Gui
             "rtstars",
             "stars",
             "playtime",
+            "acc",
+            "score",
             "duration",
             "ur",
             "error_min",

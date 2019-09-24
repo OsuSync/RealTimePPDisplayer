@@ -168,6 +168,8 @@ namespace RealTimePPDisplayer.MultiOutput
                 kv.Value.displayer.Mods = Mods;
                 kv.Value.displayer.Status = Status;
                 kv.Value.displayer.Playername = Playername;
+                kv.Value.displayer.Accuracy = Accuracy;
+                kv.Value.displayer.Score = Score;
                 kv.Value.displayer.FixedDisplay(time);
             }
         }
