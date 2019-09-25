@@ -22,6 +22,7 @@ using RealTimePPDisplayer.Expression;
 using System.Collections.Concurrent;
 using static OsuRTDataProvider.Mods.ModsInfo;
 using RealTimePPDisplayer.Formatter;
+using System.Globalization;
 
 namespace RealTimePPDisplayer.Gui
 {
@@ -172,13 +173,13 @@ namespace RealTimePPDisplayer.Gui
             "isinf(a)",
             "smooth(var)"
         };
-
+        private ConfigItemProxy item;
         private bool _not_close;
         private FormatterBase _fmt;
 
         public FormatEditor(PropertyInfo prop, object configurationInstance,FormatterBase fmt,bool not_close = true)
         {
-            var item = new ConfigItemProxy(prop, configurationInstance);
+            item = new ConfigItemProxy(prop, configurationInstance);
             _not_close = not_close;
             InitializeComponent();
 
@@ -210,8 +211,11 @@ namespace RealTimePPDisplayer.Gui
             {
                 //fmt.Format = FormatEditBox.Text;
                 item.Format = FormatEditBox.Text;
-                string formated = fmt.GetFormattedString();
-                FormatPreviewBox.Text = formated;
+
+                if (AutoCompileCheckbox.IsChecked??false)
+                {
+                    FormatPreview();
+                }
             };
 
             foreach (var para in s_variables)
@@ -274,6 +278,42 @@ namespace RealTimePPDisplayer.Gui
                 FunctionButtonsList.Children.Add(btn);
             }
             
-        } 
+        }
+
+        bool is_preview_updaing = false;
+
+        Brush normal_state= new SolidColorBrush(Colors.Black);
+        Brush updating_state = new SolidColorBrush(Colors.Yellow);
+
+        private void FormatPreview()
+        {
+            if (is_preview_updaing)
+                return;
+
+            PreviewLabel.Foreground = updating_state;
+
+            Task.Run(() =>
+            {
+                is_preview_updaing = true;
+                string cmp_str = item.Format;
+                string formated = string.Empty;
+
+                do
+                {
+                    formated = _fmt.GetFormattedString();
+                } while (item.Format!=cmp_str);
+
+                FormatPreviewBox.Dispatcher.BeginInvoke(new Action(() => {
+                    FormatPreviewBox.Text = formated;
+                    PreviewLabel.Foreground = normal_state;
+                    is_preview_updaing = false;
+                }));
+            });
+        }
+
+        private void ManualPreviewButton_Click(object sender, RoutedEventArgs e)
+        {
+            FormatPreview();
+        }
     }
 }
