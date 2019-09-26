@@ -329,7 +329,7 @@ namespace RealTimePPDisplayer
         }
     }
 
-    internal static class Setting
+    public static class Setting
     {
         public static IEnumerable<string> OutputMethods = new[] { "wpf" };
         public static List<MultiOutputItem> MultiOutputItems = new List<MultiOutputItem>();
