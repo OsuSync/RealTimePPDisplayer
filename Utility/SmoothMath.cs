@@ -71,5 +71,10 @@ namespace RealTimePPDisplayer
             smoothValues[_speed] = speed;
             return smoothValues[_current];
         }
+
+        public static void SmoothClean(string name)
+        {
+            smoothValues[$"{name}_target"] = smoothValues[$"{name}_current"] = smoothValues[$"{name}_speed"] = 0;
+        }
     }
 }
