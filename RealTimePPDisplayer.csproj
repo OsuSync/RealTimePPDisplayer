@@ -68,6 +68,7 @@
     <Compile Include="Formatter\FormatterBase.cs" />
     <Compile Include="Formatter\IFormatterClearable.cs" />
     <Compile Include="Formatter\RtppFormatWithBp.cs" />
+    <Compile Include="Gui\ValueConverter\VisiableValueConvert.cs" />
     <Compile Include="Gui\DisplayListAttributeCreator.cs" />
     <Compile Include="Gui\ApiKeyAttributeCreator.cs" />
     <Compile Include="Gui\MultiOutputEditor.xaml.cs">

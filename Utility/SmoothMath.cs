@@ -45,5 +45,36 @@ namespace RealTimePPDisplayer
 
             return result;
         }
+
+        private static Dictionary<string, double> smoothValues = new Dictionary<string, double>();
+
+        public static double SmoothVariable(string name, double varVal)
+        {
+            var _target = $"{name}_target";
+            var _current = $"{name}_current";
+            var _speed = $"{name}_speed";
+
+            smoothValues[_target] = varVal;
+
+            if (!smoothValues.ContainsKey(_current))
+            {
+                smoothValues[_current] = varVal;
+                smoothValues[_speed] = 0;
+            }
+
+            double speed = smoothValues[_speed];
+            double varcur = smoothValues[_current];
+
+            varcur = SmoothDamp(varcur, smoothValues[_target], ref speed, Setting.SmoothTime * 0.001, 1.0 / Setting.FPS);
+
+            smoothValues[_current] = varcur;
+            smoothValues[_speed] = speed;
+            return smoothValues[_current];
+        }
+
+        public static void SmoothClean(string name)
+        {
+            smoothValues[$"{name}_target"] = smoothValues[$"{name}_current"] = smoothValues[$"{name}_speed"] = 0;
+        }
     }
 }

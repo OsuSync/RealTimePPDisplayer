@@ -135,9 +135,8 @@ namespace RealTimePPDisplayer.Displayer
                 streamWriters[1] = streamWriters[0];
             }
 
-            if (ppFormatter!=null)
+            if (ppFormatter!=null && ppFormatter.GetFormattedString() is string s)
             {
-                var s = ppFormatter.GetFormattedString();
                 int len = s.Length;
                 s.CopyTo(0, _ppBuffer, 0, len);
 

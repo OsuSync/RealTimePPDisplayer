@@ -51,8 +51,6 @@ namespace RealTimePPDisplayer.Expression
             Functions["isinf"] = (args) => double.IsInfinity(args[0]) ? 1 : 0;
         }
 
-        private Dictionary<string, double> smoothValues = new Dictionary<string, double>();
-
         private static bool IsNotZero(double a)
         {
             return (Math.Abs(a) > 1e-5);
@@ -150,22 +148,8 @@ namespace RealTimePPDisplayer.Expression
                             AstVariableNode varNode = funcNode.Args[0] as AstVariableNode;
                             string varName = varNode?.Id ?? throw new ExpressionException($"The \"{funcNode.Id}()\" first parameter is the variable name.");
                             double varVal = ExecAst(funcNode.Args[0]);
-                            smoothValues[$"{varName}_target"] = varVal;
 
-                            if (!smoothValues.ContainsKey($"{varName}_current"))
-                            {
-                                smoothValues[$"{varName}_current"] = varVal;
-                                smoothValues[$"{varName}_speed"] = 0;
-                            }
-
-                            double speed = smoothValues[$"{varName}_speed"];
-                            double varcur = smoothValues[$"{varName}_current"];
-
-                            varcur = SmoothMath.SmoothDamp(varcur, smoothValues[$"{varName}_target"], ref speed, Setting.SmoothTime*0.001,1.0/Setting.FPS);
-
-                            smoothValues[$"{varName}_current"] = varcur;
-                            smoothValues[$"{varName}_speed"] = speed;
-                            return smoothValues[$"{varName}_current"];
+                            return SmoothMath.SmoothVariable(varName, varVal);
                         }
                         else
                         {
