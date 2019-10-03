@@ -19,7 +19,7 @@ namespace RealTimePPDisplayer
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.8.5";
+        public const string VERSION= "1.8.6";
 
         private readonly List<DisplayerController> _osuDisplayerControls = new List<DisplayerController>(16);
 
