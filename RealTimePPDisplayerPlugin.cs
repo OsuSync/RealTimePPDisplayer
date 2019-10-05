@@ -316,9 +316,7 @@ namespace RealTimePPDisplayer
             _stopFixedUpdate = true;
             _fixedUpdateThread.Wait(5000);
             RemoveAllDisplayer();
-            _displayerCreators.Clear();
-            for (int i = 0; i < _osuDisplayerControls.Count; i++)
-                _osuDisplayerControls[i] = null;
+            _osuDisplayerControls.Clear();
         }
 
         public override void OnExit()

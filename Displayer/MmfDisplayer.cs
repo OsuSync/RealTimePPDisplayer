@@ -154,7 +154,8 @@ namespace RealTimePPDisplayer.Displayer
 
         public override void OnDestroy()
         {
-            foreach(var mmf in _mmfs)
+            Clear();
+            foreach (var mmf in _mmfs)
             {
                 mmf?.Dispose();
             }

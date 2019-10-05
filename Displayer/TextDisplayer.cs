@@ -102,5 +102,9 @@ namespace RealTimePPDisplayer.Displayer
                 if(_filenames[i]!=null)
                     streamWriters[i].Dispose();
         }
+        public override void OnDestroy()
+        {
+            Clear();
+        }
     }
 }
