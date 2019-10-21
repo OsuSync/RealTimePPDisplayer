@@ -5,11 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Sync.Plugins;
 using Sync.Tools;
-using OsuRTDataProvider;
 using RealTimePPDisplayer.Displayer;
 using RealTimePPDisplayer.Gui;
 using RealTimePPDisplayer.MultiOutput;
 using RealTimePPDisplayer.Formatter;
+using RealTimePPDisplayer.Warpper;
 
 namespace RealTimePPDisplayer
 {
@@ -19,9 +19,9 @@ namespace RealTimePPDisplayer
     {
         public const string PLUGIN_NAME = "RealTimePPDisplayer";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string VERSION= "1.8.6";
+        public const string VERSION= "1.8.7";
 
-        private readonly List<DisplayerController> _osuDisplayerControls = new List<DisplayerController>(16);
+        private List<DisplayerController> _osuDisplayerControls = new List<DisplayerController>(16);
 
         private PluginConfigurationManager _configManager;
 
@@ -73,31 +73,15 @@ namespace RealTimePPDisplayer
             _configManager = new PluginConfigurationManager(this);
             _configManager.AddItem(new SettingIni());
 
-            var ortdp = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "OsuRTDataProvider") as OsuRTDataProviderPlugin;
+            var ortdp = new OsuRTDataProviderWarpper(getHoster().EnumPluings().FirstOrDefault(p => p.Name == "OsuRTDataProvider"),ref _osuDisplayerControls);
             var gui = getHoster().EnumPluings().FirstOrDefault(p => p.Name == "ConfigGUI");
 
+            TourneyMode = ortdp.TourneyMode;
+            TourneyWindowCount = ortdp.TourneyWindowCount;
+            
             if (gui != null)
             {
                 GuiRegisterHelper.RegisterFormatEditorWindow(gui);
-            }
-
-            //Create DisplayerController per osu instance
-            TourneyWindowCount = ortdp.TourneyListenerManagersCount;
-            int size = 1;
-            if (TourneyWindowCount != 0)
-            {
-                size = TourneyWindowCount;
-                TourneyMode = true;
-            }
-
-            for (int i = 0; i < size; i++)
-            {
-                var manager = ortdp.ListenerManager;
-                if (TourneyMode)
-                {
-                    manager = ortdp.TourneyListenerManagers[i];
-                }
-                _osuDisplayerControls.Add(new DisplayerController(manager));
             }
 
             _fixedInterval = TimeSpan.FromSeconds(1.0 / Setting.FPS);

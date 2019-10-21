@@ -107,6 +107,7 @@
     <Compile Include="Displayer\View\PPWindow.xaml.cs">
       <DependentUpon>PPWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Warpper\OsuRTDataProviderWarpper.cs" />
     <Compile Include="Warpper\PublicOsuBotTransferWarpper.cs" />
   </ItemGroup>
   <ItemGroup>
