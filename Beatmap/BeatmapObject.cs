@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace RealTimePPDisplayer.Beatmap
 {
     public class BeatmapObject
@@ -29,7 +28,8 @@ namespace RealTimePPDisplayer.Beatmap
 
             X = int.Parse(breaked[0]);
             Y = int.Parse(breaked[1]);
-            StartTime = int.Parse(breaked[2]);
+            double st = double.Parse(breaked[2]); //
+            StartTime = double.IsNaN(st) || double.IsInfinity(st)? 0 : (int)st;
             EndTime = StartTime;
             Type = int.Parse(breaked[3]);
         }
@@ -75,10 +75,16 @@ namespace RealTimePPDisplayer.Beatmap
 
         private void ManiaParse(string[] breaked)
         {
-            string[] addition = breaked[5].Split(':');
+
+            string[] addition;
+            if(breaked.Length>5)
+                addition = breaked[5].Split(':');
 
             if (Type == 128)
+            {   
+                addition = breaked[5].Split(':');
                 EndTime = int.Parse(addition[0]);
+            }
 
             int column_width = 512 / Beatmap.KeyCount;
             Key = X / column_width;
