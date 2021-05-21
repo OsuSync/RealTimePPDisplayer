@@ -28,7 +28,10 @@ namespace RealTimePPDisplayer.Beatmap
 
             X = int.Parse(breaked[0]);
             Y = int.Parse(breaked[1]);
-            double st = double.Parse(breaked[2]); //
+            /*
+             * HitObject in some beatmaps has weird StartTime.
+             */
+            double st = double.Parse(breaked[2]); 
             StartTime = double.IsNaN(st) || double.IsInfinity(st)? 0 : (int)st;
             EndTime = StartTime;
             Type = int.Parse(breaked[3]);
@@ -77,7 +80,11 @@ namespace RealTimePPDisplayer.Beatmap
         {
 
             string[] addition;
-            if(breaked.Length>5)
+            /*
+             * HitObject in some beatmaps that converted from some
+             * beatmap converters has no addtional info.
+             */
+            if (breaked.Length>5)
                 addition = breaked[5].Split(':');
 
             if (Type == 128)
